@@ -1,0 +1,48 @@
+.d-flex{
+    display: flex;
+}
+
+.flex-row{
+    flex-direction: row;
+}
+
+.flex-column{
+    flex-direction: column;
+}
+
+.jcc{
+    justify-content: center;
+}
+
+.jce{
+    justify-content: end;
+}
+
+.jca{
+    justify-content: space-around;
+}
+
+.jceven{
+    justify-content: space-evenly;
+}
+
+.jcb{
+    justify-content: space-between;
+}
+
+.align-items-center{
+    align-items: center;
+}
+
+.align-items-end{
+    align-items: end;
+}
+
+.align-content-around{
+    align-content: space-around;
+}
+
+.align-content-between{
+    align-content: space-between;
+}
+
