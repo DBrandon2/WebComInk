@@ -1,4 +1,4 @@
-import NavBar from "./NavBar";
+import NavBar from "../Navbar/NavBar";
 
 export default function Header ({
     seeRegisterForm,

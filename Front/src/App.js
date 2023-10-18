@@ -1,12 +1,12 @@
 import './App.module.scss';
-import Header from './components/Header/Header';
-import Populaires from './components/Page/Homepage/Populaires';
-import CarouselComponent from './components/Page/Homepage/carousel.component';
-import Register from './components/Page/Form/register/Register';
 import {useState } from 'react';
-import Login from './components/Page/Form/login/Login';
-import Profile from './components/Page/Profile/Profile';
-import Homepage from './components/Page/Homepage/Homepage';
+import Header from './components/Header/Header/Header';
+import Populaires from './Page/Homepage/Populaires/Populaires';
+import CarouselComponent from './Page/Homepage/Carousel/carousel.component';
+import Register from './Page/Form/register/Register';
+import Login from './Page/Form/login/Login';
+import Profile from './Page/Profile/Profile';
+import Homepage from './Page/Homepage/Homepage';
 import Layout from './layout/layout';
 
 

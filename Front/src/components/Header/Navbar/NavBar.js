@@ -1,4 +1,4 @@
-import logo from "../../assets/images/Logo-WebComInk.svg"
+import logo from "../../../assets/images/Logo-WebComInk.svg"
 import styles from "./NavBar.module.scss"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";

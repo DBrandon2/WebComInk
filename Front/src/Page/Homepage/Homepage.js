@@ -1,8 +1,8 @@
-import AvantPremière from "./AvantPremière";
-import Book from "./Book";
-import FAQ from "./FAQ";
-import Populaires from "./Populaires"
-import Carousel from "./carousel.component"
+import AvantPremière from "./AvantPremière/AvantPremière";
+import Book from "./Book/Book";
+import FAQ from "./FAQ/FAQ";
+import Populaires from "./Populaires/Populaires"
+import Carousel from "./Carousel/carousel.component"
 
 function Homepage() {
   return (

@@ -1,10 +1,10 @@
 import { Routes, Route} from "react-router-dom";
-import Homepage from "../components/Page/Homepage/Homepage";
-import Profile from "../components/Page/Profile/Profile";
-import Header from "../components/Header/Header";
-import Register from "../components/Page/Form/register/Register";
-import Login from "../components/Page/Form/login/Login";
-import Footer from "../components/Header/Footer";
+import Homepage from "../Page/Homepage/Homepage";
+import Profile from "../Page/Profile/Profile";
+import Header from "../components/Header/Header/Header";
+import Register from "../Page/Form/register/Register";
+import Login from "../Page/Form/login/Login";
+import Footer from "../components/Header/Footer/Footer";
 
 
 function layout({
