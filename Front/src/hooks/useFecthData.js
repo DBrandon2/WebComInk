@@ -1,27 +1,30 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
+// import { useContext } from "react"
+// import { ApiContext } from "../context/ApiContext"
 
-function useFecthData(url, way) {
+// function useFecthData(url, way) {
+//     const BASE_API_URL = useContext(ApiContext);
 
-    const [comicsData, setComicsData] = useState([]);
+//     useEffect(() => {
+//         async function fetchData () {
+//             try {
+//                 const response = await fetch(`${url}/${way}`);
+//                 const imagesComics = await response.json();
+//                 console.log(imagesComics)
+//                 const imagesUrl = imagesComics.map((image) => {
+//                     const uint8Array = new Uint8Array(image.imageBlob.data);
+//                     const blob = new Blob([uint8Array]);
+//                     const urlImage = URL.createObjectURL(blob);
+//                     return urlImage;
+//                 });
+//                 return imagesUrl
+//             } catch (error) {
+//                 console.error("Erreur lors de la récupération des images de la catégorie Comics :", error);
+//                 throw error;
+//             }
+//             }
+//         fetchData();
+//     }, [])
+// }
 
-    useEffect(() => {
-        async function fetchData () {
-            try {
-              const response = await fetch(`${url}/${way}`)
-                if (!response.ok) {
-                    throw new Error ("Une erreur est survenu")
-                }
-                const data = await response.json();
-                setComicsData(data)
-            } catch (error) {
-                console.log(`Erreur lors de la récupération des données:`, error)
-            }
-        }
-        fetchData();
-    }, [])
-
-
-  return [[comicsData, setComicsData]]
-}
-
-export default useFecthData
+// export default useFecthData

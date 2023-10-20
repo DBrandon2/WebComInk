@@ -1,12 +1,19 @@
 const router = require("express").Router();
 
-const connection = require("../../database");
+const connection = require("../../database/index");
 
 router.get("/getComics", (req, res) => {
-    const sql = "SELECT * FROM series";
+    try {
+        console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    const sql = "SELECT * FROM comics";
     connection.query(sql, (err, result) => {
-        if (err) throw (err, console.log(result));
-        console.log("Manga récupérées");
+        if (err) throw err;
+        console.log("Manga récupérées", result);
         res.send(JSON.stringify(result));
-    })
-})
+    });
+    } catch (error) {
+        console.error(error)
+    }
+});
+
+module.exports = router
