@@ -40,7 +40,7 @@ function Comics() {
 
             <div className={`${styles.ComicsList}`}>
 
-                <Grid/>
+                {/* <Grid/> */}
                 
             </div>
 
