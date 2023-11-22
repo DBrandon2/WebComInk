@@ -5,6 +5,7 @@ import Header from "../components/Header/Header/Header";
 import Register from "../Page/Form/register/Register";
 import Login from "../Page/Form/login/Login";
 import Footer from "../components/Header/Footer/Footer";
+import Comics from "../Page/Comics/Comics";
 
 
 function layout({
@@ -23,6 +24,8 @@ function layout({
           <Route path="/Profile" element={<Profile />}></Route>
           <Route path="/Connexion" element={<Login getUser={getUser}/>}></Route>
           <Route path="/Inscription" element={<Register />}></Route>
+          <Route path="/Comics" element={<Comics />}></Route>
+
       </Routes>
       <Footer />
     </>

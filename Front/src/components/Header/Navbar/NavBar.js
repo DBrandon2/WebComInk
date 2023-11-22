@@ -26,7 +26,7 @@ export default function NavBar ({
                 <ul className="d-flex gap2 ">
                     {/* <li className={`${styles.liNav}`}><a href="" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Accueil</a></li> */}
                     <li className={`${styles.liNav}`}><Link  to="/Profile" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Profile</Link></li>
-                    <li className={`${styles.liNav}`}><a href="" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Comics</a></li>
+                    <li className={`${styles.liNav}`}><Link  to="/Comics" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Comics</Link></li>
                     <li className={`${styles.liNav}`}><a href="" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Bibliothèque</a></li>
                 </ul>
             </div>
