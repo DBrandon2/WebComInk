@@ -1,15 +1,14 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import styles from "./Login.module.scss"
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../context/AuthContext";
 
-export default function Login({seeHomepage, getUser}) {
-    const [feedback, setFeedBack] = useState("");
-    const [feedbackGood, setFeedBackGood] = useState("");
-    const [isSubmitted, setIsSubmitted] = useState(false)
+export default function Login() {
 
+  const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const yupSchema = yup.object({
@@ -21,63 +20,32 @@ export default function Login({seeHomepage, getUser}) {
       });
 
       const defaultValues = {
-        password: "",
         email: "",
+        password: "",
       };
 
       const{
         register,
         handleSubmit,
-        reset,
-        formState: {errors},
+        clearErrors,
+        setError,
+        formState: {errors, isSubmitting},
       } = useForm({
         defaultValues,
-        mode: "onChange",
         resolver: yupResolver(yupSchema)
       });
 
       async function submit(values) {
-        try{
-
-          setFeedBack("")
-          console.log(values);
-          const response = await fetch("http://localhost:8000/api/users/login", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(values),
-          });
-          if (response.ok) {
-            const newUser = await response.json();
-            if(newUser.message){
-              setIsSubmitted(false)
-              setFeedBack(newUser.message);
-            }
-            else{
-              setFeedBackGood(" Connexion ...")
-              reset(defaultValues);
-              setIsSubmitted(true)
-              console.log("User récupéré", newUser);
-              let user ={};
-              user.username = newUser[0].username;
-              user.email = newUser[0].email;
-
-              console.log("User modifié", user);
-                reset(defaultValues);
-                setTimeout(() => {
-                  navigate('/');
-                    getUser(user);
-                  }, 2000);
-
-            }
+        try {
+          clearErrors();
+          await login(values);
+          setTimeout(() => {
+            navigate("../profile")
+          }, 3000)
+        } catch (error) {
+          setError("generic", { type: "generic", message: error });
         }
-      } catch (error) {
-        console.error(error)
-      } finally {
-        setIsSubmitted(false)
       }
-    }
 
 
 
@@ -89,7 +57,7 @@ export default function Login({seeHomepage, getUser}) {
 
       </div>
       <div className={`${styles.linkdiv}`}>
-        <Link to="../Inscription" className={`${styles.link}`}>Inscription</Link>
+        <NavLink to="../register" className={`${styles.link}`}>Inscription</NavLink>
         <p className={`${styles.linkSpace}`}></p>
         <Link to="" className={`${styles.link}`}>Connexion</Link>
         </div>
@@ -113,11 +81,7 @@ export default function Login({seeHomepage, getUser}) {
                 <p className={`${styles.feedback} mb20`}>{errors.password.message}</p>
                 )}
             </div>
-            {feedback && <p className={`${styles.feedback} mb20`}>{feedback}</p>}
-        {feedbackGood && (
-          <p className={`${styles.feedbackGood} mb20`}>{feedbackGood}</p>
-        )}
-            <button disabled={isSubmitted} className={`${styles.submitBtn}`}>
+            <button disabled={isSubmitting} className={`${styles.submitBtn}`}>
                 Submit
             </button>
         </form>

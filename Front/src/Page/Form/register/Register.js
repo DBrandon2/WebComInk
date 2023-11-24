@@ -1,14 +1,15 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import styles from "./inscription.module.scss";
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { createUser } from "../../../apis/users";
+import { useState } from "react";
 
-export default function Register({ seeLoginForm }) {
-  const [feedback, setFeedBack] = useState("");
-  const [feedbackGood, setFeedBackGood] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState("");
+
+export default function Register() {
+
+  const [feedbackGood, setFeedbackGood] = useState("")
 
   const navigate = useNavigate();
 
@@ -46,8 +47,9 @@ export default function Register({ seeLoginForm }) {
   const {
     register,
     handleSubmit,
-    reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
+    clearErrors,
+    setError,
   } = useForm({
     defaultValues,
     mode: "onChange",
@@ -55,34 +57,16 @@ export default function Register({ seeLoginForm }) {
   });
 
   async function submit(values) {
+    // console.log(values);
     try {
-      setIsSubmitted(true);
-      setFeedBack("");
-      console.log(values);
-      const response = await fetch("http://localhost:8000/api/users/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      if (response.ok) {
-        const newUser = await response.json();
-        if (newUser.message) {
-          setFeedBack("Email déjà existant");
-        } else {
-          setFeedBackGood(newUser.messageGood);
-          reset(defaultValues);
-          setIsSubmitted(true);
-          setTimeout(() => {
-            navigate("/Connexion");
-          }, 2000);
-        }
-      }
+      clearErrors();
+      await createUser(values);
+      setFeedbackGood("Inscription réussie, redirection vers la page connexion...")
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000) 
     } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSubmitted(false);
+      setError("generic", { type: "generic", message: "Mail déjà existant" });
     }
   }
 
@@ -95,13 +79,13 @@ export default function Register({ seeLoginForm }) {
         <span className={`${styles.span}`}>N'attends plus, profite de toutes les fonctionnalitées de WebComInk !</span>
       </div>
       <div className={`${styles.linkdiv}`}>
-        <Link to="" className={`${styles.link}`}>
+        <NavLink to="" className={`${styles.link}`}>
           Inscription
-        </Link>
+        </NavLink>
         <p className={`${styles.linkSpace}`}></p>
-        <Link to="../Connexion" className={`${styles.link}`}>
+        <NavLink to="../login" className={`${styles.link}`}>
           Connexion
-        </Link>
+        </NavLink>
       </div>
       {/* Formulaire */}
       <form onSubmit={handleSubmit(submit)}>
@@ -151,13 +135,17 @@ export default function Register({ seeLoginForm }) {
             </p>
           )}
         </div>
-
-        {feedback && <p className={`${styles.feedback} mb20`}>{feedback}</p>}
-        {feedbackGood && (
-          <p className={`${styles.feedbackGood} mb20`}>{feedbackGood}</p>
+        {errors?.generic && ( 
+          <p className={`${styles.feedback}`}>{errors.generic.message}</p>
         )}
 
-        <button disabled={isSubmitted} className={`${styles.submitBtn}`}>
+        {feedbackGood && (
+          <p className={`${styles.feedbackGood}`}>
+            {feedbackGood}
+          </p>
+        )}
+
+        <button disabled={isSubmitting} className={`${styles.submitBtn}`}>
           Submit
         </button>
       </form>

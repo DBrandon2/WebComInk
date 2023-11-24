@@ -1,19 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.scss';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
-import {BrowserRouter} from "react-router-dom"
-import { ApiContext } from './context/ApiContext';
+import {RouterProvider} from "react-router-dom"
+import { router } from "./router"
+
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <ApiContext.Provider value="http://localhost:8000/api">
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
-    </ApiContext.Provider>
+    <RouterProvider router={router}></RouterProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

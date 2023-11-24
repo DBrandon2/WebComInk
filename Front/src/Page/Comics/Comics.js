@@ -1,8 +1,23 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import styles from "./Comics.module.scss"
-import Grid from "../../components/Grid/Grid"
+import { ApiContext } from "../../context/ApiContext"
+// import { useFetchData } from "../../hooks/useFetchData"
+// import ComicsItem from './ComicsItem/ComicsItem';
 
 function Comics() {
+
+    // const [filter, setFilter] = useState("");
+    // const BASE_API_URL = useContext(ApiContext);
+
+    // const [[comics, setComics]] = useFetchData(
+    //     BASE_API_URL,
+    //     "comics/getComics"
+    //   );
+
+    //   function toggleLikeComics(updatedComics) {
+    //     console.log(updatedComics);
+    //     setComics(comics.map((c) => (c.id === updatedComics.id ? updatedComics : c)));
+    //   }
 
     
   return (
@@ -40,7 +55,12 @@ function Comics() {
 
             <div className={`${styles.ComicsList}`}>
 
-                {/* <Grid/> */}
+                {/* {comics
+                .filter((c) => c.title.toLowerCase().startsWith(filter))
+                .map((comics) => (
+                    <ComicsItem key={comics.id} comics={comics} toggleLikeComics={toggleLikeComics}/>
+                ))
+                } */}
                 
             </div>
 

@@ -1,10 +1,17 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
+const path = require("path")
+const cookie = require("cookie-parser")
 
 const app = express();
+app.use(express.json()); // !!! Peut poser problème !!!
 
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+app.use(cookie());
+
+app.use(express.static(path.join(__dirname, "upload")))
+
+// app.use(bodyParser.json({ limit: "50mb" }));
+// app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 const port = 8000;
 

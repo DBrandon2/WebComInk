@@ -6,7 +6,7 @@ import img4 from "../../../assets/images/Cover-Kaiju8.jpg"
 import img5 from "../../../assets/images/Cover-OshinoKo.jpg"
 import { useContext, useEffect, useState } from "react"
 import { ApiContext } from "../../../context/ApiContext"
-import useFetchData from "../../../hooks/useFecthData"
+
 
 export default function Populaires (){
     const BASE_API_URL = useContext(ApiContext);
