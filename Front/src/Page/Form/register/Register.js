@@ -70,6 +70,8 @@ export default function Register() {
     }
   }
 
+  console.log("ok")
+
   return (
     <div
       className={`flex-fill d-flex flex-column justify-content-center align-items-center ${styles.mainDiv}`}
