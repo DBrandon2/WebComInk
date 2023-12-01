@@ -9,6 +9,9 @@ import { AuthContext } from "../../../context/AuthContext";
 export default function Login() {
 
   const { login } = useContext(AuthContext);
+  const [feedback, setFeedback] = useState("")
+  const [feedbackGood, setFeedbackGood] = useState("")
+  const [isSubmitted, setIsSubmitted] = useState("")
     const navigate = useNavigate();
 
     const yupSchema = yup.object({
@@ -39,11 +42,15 @@ export default function Login() {
         try {
           clearErrors();
           await login(values);
+          setFeedbackGood("Connexion réussie, vous allez être redirigé")
           setTimeout(() => {
             navigate("../profile")
           }, 3000)
         } catch (error) {
-          setError("generic", { type: "generic", message: error });
+          setError("generic", { type: "generic", message: "Email ou mot de passe incorrect" });
+        }
+        finally{
+          setIsSubmitted(false)
         }
       }
 
@@ -57,12 +64,12 @@ export default function Login() {
 
       </div>
       <div className={`${styles.linkdiv}`}>
-        <NavLink to="../register" className={`${styles.link}`}>Inscription</NavLink>
+        <NavLink to="../inscription" className={`${styles.link}`}>Inscription</NavLink>
         <p className={`${styles.linkSpace}`}></p>
         <Link to="" className={`${styles.link}`}>Connexion</Link>
         </div>
       
-        <form onSubmit={handleSubmit(submit)}>
+        <form onSubmit={handleSubmit(submit)} className={`${styles.formStyle}`}>
             <div className={`d-flex flex-column mb10 ${styles.labelDiv}`}>
                 <label htmlFor="email" className={`mb5 ${styles.labelEmail}`}>
                     Email
@@ -80,8 +87,21 @@ export default function Login() {
                 {errors?.password && (
                 <p className={`${styles.feedback} mb20`}>{errors.password.message}</p>
                 )}
+
+              {feedback && <p className={`${styles.feedback} mb20`}>{feedback}</p>}
+                        {feedbackGood && (
+                          <p className={`${styles.feedbackGood} mb20`}>{feedbackGood}</p>
+                        )}
+                        {errors?.generic && (
+                          <p className={`${styles.feedback}`}>{errors.generic.message}</p>
+                        )}
+
+                        <div className={`${styles.mdpReset}`}>
+                          <Link to="/motdepasseoublié"><p>Mot de passe oublié ?</p></Link>
+                        </div>
+
             </div>
-            <button disabled={isSubmitting} className={`${styles.submitBtn}`}>
+            <button disabled={isSubmitted} className={`${styles.submitBtn}`}>
                 Submit
             </button>
         </form>

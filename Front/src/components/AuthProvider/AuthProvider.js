@@ -5,7 +5,7 @@ import { signin, signout } from "../../apis/users"
 
 function AuthProvider({children}) {
     const userConnect = useLoaderData()
-    const [user, setUser] = useState()
+    const [user, setUser] = useState(userConnect)
     console.log(user)
 
     async function login (values) {

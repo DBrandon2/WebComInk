@@ -63,7 +63,7 @@ export default function Register() {
       await createUser(values);
       setFeedbackGood("Inscription réussie, redirection vers la page connexion...")
       setTimeout(() => {
-        navigate("/login");
+        navigate("/connexion");
       }, 2000) 
     } catch (error) {
       setError("generic", { type: "generic", message: "Mail déjà existant" });
@@ -85,12 +85,12 @@ export default function Register() {
           Inscription
         </NavLink>
         <p className={`${styles.linkSpace}`}></p>
-        <NavLink to="../login" className={`${styles.link}`}>
+        <NavLink to="../connexion" className={`${styles.link}`}>
           Connexion
         </NavLink>
       </div>
       {/* Formulaire */}
-      <form onSubmit={handleSubmit(submit)}>
+      <form onSubmit={handleSubmit(submit)} className={`${styles.formStyle}`}>
         {/* Username */}
         <div className={`d-flex flex-column mb10 ${styles.labelDiv}`}>
           <label htmlFor="username" className="mb10">

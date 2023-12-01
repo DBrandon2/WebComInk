@@ -3,6 +3,8 @@ import App from "./App";
 import { lazy } from "react";
 import { userLoader } from "./loaders/userLoader";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute"
+const ResetPassword = lazy(() => import ("./Page/Security/ResetPassword"))
+const ForgotPassword = lazy(() => import ("./Page/Security/ForgotPassword"))
 const Homepage = lazy(() => import("./Page/Homepage/Homepage"))
 const Register = lazy(() => import ("./Page/Form/register/Register"))
 const Login = lazy(() => import ("./Page/Form/login/Login"))
@@ -20,11 +22,11 @@ export const router = createBrowserRouter ([
                 element: <Homepage/> 
             },
             {
-                path: "register",
+                path: "inscription",
                 element: <Register/>
             },
             {
-                path:"login",
+                path:"connexion",
                 element: <Login/>
             },
             {
@@ -38,6 +40,14 @@ export const router = createBrowserRouter ([
                         <Profile/>
                     </ProtectedRoute>
                 )
+            },
+            {
+                path: "motdepasseoublié",
+                element: (<ForgotPassword/>)
+            },
+            {
+                path: "changermotdepasse",
+                element: (<ResetPassword/>)
             }
         ]
     }

@@ -2,6 +2,14 @@ const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const jsonwebtoken = require("jsonwebtoken")
 const { key, keyPub } = require("../../keys")
+const nodemailer= require("nodemailer");
+const transporter = nodemailer.createTransport({
+  service : "Gmail",
+  auth: {
+    user: "demaretzz.brandon@gmail.com",
+    pass: "gdfu ofse gipr ansb"
+  }
+})
 
 const connection = require("../../database");
 
@@ -74,6 +82,34 @@ router.get("/logout", (req, res) => {
   res.end()
 })
 
+// router.get("/userConnected", (req, res) => {
+//   const { token } = req.cookies;
+//   if (token) {
+//     try {
+//       const decodedToken = jsonwebtoken.verify(token, keyPub, {
+//         algorithms: "RS256",
+//       });
+//       const sqlSelect =
+//         "SELECT iduser, username, email FROM user WHERE iduser  = ?";
+//       connection.query(sqlSelect, [decodedToken.sub], (err, result) => {
+//         if (err) throw err;
+//         const connectedUser = result[0];
+//         connectedUser.password = "";
+//         if (connectedUser) {
+//           console.log(connectedUser);
+//           res.json(connectedUser);
+//         } else {
+//           res.json(null);
+//         }
+//       });
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   } else {
+//     res.json(null);
+//   }
+// });
+
 router.get("/userConnected", (req, res) => {
   const { token } = req.cookies;
   if (token) {
@@ -82,7 +118,7 @@ router.get("/userConnected", (req, res) => {
         algorithms: "RS256",
       });
       const sqlSelect =
-        "SELECT idUser, name, email FROM users WHERE idUser  =?";
+        "SELECT iduser, username, email, admin FROM user WHERE iduser  =?";
       connection.query(sqlSelect, [decodedToken.sub], (err, result) => {
         if (err) throw err;
         const connectedUser = result[0];
@@ -95,79 +131,60 @@ router.get("/userConnected", (req, res) => {
         }
       });
     } catch (error) {
-      console.log(error);
+      console.log("Token verification error:", error.message);
+      res.status(401).json({ error: "Invalid token" });
     }
   } else {
     res.json(null);
   }
 });
 
-// router.post("/register", async (req, res) => {
-//   try {
-//     console.log(req.body);
-//     const { username, email, password } = req.body;
-//     const hashedPassword = await bcrypt.hash(password, 10)
-//     const sqlVerify = `SELECT * FROM users WHERE email=?`;
+router.get("/changermotdepasse/:email", (req, res) => {
+  console.log(req.params);
+  const email = req.params.email;
+  const sqlSearchMail = "SELECT * FROM user WHERE email = ?"
+  connection.query(sqlSearchMail, [email], (err, result) => {
+    if (err) throw err;
+    if (result.length !==0) {
+      const confirmLink = `http://localhost:3000/changermotdepasse?email=${email}`;
+      const mailOptions = {
+        from: "demaretzz.brandon@gmail.com",
+        to: email,
+        subject: "Mot de passe WebComInk oublié",
+        text: `Cliquez sur ce lien pour modifier votre mot de passe: ${confirmLink}`
+      };
+     transporter.sendMail(mailOptions, (err, info) => {
+        if (err){
+          throw err;
+        }else {
+          res.end();
+        }
+      })
+    }
+  })
+})
 
-//     connection.query(sqlVerify, [email], (err, result) => {
-//       if (err) throw err;
-//       if (result.length) {
-//         console.log("EMAIL EXISTANT");
-//         let isEmail = { message: "Email existant" };
-//         res.send(isEmail);
-//       } else {
-//         const sqlInsert =
-//           "INSERT INTO users (username, email, password) VALUES (?,?,?)";
-//         const values = [username, email, hashedPassword];
-//         connection.query(sqlInsert, values, (err, result) => {
-//           if (err) throw err;
-//           let idUser = result.insertId;
-//           console.log(idUser);
-//         });
-//         let isEmail = {
-//           messageGood: "Inscription réusie, vous allez être redirigé",
-//         };
-//         res.send(isEmail);
-//       }
-//     });
-//   } catch (error) {
-//     console.error(error);
-//   }
-// });
-
-// router.post("/login", (req, res) => {
-//   try {
-//     console.log(req.body);
-//     const { email, password } = req.body;
-//     const sql = `SELECT idUser, username, password FROM users WHERE email=?`;
-//     connection.query(sql, [email], async (err, result) => {
-//       if (err) throw err;
-//       if (!result.length) {
-//         console.log("USER INCORRECT");
-//         let doesExist = { message: "Email et/ou mot de passe incorrect" };
-//         res.send(doesExist);
-//       } else {
-//         //
-//         const dbPassword = result[0].password;
-//         const passwordMatch = await bcrypt.compare(password, dbPassword);
-//         if (!passwordMatch) {
-//           console.log("User Incorrect");
-//           let doesExist = { message: "User Incorrect" };
-//           res.send(doesExist);
-//         } else {
-//         let idUser = result[0].idUser;
-//         const sqlData = `SELECT username, email FROM users
-//           WHERE idUser =?`;
-//         connection.query(sqlData, [idUser], (err, result) => {
-//           if (err) throw err;
-//           console.log(result);
-//           res.send(JSON.stringify(result));
-//         });
-//         }
-        
-//       }
-//     });
-//   } catch (error) {
-//     console.error(error);
-//   }
-// });
+router.patch("/changepassword", async (req, res) => {
+  console.log(req.body)
+  try{
+  const { email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const sqlUpdate = "UPDATE user SET password = ? ";
+  const values = [hashedPassword, email ]; //Peut poser problème ?//
+  connection.query(sqlUpdate, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Une erreur s'est produite lors du changement de mot de passe");
+      return
+    }
+    console.log(result);
+    let passwordChanged = {
+      messageGood: "Le mot de passe à bien été changé"
+    };
+    res.json(passwordChanged)
+  });
+}catch (error) {
+  console.error(error);
+  res.status(500).send("Une erreur s'est produite lors du changement de mot de passe")
+  }
+});

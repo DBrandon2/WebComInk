@@ -51,7 +51,7 @@ export default function NavBar () {
 
                    <FontAwesomeIcon className={`${styles.svg}`} icon={faMagnifyingGlass} />
 
-                <NavLink to="/login">
+                <NavLink to="/connexion">
                     <FontAwesomeIcon className={`${styles.svg}`} icon={faUser} />
                 </NavLink>
                     </>

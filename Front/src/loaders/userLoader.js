@@ -1,5 +1,10 @@
 import { getConnectedUser } from "../apis/users";
 
 export async function userLoader() {
-  return getConnectedUser();
+  try {
+    return getConnectedUser();
+  } catch (error) {
+    console.error(error, getConnectedUser())
+  }
+  
 }
