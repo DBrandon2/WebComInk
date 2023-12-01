@@ -1,6 +1,6 @@
-const fs = require("fs");
+require("dotenv").config()
 
 module.exports = {
-    key: fs.readFileSync(`${__dirname}/jwtRS256.key`),
-    keyPub: fs.readFileSync(`${__dirname}/jwtRS256.key.pub`, 'utf-8'), 
+    key: process.env.PRIVATE_KEY,
+    keyPub: process.env.PUBLIC_KEY,
 };

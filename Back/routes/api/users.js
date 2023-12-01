@@ -82,34 +82,6 @@ router.get("/logout", (req, res) => {
   res.end()
 })
 
-// router.get("/userConnected", (req, res) => {
-//   const { token } = req.cookies;
-//   if (token) {
-//     try {
-//       const decodedToken = jsonwebtoken.verify(token, keyPub, {
-//         algorithms: "RS256",
-//       });
-//       const sqlSelect =
-//         "SELECT iduser, username, email FROM user WHERE iduser  = ?";
-//       connection.query(sqlSelect, [decodedToken.sub], (err, result) => {
-//         if (err) throw err;
-//         const connectedUser = result[0];
-//         connectedUser.password = "";
-//         if (connectedUser) {
-//           console.log(connectedUser);
-//           res.json(connectedUser);
-//         } else {
-//           res.json(null);
-//         }
-//       });
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   } else {
-//     res.json(null);
-//   }
-// });
-
 router.get("/userConnected", (req, res) => {
   const { token } = req.cookies;
   if (token) {
@@ -118,7 +90,7 @@ router.get("/userConnected", (req, res) => {
         algorithms: "RS256",
       });
       const sqlSelect =
-        "SELECT iduser, username, email, admin FROM user WHERE iduser  =?";
+        "SELECT iduser, username, email, aboutme, profilePicture FROM user WHERE iduser  = ?";
       connection.query(sqlSelect, [decodedToken.sub], (err, result) => {
         if (err) throw err;
         const connectedUser = result[0];
@@ -131,13 +103,13 @@ router.get("/userConnected", (req, res) => {
         }
       });
     } catch (error) {
-      console.log("Token verification error:", error.message);
-      res.status(401).json({ error: "Invalid token" });
+      console.log(error);
     }
   } else {
     res.json(null);
   }
 });
+
 
 router.get("/changermotdepasse/:email", (req, res) => {
   console.log(req.params);

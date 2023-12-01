@@ -14,3 +14,18 @@ html{
 a{
     color: var(--mainText);
 }
+
+.whiteButton{
+    color: var(--primary);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.18;
+    padding: .6rem 1.8rem;
+    // width: 12rem;
+    border-radius: 5px;
+    border: none;
+}
+
+.passwordProfile{
+    letter-spacing: .5rem;
+}

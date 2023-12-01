@@ -8,7 +8,7 @@ router.get("/getComics", (req, res) => {
     const sql = "SELECT * FROM comics";
     connection.query(sql, (err, result) => {
         if (err) throw err;
-        console.log("Manga récupérées", result);
+        // console.log("Manga récupérées", result);
         res.send(JSON.stringify(result));
     });
     } catch (error) {
