@@ -1,0 +1,54 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .overlay.active {
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+  }
+  
+  .modal {
+    background: var(--secondary);
+    padding: 4rem;
+    border-radius: 5px;
+    text-align: center;
+
+
+    p{
+      color: var(--accent);
+      margin-bottom: 10%;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.2rem;
+      padding-bottom: 5%;
+    }
+// ----------
+    button{
+     margin: 4%;
+     margin-top: -4%;
+     cursor: pointer;
+     transition: background-color 0.3s ease, transform 0.3s ease;
+
+    }
+
+    .btn:hover {
+      background-color: rgb(243, 46, 46);
+      color: var(--mainText);
+      transform: scale(1.05);
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+
+  }

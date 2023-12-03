@@ -45,7 +45,7 @@ export default function Login() {
           setFeedbackGood("Connexion réussie, vous allez être redirigé")
           setTimeout(() => {
             navigate("../profile")
-          }, 3000)
+          }, 2000)
         } catch (error) {
           setError("generic", { type: "generic", message: "Email ou mot de passe incorrect" });
         }

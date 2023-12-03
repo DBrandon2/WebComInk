@@ -122,6 +122,21 @@
         padding: .6rem 1.8rem;
         border-radius: 5px;
         border: none;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        cursor: pointer;
         
     }
+
+    .logoutBtn:hover {
+        background-color: rgba(243, 46, 46, 1);
+        transform: scale(1.05);
+        color: var(--mainText);
+       
+      }
+
+      .logoutBtn:active {
+        transform: scale(0.95);
+      }
+
+
 }
