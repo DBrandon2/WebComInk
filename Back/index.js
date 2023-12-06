@@ -15,6 +15,7 @@ app.use(express.json()); // !!! Peut poser problème !!!
 app.use(cookie());
 
 app.use(express.static(path.join(__dirname, "upload")))
+app.use(express.static(path.join(__dirname, "uploadResized")))
 
 
 // app.use(bodyParser.json({ limit: "50mb" }));

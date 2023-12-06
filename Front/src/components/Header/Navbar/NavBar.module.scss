@@ -36,11 +36,47 @@ ul{
     width: 50%;
 }
 .iconNav{
-    padding-left: 5%;
     color: var(--mainText);
     text-shadow: 1px 5px 4px rgba(0, 0, 0, 0.40);
     font-size: 1.5rem;
-    margin-right: 4%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    a{
+      width: 20%;
+      margin-right: 10%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .profileIcon{
+        width: 100%;
+        border-radius: 50%;
+        cursor: pointer;transition: background-color 0.3s ease, transform 0.3s ease;
+        
+      }
+      .profileIcon:hover{
+        animation: shake 0.4s ease-in-out;
+      }
+      .profileIcon:active {
+        transform: scale(1.1);
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: rotate(0deg);
+        }
+        25% {
+          transform: rotate(10deg);
+        }
+        50% {
+          transform: rotate(-10deg);
+        }
+        75% {
+          transform: rotate(5deg);
+        }
+      }
+    }
+   
 }
 
 svg{
@@ -49,6 +85,8 @@ svg{
    color: white;
    cursor: pointer;
 }
+
+
 
 .abtn {    
     position: relative; 

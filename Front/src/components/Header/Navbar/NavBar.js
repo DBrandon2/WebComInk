@@ -42,7 +42,7 @@ export default function NavBar () {
                 </a>
 
                 <NavLink to="/profile">
-                <FontAwesomeIcon className="svg2" icon={faUser} />
+                    <img className={`${styles.profileIcon}`} src={`http://localhost:8000/${user.profilePicture}`} alt="" />
                 </NavLink>
                     </>
                 ) : (

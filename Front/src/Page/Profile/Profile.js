@@ -3,6 +3,8 @@ import { AuthContext } from "../../context";
 import styles from "./Profile.module.scss"
 import { useNavigate } from "react-router-dom";
 import PopUp from "../../components/PopUp/PopUp";
+import TextField from "../../components/EditText/TextField";
+
 
 
 
@@ -82,6 +84,7 @@ function Profile() {
   };
   // ---------------------------------
 
+  console.log(user.profilePicture)
 
   return (
     <>
@@ -94,15 +97,16 @@ function Profile() {
 
       <div className={`${styles.profilePPInfo}`}>
         <div className={`${styles.profilePicture}`}>
-                <div className="d-flex flex-column mb20">
-              <label htmlFor="profilePicture" className="mb10">
-                Avatar
-              </label>
-              <input type="file" id="profilePicture" ref={avatarRef} />
-            </div>
-          <div className={`${styles.divPP}`}>
-            <img src={`http://localhost:8000/${user.profilePicture}`} alt="ProfilePicture" />
+            {/* --------------------- */}
+          <div
+           className={`${styles.divPP}`}
+           onClick={() => document.getElementById('profilePicture').click()}
+           >
+              <img src={`http://localhost:8000/${user.profilePicture}`} alt="ProfilePicture" />
+              <input type="file" id="profilePicture" ref={avatarRef} style={{ display: 'none' }} />
+            <i className={`fa-solid fa-pen-to-square ${styles.editIcon}`}></i>
           </div>
+          {/* ----------------------- */}
           <button onClick={addAvatar} className="whiteButton">Changer d'avatar</button>
         </div>
         <div className={`${styles.profileInfo}`}>
@@ -117,14 +121,16 @@ function Profile() {
         <div className={`${styles.descriptionEntete}`}>
           <p>À propos</p>
         </div>
-        <div className={`${styles.description}`}>
-            <p>{user.aboutme}</p>
-        </div>
-        <div className={`${styles.descriptionBtn}`}>
+        {/* <div className={`${styles.description}`}> */}
+          <TextField className={`${styles.description}`}/>
+
+
+        {/* </div> */}
+        {/* <div className={`${styles.descriptionBtn}`}>
           <button className="whiteButton">
             Modifier la description
           </button>
-        </div>
+        </div> */}
       </div>
 
       <div>

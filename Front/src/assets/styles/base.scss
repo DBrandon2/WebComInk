@@ -24,7 +24,19 @@ a{
     // width: 12rem;
     border-radius: 5px;
     border: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
 }
+
+.whiteButton:hover {
+    background-color: var(--accent);
+    transform: scale(1.05);
+    color: var(--mainText);
+  }
+
+  .WhiteButton:active {
+    transform: scale(0.95);
+  }
 
 .passwordProfile{
     letter-spacing: .5rem;

@@ -23,7 +23,7 @@ function AvantPremière() {
         </div>
       </div>
     </div>
-      <button className={`${styles.btnAv}`}>
+    <button className={`whiteButton ${styles.btnAv}`}>
         Découvrir
       </button>
     </div>

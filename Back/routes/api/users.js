@@ -6,6 +6,7 @@ const nodemailer= require("nodemailer");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const sharp = require('sharp');
 const transporter = nodemailer.createTransport({
   service : "Gmail",
   auth: {
@@ -66,8 +67,15 @@ router.post("/login", (req, res) => {
             expiresIn: 3600 * 24 * 30,
             algorithm: "RS256",
           });
+          let user = {
+            iduser: result[0].iduser,
+            username: result[0].username,
+            email: result[0].email,
+            profilePicture: result[0].profilePicture,
+          };
+
           res.cookie("token", token, { maxAge: 30 * 24 * 60 * 60 * 1000 });
-          res.json(result[0]);
+          res.json(user);
         } else {
           res.status(400).json("Email et/ou mot de passe incorrects");
         }
@@ -100,8 +108,11 @@ router.get("/userConnected", (req, res) => {
         const connectedUser = result[0];
         connectedUser.password = "";
         if (connectedUser) {
-          // console.log(connectedUser);
+          if (!connectedUser.profilePicture) {
+            connectedUser.profilePicture = "Default_Avatar.png";
+          }
           res.json(connectedUser);
+          
         } else {
           res.json(null);
         }
@@ -192,21 +203,23 @@ const upload = multer ({
 
 
 router.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
-
-  // console.log(req.body)
-  // console.log(req.file)
-
   try {
     if (!req.file || !req.file.filename) {
       return res.status(400).json({ message: "Aucun fichier d'avatar fourni" });
     }
     const profilePicture = req.file.filename;
     const {iduser} = req.body; 
-    console.log(iduser)
+
+    const originalImagePath = path.join("upload", profilePicture);
+    const resizedImagePath = path.join("uploadResized", 'resized_' + profilePicture);
+
+    await sharp(originalImagePath)
+      .resize(250, 250)
+      .toFile(resizedImagePath);
 
     const sqlUpdate = "UPDATE user SET profilePicture = ? WHERE iduser = ?";
 
-    connection.query(sqlUpdate, [profilePicture, iduser], (err, result) => {
+    connection.query(sqlUpdate, ['resized_' + profilePicture, iduser], (err, result) => {
       if (err) {
         console.error(err);
         res.status(500).json({ message: "Erreur lors de la mise à jour de l'avatar" });

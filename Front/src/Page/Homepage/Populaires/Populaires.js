@@ -54,7 +54,7 @@ export default function Populaires (){
                         </div>
                 </div>
             </div>
-            <button className={`${styles.btnPopulaire}`}>Découvrir</button>
+            <button className={`whiteButton ${styles.btnPopulaire}`}>Découvrir</button>
 
 
         </div>
