@@ -18,6 +18,8 @@ const connection = require("../../database");
 
 
 
+
+
 router.post("/register", (req, res) => {
   const { username, email, password} = req.body;
   const verifyMailSql = "SELECT * FROM user WHERE email = ?" // vérification de l'existence du mail
@@ -98,7 +100,7 @@ router.get("/userConnected", (req, res) => {
         const connectedUser = result[0];
         connectedUser.password = "";
         if (connectedUser) {
-          console.log(connectedUser);
+          // console.log(connectedUser);
           res.json(connectedUser);
         } else {
           res.json(null);
@@ -176,30 +178,35 @@ const upload = multer ({
     },
   }),
   fileFilter: (req, file, cb) => {
-    console.log(file);
+    const allowedExtensions = ["jpg", "jpeg", "png", "avif"];
+    const fileExtension = file.originalname.split(".").pop().toLowerCase();
+  
+    if (!allowedExtensions.includes(fileExtension)) {
+      return cb(new Error("Format de fichier non supporté"), false);
+    }
+  
     cb(null, true);
-  },
+  }
 });
 // -----------------
 
+
 router.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
+
+  // console.log(req.body)
+  // console.log(req.file)
+
   try {
     if (!req.file || !req.file.filename) {
       return res.status(400).json({ message: "Aucun fichier d'avatar fourni" });
     }
-
-    const avatar = req.file.filename;
-    const iduser = req.user.iduser; 
-    console.log("ID utilisateur reçu dans la requête:", iduser);
-
-    if (!iduser) {
-      return res.status(401).json({ message: "Utilisateur non autorisé" });
-    }
+    const profilePicture = req.file.filename;
+    const {iduser} = req.body; 
+    console.log(iduser)
 
     const sqlUpdate = "UPDATE user SET profilePicture = ? WHERE iduser = ?";
-    const values = [avatar, iduser];
 
-    connection.query(sqlUpdate, values, (err, result) => {
+    connection.query(sqlUpdate, [profilePicture, iduser], (err, result) => {
       if (err) {
         console.error(err);
         res.status(500).json({ message: "Erreur lors de la mise à jour de l'avatar" });
@@ -212,7 +219,6 @@ router.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
     res.status(500).json({ message: "Erreur interne du serveur" });
   }
 });
-
 
 
 module.exports = router

@@ -8,24 +8,21 @@ import PopUp from "../../components/PopUp/PopUp";
 
 
 function Profile() {
-  const {user, setUser } = useContext(AuthContext);
+  const { user, setUser, login, logout } = useContext(AuthContext);
   const [feedback, setFeedback] = useState("");
-  const { logout } = useContext(AuthContext);
   const [showPopUp, setShowPopUp] = useState(false);
   const navigate = useNavigate();
   const avatarRef = useRef();
   const [errorAvatar, setErrorAvatar] = useState("");
+  
+
+  
+  console.log(user)
+  console.log(avatarRef)
 
   async function addAvatar(){
-    const iduser = user.iduser;
-    console.log(iduser)
-
-    // if (!iduser) {
-    //   console.error("ID utilisateur non disponible");
-    //   return;
-    // }
-    const formData = new FormData();
-    
+    const formData = new FormData(); 
+    console.log(avatarRef)
     if (avatarRef.current && avatarRef.current.files[0]){
       const maxFileSize = 5000000;
       if(avatarRef.current.files[0].size > maxFileSize) {
@@ -41,11 +38,10 @@ function Profile() {
         setErrorAvatar("Format de fichier non supporté");
       }
       formData.append("avatar", avatarRef.current.files[0]);
-    
-
+      formData.append("iduser", user.iduser);
+      console.log(formData)
     try{
-      // const iduser = iduser;
-      const response = await fetch (`http://localhost:8000/api/users/${iduser}/updateAvatar`, {
+      const response = await fetch (`http://localhost:8000/api/users/updateAvatar`, {
         method: "POST",
         body: formData,
       });
@@ -60,6 +56,8 @@ function Profile() {
     }
   }
 }
+
+  
 
 
 //  --------Logout----------
@@ -91,23 +89,20 @@ function Profile() {
 
       <div className={`${styles.profileTitle}`}>
         <h1>Profile de Brandon </h1>
-        <span>Choisie un avatar et écris toi une déscription pour créer un profile à ton image !</span>
+        <span>Choisie un avatar et écris toi une description pour créer un profile à ton image !</span>
       </div>
 
       <div className={`${styles.profilePPInfo}`}>
         <div className={`${styles.profilePicture}`}>
                 <div className="d-flex flex-column mb20">
-              <label htmlFor="avatar" className="mb10">
+              <label htmlFor="profilePicture" className="mb10">
                 Avatar
               </label>
-              <input type="file" id="avatar" ref={avatarRef} />
-              {errorAvatar && (
-                <p className={`${styles.feedback} mb20`}>{errorAvatar}</p>
-              )}
+              <input type="file" id="profilePicture" ref={avatarRef} />
             </div>
-          {/* <div className={`${styles.divPP}`}>
-            <img src="" alt="" />
-          </div> */}
+          <div className={`${styles.divPP}`}>
+            <img src={`http://localhost:8000/${user.profilePicture}`} alt="ProfilePicture" />
+          </div>
           <button onClick={addAvatar} className="whiteButton">Changer d'avatar</button>
         </div>
         <div className={`${styles.profileInfo}`}>
