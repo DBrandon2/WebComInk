@@ -84,7 +84,16 @@
                 height: 35%;
                 aspect-ratio: auto 210/210;
             }
+            
         }
+        
+        .gridComics {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 2rem;
+          }
     }
 
 }

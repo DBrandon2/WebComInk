@@ -3,20 +3,33 @@ import Book from "./Book/Book";
 import FAQ from "./FAQ/FAQ";
 import Populaires from "./Populaires/Populaires"
 import Carousel from "./Carousel/carousel.component"
+import { useEffect, useState } from "react";
+import { fetchComicsData } from '../../apis/comics';
+
 
 function Homepage() {
+  const [comicsData, setComicsData] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await fetchComicsData();
+            if (data) {
+                setComicsData(data);
+                console.log(data);
+            }
+        };
+        fetchData();
+    }, []);
+
+  
   return (
     <div>
-        <Carousel/>
-        <Populaires/>
-        <AvantPremière/>
+        <Carousel comicsData={comicsData}/>
+        <Populaires comicsData={comicsData}/>
+        <AvantPremière comicsData={comicsData}/>
         <Book/>
         <FAQ/>
     </div>
-                /* <details>
-                <summary>test ?</summary>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit hic cumque repudiandae corporis fugit illum delectus temporibus. Omnis ab quas, pariatur suscipit soluta ad ipsa cum accusamus perferendis dicta voluptatum.</p>
-            </details> */
   )
 }
 

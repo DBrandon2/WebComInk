@@ -7,6 +7,7 @@ import { NavLink } from "react-router-dom"
 import { useContext } from "react";
 import { AuthContext } from "../../../context";
 import { signout } from "../../../apis/users";
+import SearchBar from "../../SearchBar/SearchBar";
 
 
 
@@ -37,9 +38,7 @@ export default function NavBar () {
             <div className={`${styles.iconNav}`}>
                 {user? (
                     <>
-                <a href="">
-                <FontAwesomeIcon className="svg2" icon={faMagnifyingGlass} />
-                </a>
+                <SearchBar/>
 
                 <NavLink to="/profile">
                     <img className={`${styles.profileIcon}`} src={`http://localhost:8000/${user.profilePicture}`} alt="" />

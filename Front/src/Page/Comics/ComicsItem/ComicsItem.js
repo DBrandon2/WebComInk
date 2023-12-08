@@ -1,34 +1,35 @@
-import { useContext, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { ApiContext } from "../../../context/ApiContext"
+import { fetchComicsData } from "../../../apis/comics";
+import { useEffect, useState } from "react";
+import styles from "./ComicsItem.module.scss"
 
-function ComicsItem({comics, toggleLikeComics}) {
+function ComicsItem({data}) {
+  const {idComics, title, banner, synopsis, author, illustrator, likes, favorite, vue} = data
+  const [comicsData, setComicsData] = useState([]);
 
-    const {id, title, banner, like } = comics;
-    const BASE_API_URL = useContext(ApiContext);
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await fetchComicsData();
+            if (data) {
+                setComicsData(data);
+            }
+        };
+        fetchData();
+    }, []);
 
-    const handleClick = async () => {
-        const response = await fetch(`${BASE_API_URL}/comics/likedOne`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ ...comics, like: !like }),
-        });
-        if (response.ok) {
-          const updatedComicsFromBack = await response.json();
-          toggleLikeComics(updatedComicsFromBack);
-        }
-      };
+  
+
+    
 
 
   return (
-    <div>
-      <p></p>
-      <div>
-        <img src={banner} alt=""  onError={(e) => console.error("Erreur de chargement de l'image", e)}/>
+    <div className={` my30 ${styles.comics}`}>
+      <div className={`${styles.comicsImg}`}>
+      <NavLink to={`details/${idComics}`}>
+        <img src={`http://localhost:8000/${banner}`} alt="Comics" />
+      </NavLink>
       </div>
-      <div>
+      <div className={`${styles.comicsTitle}`}>
         <h3>{title}</h3>
       </div>
     </div>

@@ -32,7 +32,7 @@
             justify-self: center;
             align-self: center;
             .titleTextAv{
-                margin-bottom: 4rem;
+                margin-bottom: 2rem;
                 h3{
                     font-size: 2rem;
                     font-weight: 500;
@@ -41,11 +41,16 @@
                     color: grey;
                     
                 }
+                p{
+                    color: grey;
+                }
+
+                
             }
             .synopsisAv{
                 background-color: var(--secondary);
                 border-radius: 5px;
-                font-size: 1.2rem;
+                font-size: 1rem;
                 font-weight: 200;
                 padding: 1rem;
             }

@@ -148,6 +148,14 @@
         }
     }
 
+    .Admin{
+       
+        form{
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
     .logoutBtn{
         margin-top: 15vh;
         color: rgb(243, 46, 46);

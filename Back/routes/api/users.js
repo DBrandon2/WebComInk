@@ -102,7 +102,7 @@ router.get("/userConnected", (req, res) => {
         algorithms: "RS256",
       });
       const sqlSelect =
-      "SELECT iduser, username, email, aboutme, profilePicture FROM user WHERE iduser  = ?";
+      "SELECT iduser, username, email, aboutme, profilePicture, admin FROM user WHERE iduser  = ?";
       connection.query(sqlSelect, [decodedToken.sub], (err, result) => {
         if (err) throw err;
         const connectedUser = result[0];
@@ -189,7 +189,7 @@ const upload = multer ({
     },
   }),
   fileFilter: (req, file, cb) => {
-    const allowedExtensions = ["jpg", "jpeg", "png", "avif"];
+    const allowedExtensions = ["jpg", "jpeg", "png", "avif", "webp"];
     const fileExtension = file.originalname.split(".").pop().toLowerCase();
   
     if (!allowedExtensions.includes(fileExtension)) {
@@ -209,16 +209,12 @@ router.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
     }
     const profilePicture = req.file.filename;
     const {iduser} = req.body; 
-
     const originalImagePath = path.join("upload", profilePicture);
     const resizedImagePath = path.join("uploadResized", 'resized_' + profilePicture);
-
     await sharp(originalImagePath)
       .resize(250, 250)
       .toFile(resizedImagePath);
-
     const sqlUpdate = "UPDATE user SET profilePicture = ? WHERE iduser = ?";
-
     connection.query(sqlUpdate, ['resized_' + profilePicture, iduser], (err, result) => {
       if (err) {
         console.error(err);
@@ -232,6 +228,32 @@ router.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
     res.status(500).json({ message: "Erreur interne du serveur" });
   }
 });
+// ---------------------
 
+
+router.post("/insertComics", upload.fields([{ name: 'banner', maxCount: 1 }, { name: 'portrait', maxCount: 1 }]), (req, res) => {
+  try {
+    if (!req.files || !req.files['banner'] || !req.files['portrait'] || !req.files['banner'][0].filename || !req.files['portrait'][0].filename) {
+      return res.status(400).json({ message: "Les fichiers nécessaires ne sont pas fournis." });
+    }
+
+    const banner = req.files['banner'][0].filename;
+    const portrait = req.files['portrait'][0].filename;
+    const { title, synopsis, author, illustrator } = req.body;
+
+    const sqlInsert = 'INSERT INTO comics (title, banner, portrait, synopsis, author, illustrator) VALUES (?, ?, ?, ?, ?, ?)';
+    connection.query(sqlInsert, [title, banner, portrait, synopsis, author, illustrator], (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ message: "Erreur lors de l'insertion" });
+      } else {
+        res.status(200).json({ message: "Insertion réussie" });
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur interne du serveur" });
+  }
+});
 
 module.exports = router

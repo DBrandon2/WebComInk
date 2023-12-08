@@ -1,33 +1,28 @@
-import React, { useContext, useState } from 'react'
 import styles from "./Comics.module.scss"
-import { ApiContext } from "../../context/ApiContext"
-// import { useFetchData } from "../../hooks/useFetchData"
-// import ComicsItem from './ComicsItem/ComicsItem';
+import { useEffect, useState } from "react";
+import { fetchComicsData } from '../../apis/comics';
+import ComicsItem from "./ComicsItem/ComicsItem";
 
 function Comics() {
+    const [comicsData, setComicsData] = useState([]);
 
-    // const [filter, setFilter] = useState("");
-    // const BASE_API_URL = useContext(ApiContext);
-
-    // const [[comics, setComics]] = useFetchData(
-    //     BASE_API_URL,
-    //     "comics/getComics"
-    //   );
-
-    //   function toggleLikeComics(updatedComics) {
-    //     console.log(updatedComics);
-    //     setComics(comics.map((c) => (c.id === updatedComics.id ? updatedComics : c)));
-    //   }
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await fetchComicsData();
+            if (data) {
+                setComicsData(data);
+                console.log(data);
+            }
+        };
+        fetchData();
+    }, []);
 
     
   return (
     <div className={`${styles.MainDiv}`}>
-
         <div className={`${styles.Left}`}>
             <div className={`${styles.Genre}`}>
-
                 <h2 className={`${styles.h2Genre}`}>Genres</h2>
-
                 <ul className={`${styles.ulGenre}`}>
                     <li><a href="">Action</a></li>
                     <li><a href="">Fantasie</a></li>
@@ -53,15 +48,11 @@ function Comics() {
                 </ul>
             </div>
 
-            <div className={`${styles.ComicsList}`}>
-
-                {/* {comics
-                .filter((c) => c.title.toLowerCase().startsWith(filter))
-                .map((comics) => (
-                    <ComicsItem key={comics.id} comics={comics} toggleLikeComics={toggleLikeComics}/>
+            <div className={`${styles.gridComics}`}>
+                {comicsData.map((comics, idComics) => (
+                    <ComicsItem key={idComics} data={comics}/>
                 ))
-                } */}
-                
+                }    
             </div>
 
 

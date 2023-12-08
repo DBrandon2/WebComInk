@@ -3,28 +3,37 @@ import { AuthContext } from "../../context";
 import styles from "./Profile.module.scss"
 import { useNavigate } from "react-router-dom";
 import PopUp from "../../components/PopUp/PopUp";
-import TextField from "../../components/EditText/TextField";
+
 
 
 
 
 
 function Profile() {
-  const { user, setUser, login, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const [feedback, setFeedback] = useState("");
   const [showPopUp, setShowPopUp] = useState(false);
   const navigate = useNavigate();
   const avatarRef = useRef();
+  const bannerRef = useRef();
+  const portraitRef = useRef();
   const [errorAvatar, setErrorAvatar] = useState("");
+  const [formData, setFormData] = useState({
+    title: '',
+    banner: null,
+    portrait:null,
+    synopsis: '',
+    author: ''
+  });
   
 
   
   console.log(user)
-  console.log(avatarRef)
+  // console.log(avatarRef)
 
   async function addAvatar(){
     const formData = new FormData(); 
-    console.log(avatarRef)
+    // console.log(avatarRef)
     if (avatarRef.current && avatarRef.current.files[0]){
       const maxFileSize = 5000000;
       if(avatarRef.current.files[0].size > maxFileSize) {
@@ -41,7 +50,7 @@ function Profile() {
       }
       formData.append("avatar", avatarRef.current.files[0]);
       formData.append("iduser", user.iduser);
-      console.log(formData)
+      // console.log(formData)
     try{
       const response = await fetch (`http://localhost:8000/api/users/updateAvatar`, {
         method: "POST",
@@ -58,6 +67,61 @@ function Profile() {
     }
   }
 }
+
+const handleSubmit = async(e) => {
+  e.preventDefault();
+
+  if (!bannerRef.current || !bannerRef.current.files || bannerRef.current.files.length === 0) {
+    console.error("Aucun fichier sélectionné");
+    return;
+  }
+
+  const title = formData.title;
+  const synopsis = formData.synopsis;
+  const author = formData.author;
+  const illustrator = formData.illustrator;
+
+  const formDataToSend = new FormData();
+
+  formDataToSend.append('title', title);
+  formDataToSend.append('banner', bannerRef.current.files[0]);
+  formDataToSend.append('portrait', portraitRef.current.files[0]);
+  formDataToSend.append('synopsis', synopsis);
+  formDataToSend.append('author', author);
+  formDataToSend.append('illustrator', illustrator);
+  console.log(formDataToSend);
+  try{
+    const response = await fetch (`http://localhost:8000/api/users/insertComics`, {
+      method: "POST",
+      body: formDataToSend,
+    });
+    console.log(formData)
+    if(response.ok) {
+      console.log("Envoie réussie")
+      setFormData({
+        title: '',
+        banner: null,
+        portrait:null,
+        synopsis: '',
+        author: '',
+        illustrator: '',
+      });
+    }else {
+      console.error("Erreur de l'envoie", response.status)
+    }
+  }catch(error) {
+    console.error("erreur lors de la requête", error)
+  }
+}
+
+const handleInputChange = (e) => {
+  const { id, value, files } = e.target || {};
+
+  setFormData((prevData) => ({
+    ...prevData,
+    [id]: (id === "banner" || id ==="portrait") && files ? files[0] : value,
+  }));
+};
 
   
 
@@ -84,7 +148,7 @@ function Profile() {
   };
   // ---------------------------------
 
-  console.log(user.profilePicture)
+  // console.log(user.profilePicture)
 
   return (
     <>
@@ -117,21 +181,74 @@ function Profile() {
           </ul>
         </div>
       </div>
-      <div className={`${styles.profileDescription}`}>
-        <div className={`${styles.descriptionEntete}`}>
+      {/* <div className={`${styles.profileDescription}`}> */}
+        {/* <div className={`${styles.descriptionEntete}`}>
           <p>À propos</p>
-        </div>
+        </div> */}
         {/* <div className={`${styles.description}`}> */}
-          <TextField className={`${styles.description}`}/>
-
-
+          {/* <TextField className={`${styles.description}`}/> */}
         {/* </div> */}
         {/* <div className={`${styles.descriptionBtn}`}>
           <button className="whiteButton">
             Modifier la description
           </button>
         </div> */}
-      </div>
+      {/* </div> */}
+      
+        {user && user.admin === 1 && (
+          <div className={`${styles.Admin}`}>
+            <h1>Panel Admin</h1>
+            <form onSubmit={handleSubmit} encType="multipart/form-data">
+        <input
+          type="text"
+          id="title"
+          placeholder="Title"
+          value={formData.title}
+          onChange={handleInputChange}
+        />
+        <p>Bannière</p>
+        <input
+          type="file"
+          id="banner"
+          name="banner"
+          ref={bannerRef}
+          onChange={handleInputChange}
+        />
+        <p>Portrait</p>
+        <input
+          type="file"
+          id="portrait"
+          name="portrait"
+          ref={portraitRef}
+          onChange={handleInputChange}
+        />
+        <input
+          type="text"
+          id="synopsis"
+          placeholder="Synopsis"
+          value={formData.synopsis}
+          onChange={handleInputChange}
+        />
+        <input
+          type="text"
+          id="author"
+          placeholder="Author"
+          value={formData.author}
+          onChange={handleInputChange}
+        />
+        <input
+          type="text"
+          id="illustrator"
+          placeholder="Illustrator"
+          value={formData.illustrator}
+          onChange={handleInputChange}
+        />
+        <button type="submit">Envoyer</button>
+      </form>
+          </div>
+        ) }
+      
+      
 
       <div>
         <button onClick={openPopUp} className={`${styles.logoutBtn}`}>Se déconnecter</button>

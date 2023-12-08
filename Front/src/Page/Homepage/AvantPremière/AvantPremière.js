@@ -1,7 +1,6 @@
 import styles from "./AvantPremière.module.scss"
-import img from "../../../assets/images/Boruto-Banner-AV.jpg"
 
-function AvantPremière() {
+function AvantPremière({comicsData}) {
   return (
     <div className={`${styles.mainDiv}`}>
       <div className={`${styles.titleAv}`}>
@@ -10,22 +9,22 @@ function AvantPremière() {
       </div>
 
     <div className={`${styles.mangaAv}`}>
-      <div className={`${styles.imgAv}`}>
-        <img src={img} alt="" />
-      </div>
+      {comicsData &&<div className={`${styles.imgAv}`}>
+       <img src={`http://localhost:8000/${comicsData[5]?.portrait}`} alt="Boruto" />
+      </div>}
       <div className={`${styles.textAv}`}>
-        <div className={`${styles.titleTextAv}`}>
-        <h3>BORUTO-TWO BLUE VORTEX-</h3>
-        <span>MASASHI KISHIMOTO / MIKIO IKEMOTO</span>
-        </div>
-        <div className={`${styles.synopsisAv}`}>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita voluptas quia repellat deserunt cum, ipsum adipisci animi, laudantium dolores voluptatum placeat ipsa nostrum quibusdam doloremque aliquid neque quasi. Dolorem, inventore.</p>
-        </div>
+      {comicsData && <div className={`${styles.titleTextAv}`}>
+        <h3>{`${comicsData[5]?.title}`}</h3>
+        <p><span>{`${comicsData[5]?.author}`}</span> / <span>{`${comicsData[5]?.illustrator}`}</span></p>
+      </div>}
+      {comicsData && <div className={`${styles.synopsisAv}`}>
+          <p>{`${comicsData[5]?.synopsis}`}</p>
+      </div>}
       </div>
     </div>
     <button className={`whiteButton ${styles.btnAv}`}>
         Découvrir
-      </button>
+    </button>
     </div>
   )
 }
