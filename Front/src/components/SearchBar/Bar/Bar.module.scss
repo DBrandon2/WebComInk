@@ -1,12 +1,13 @@
 .mainDiv{
     background-color: white;
     width: 100%;
-    border-radius: 10px;
-    height: 2.5rem;
+    border-radius: 15px;
+    height: 2rem;
     padding: 0 15px;
-    box-shadow: 0px 0px 5px #ddd;
     display: flex;
     align-items: center;
+    justify-content: center;
+    
 
     input{
         background-color: transparent;

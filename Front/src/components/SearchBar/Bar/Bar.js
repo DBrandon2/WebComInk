@@ -8,7 +8,6 @@ function Bar({setResults}) {
   const [input, setInput] = useState("")
   const [comicsData, setComicsData] = useState([]);
 
-
   const fetchData = async (value) => {
     try {
       const data = await fetchComicsData();
@@ -30,7 +29,6 @@ function Bar({setResults}) {
     }
   }
     
-
   const handleChange = (value) => {
     setInput(value)
     fetchData(value)
@@ -47,5 +45,4 @@ function Bar({setResults}) {
     </div>
   )
 }
-
 export default Bar

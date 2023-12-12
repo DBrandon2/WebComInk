@@ -36,7 +36,7 @@ router.post("/register", (req, res) => {
           [username, email, hashedPassword],
           (err, result) => {
             if (err) throw err;
-            let iduser = result.insertId; // On récupére l'id de la dernière insertion
+            let iduser = result.insertId;
             const sqlSelect =
             "SELECT iduser, username, email FROM user WHERE iduser = ?";
             connection.query(sqlSelect, [iduser], (err, result) => {
@@ -106,16 +106,16 @@ router.get("/userConnected", (req, res) => {
       connection.query(sqlSelect, [decodedToken.sub], (err, result) => {
         if (err) throw err;
         const connectedUser = result[0];
+        console.log(connectedUser)
         connectedUser.password = "";
         if (connectedUser) {
           if (!connectedUser.profilePicture) {
             connectedUser.profilePicture = "Default_Avatar.png";
           }
-          res.json(connectedUser);
-          
         } else {
           res.json(null);
         }
+        res.json(connectedUser);
       });
     } catch (error) {
       console.log(error);
@@ -227,6 +227,21 @@ router.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Erreur interne du serveur" });
   }
+});
+
+// ---------------------
+router.delete("/deleteUser/:iduser", (req, res) => {
+  const id = req.params.iduser;
+  const deleteSql = "DELETE FROM user WHERE iduser = ?"
+  connection.query(deleteSql, [id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res
+      .status(500)
+      .json({message : "Erreur lors de la suppréssion de l'utilisateur"});
+    }
+    return res.json({message: "Compte supprimé"})
+  });
 });
 // ---------------------
 

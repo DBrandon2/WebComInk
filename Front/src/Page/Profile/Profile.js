@@ -1,8 +1,9 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context";
 import styles from "./Profile.module.scss"
 import { useNavigate } from "react-router-dom";
 import PopUp from "../../components/PopUp/PopUp";
+import Loading from "../../components/loading/Loading";
 
 
 
@@ -18,6 +19,7 @@ function Profile() {
   const bannerRef = useRef();
   const portraitRef = useRef();
   const [errorAvatar, setErrorAvatar] = useState("");
+  const [isLoading, setIsLoading] = useState(true)
   const [formData, setFormData] = useState({
     title: '',
     banner: null,
@@ -25,11 +27,14 @@ function Profile() {
     synopsis: '',
     author: ''
   });
-  
 
-  
-  console.log(user)
-  // console.log(avatarRef)
+//   useEffect(() => {
+//     setTimeout(() => setIsLoading(false), 100)
+// }, [])
+// if (isLoading) {
+//     return <Loading/>
+// }
+
 
   async function addAvatar(){
     const formData = new FormData(); 
@@ -67,6 +72,8 @@ function Profile() {
     }
   }
 }
+
+
 
 const handleSubmit = async(e) => {
   e.preventDefault();
@@ -123,6 +130,23 @@ const handleInputChange = (e) => {
   }));
 };
 
+async function deleteAccount() {
+
+  try {
+    let data = {id: user.iduser};
+    await fetch(`http://localhost:8000/api/users/deleteUser/${user.iduser}`, {
+      method: "DELETE"
+    });
+    setFeedback("Compte supprimé");
+    setTimeout(()=> {
+      navigate("/");
+    }, 3000)
+  } catch (error) {
+    console.error(error)
+  }
+
+}
+
   
 
 
@@ -146,16 +170,14 @@ const handleInputChange = (e) => {
       closePopUp();
     }
   };
-  // ---------------------------------
 
-  // console.log(user.profilePicture)
 
   return (
     <>
     <div className={`${styles.mainDiv}`}>
 
       <div className={`${styles.profileTitle}`}>
-        <h1>Profile de Brandon </h1>
+        <h1>Profile de {user.username} </h1>
         <span>Choisie un avatar et écris toi une description pour créer un profile à ton image !</span>
       </div>
 
@@ -166,9 +188,15 @@ const handleInputChange = (e) => {
            className={`${styles.divPP}`}
            onClick={() => document.getElementById('profilePicture').click()}
            >
-              <img src={`http://localhost:8000/${user.profilePicture}`} alt="ProfilePicture" />
+          
+            <img src={`http://localhost:8000/${user.profilePicture}`}
+             alt="ProfilePicture"
+              onLoad={() => setIsLoading(false)}
+            />
               <input type="file" id="profilePicture" ref={avatarRef} style={{ display: 'none' }} />
             <i className={`fa-solid fa-pen-to-square ${styles.editIcon}`}></i>
+          
+              
           </div>
           {/* ----------------------- */}
           <button onClick={addAvatar} className="whiteButton">Changer d'avatar</button>
@@ -252,6 +280,10 @@ const handleInputChange = (e) => {
 
       <div>
         <button onClick={openPopUp} className={`${styles.logoutBtn}`}>Se déconnecter</button>
+      </div>
+
+      <div>
+        <button onClick={() => {deleteAccount(); logout();}}>Supprimer Compte</button>
       </div>
 
       {showPopUp && (

@@ -6,8 +6,8 @@ import styles from "./SearchBar.module.scss"
 function SearchBar() {
     const [results, setResults] = useState([])
   return (
-    <div>
-        <div className={`${styles.mainDiv}`}>
+    <div className={`${styles.mainDiv}`}>
+        <div className={`${styles.searchBarDiv}`}>
             <Bar setResults={setResults}/>
             <List results={results}/>
         </div>
