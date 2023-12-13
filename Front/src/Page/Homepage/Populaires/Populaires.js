@@ -1,3 +1,4 @@
+import { NavLink } from "react-router-dom"
 import styles from "./Populaires.module.scss"
 
 export default function Populaires ({comicsData}){
@@ -21,7 +22,8 @@ export default function Populaires ({comicsData}){
                         </div>
                 </div>
             </div>
-            <button className={`whiteButton ${styles.btnPopulaire}`}>Découvrir</button>
+            
+            <NavLink to="comics" className={`whiteButton ${styles.btnPopulaire}`}>Découvrir</NavLink>
 
 
         </div>

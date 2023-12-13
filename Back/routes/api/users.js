@@ -67,12 +67,11 @@ router.post("/login", (req, res) => {
             expiresIn: 3600 * 24 * 30,
             algorithm: "RS256",
           });
-          let user = {
-            iduser: result[0].iduser,
-            username: result[0].username,
-            email: result[0].email,
-            profilePicture: result[0].profilePicture,
-          };
+          let user = result[0];
+          user.password = "";
+          if (!user.profilePicture) {
+            user.profilePicture = "Default_Avatar.png";
+          }
 
           res.cookie("token", token, { maxAge: 30 * 24 * 60 * 60 * 1000 });
           res.json(user);

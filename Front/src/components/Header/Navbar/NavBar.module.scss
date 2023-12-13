@@ -18,12 +18,28 @@
   margin-top: .5%;
 
 }
+
+$hover-scaling-factor: 1.1;
+$click-scaling-factor: 1.2;
+$transition-duration: 0.3s;
+
+
 .logo{
       cursor: pointer; 
       max-height: 100%;
       max-width: 100%;
       height: auto;
+      transition: transform $transition-duration ease-in-out;
 }
+.logo:hover {
+  transform: scale($hover-scaling-factor);
+}
+.logo:active {
+  transform: scale($click-scaling-factor);
+  transition: transform $transition-duration ease-in-out;
+}
+
+
 
 
 

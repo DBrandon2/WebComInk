@@ -1,3 +1,4 @@
+import { NavLink } from "react-router-dom"
 import styles from "./AvantPremière.module.scss"
 
 function AvantPremière({comicsData}) {
@@ -22,9 +23,7 @@ function AvantPremière({comicsData}) {
       </div>}
       </div>
     </div>
-    <button className={`whiteButton ${styles.btnAv}`}>
-        Découvrir
-    </button>
+    <NavLink to="/comics" className={`whiteButton ${styles.btnAv}`}> Découvrir </NavLink>
     </div>
   )
 }

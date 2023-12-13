@@ -18,8 +18,9 @@ img{
         }
 
         p{
-            font-weight: 200;
+            font-weight: 300;
             font-size: 1.1rem;
+            color: var(--accent);
         }
     
 }
@@ -62,7 +63,8 @@ img{
 
 .btnPopulaire{
     margin-top: 3rem;
-    margin-left: 73%;
+    margin-left: 72%;
+    background-color: var(--mainText);
 }
 
     

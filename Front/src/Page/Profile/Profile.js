@@ -3,7 +3,6 @@ import { AuthContext } from "../../context";
 import styles from "./Profile.module.scss"
 import { useNavigate } from "react-router-dom";
 import PopUp from "../../components/PopUp/PopUp";
-import Loading from "../../components/loading/Loading";
 
 
 
@@ -14,26 +13,20 @@ function Profile() {
   const { user, logout } = useContext(AuthContext);
   const [feedback, setFeedback] = useState("");
   const [showPopUp, setShowPopUp] = useState(false);
+  const [deletePopUp, setDeletePopUp] = useState(false)
   const navigate = useNavigate();
   const avatarRef = useRef();
   const bannerRef = useRef();
   const portraitRef = useRef();
   const [errorAvatar, setErrorAvatar] = useState("");
-  const [isLoading, setIsLoading] = useState(true)
   const [formData, setFormData] = useState({
     title: '',
     banner: null,
     portrait:null,
     synopsis: '',
-    author: ''
+    author: '',
+    avatarPreview: null,
   });
-
-//   useEffect(() => {
-//     setTimeout(() => setIsLoading(false), 100)
-// }, [])
-// if (isLoading) {
-//     return <Loading/>
-// }
 
 
   async function addAvatar(){
@@ -55,7 +48,6 @@ function Profile() {
       }
       formData.append("avatar", avatarRef.current.files[0]);
       formData.append("iduser", user.iduser);
-      // console.log(formData)
     try{
       const response = await fetch (`http://localhost:8000/api/users/updateAvatar`, {
         method: "POST",
@@ -72,6 +64,20 @@ function Profile() {
     }
   }
 }
+
+const handleAvatarChange = (e) => {
+  const selectedFile = e.target.files[0];
+  if (selectedFile) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData((prevData) => ({
+        ...prevData,
+        avatarPreview: reader.result,
+      }));
+    };
+    reader.readAsDataURL(selectedFile);
+  }
+};
 
 
 
@@ -138,9 +144,6 @@ async function deleteAccount() {
       method: "DELETE"
     });
     setFeedback("Compte supprimé");
-    setTimeout(()=> {
-      navigate("/");
-    }, 3000)
   } catch (error) {
     console.error(error)
   }
@@ -157,6 +160,14 @@ async function deleteAccount() {
 
   const closePopUp = () => {
     setShowPopUp(false);
+  };
+
+  const openDeletePopUp = () => {
+    setDeletePopUp(true);
+  };
+
+  const closeDeletePopUp = () => {
+    setDeletePopUp(false);
   };
 
   const handleLogout = async () => {
@@ -186,14 +197,13 @@ async function deleteAccount() {
             {/* --------------------- */}
           <div
            className={`${styles.divPP}`}
-           onClick={() => document.getElementById('profilePicture').click()}
+           onClick={() => avatarRef.current.click()}
            >
           
-            <img src={`http://localhost:8000/${user.profilePicture}`}
+            <img  src={formData.avatarPreview || `http://localhost:8000/${user.profilePicture}`}
              alt="ProfilePicture"
-              onLoad={() => setIsLoading(false)}
             />
-              <input type="file" id="profilePicture" ref={avatarRef} style={{ display: 'none' }} />
+              <input type="file" id="profilePicture" ref={avatarRef} style={{ display: 'none' }}  onChange={handleAvatarChange}/>
             <i className={`fa-solid fa-pen-to-square ${styles.editIcon}`}></i>
           
               
@@ -207,8 +217,12 @@ async function deleteAccount() {
             <li><span>Email :</span> {user.email}</li>
             <li className="passwordProfile"> <span>Password :</span> ************</li>
           </ul>
+            <div>
+              <button onClick={openPopUp} className={`${styles.logoutBtn}`}>Se déconnecter</button>
+            </div>
         </div>
       </div>
+      
       {/* <div className={`${styles.profileDescription}`}> */}
         {/* <div className={`${styles.descriptionEntete}`}>
           <p>À propos</p>
@@ -278,12 +292,10 @@ async function deleteAccount() {
       
       
 
-      <div>
-        <button onClick={openPopUp} className={`${styles.logoutBtn}`}>Se déconnecter</button>
-      </div>
+    
 
       <div>
-        <button onClick={() => {deleteAccount(); logout();}}>Supprimer Compte</button>
+        <button onClick={openDeletePopUp} className={`${styles.deleteBtn}`}>Supprimer votre compte</button>
       </div>
 
       {showPopUp && (
@@ -291,6 +303,16 @@ async function deleteAccount() {
             message="Voulez-vous vraiment vous déconnecter ?"
             onConfirm={handleLogout}
             onCancel={closePopUp}
+            active={showPopUp}
+          />
+        )}
+
+      {deletePopUp && (
+          <PopUp 
+            message="Vous allez supprimer votre compte, cette action est irréversible"
+            message2="Êtes vous sur de vouloir continuer ?"
+            onConfirm={() => {deleteAccount(); logout();}}
+            onCancel={closeDeletePopUp}
             active={showPopUp}
           />
         )}

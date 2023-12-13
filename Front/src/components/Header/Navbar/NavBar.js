@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-solid-svg-icons"
 import { NavLink } from "react-router-dom"
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../../../context";
 import { signout } from "../../../apis/users";
 import SearchBar from "../../SearchBar/SearchBar";
@@ -13,18 +13,20 @@ import SearchBar from "../../SearchBar/SearchBar";
 
 export default function NavBar () {
     const { user, setUser } = useContext(AuthContext);
+    const [logoClicked, setLogoClicked] = useState(false);
 
-    function handleClick() {
-        setUser(null)
-        signout()
+
+      function handleLogoClick() {
+        setLogoClicked(true);
+        setTimeout(() => setLogoClicked(false), 300);
       }
 
 
     return(
         <nav className={`d-flex jcb ${styles.navposition} ${styles.navbar}`}>
             <div className={`${styles.divLogo} `}>
-               <NavLink to="/">
-                    <img src={logo} className={`${styles.logo} `}></img>
+               <NavLink to="/" onClick={handleLogoClick}>
+                    <img src={logo} className={`${styles.logo} ${logoClicked ? styles.clicked : ""}`}></img>
                 </NavLink>
             </div>
             <div className="ulNav">

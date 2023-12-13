@@ -18,18 +18,28 @@
   
   .modal {
     background: var(--secondary);
-    padding: 4rem;
+    padding: 1rem;
     border-radius: 5px;
     text-align: center;
-
+    width: 50%;
 
     p{
-      color: var(--accent);
-      margin-bottom: 10%;
-      font-size: 1.4rem;
-      font-weight: 700;
+      margin: 0 auto;
+      width: 80%;
+      color: var(--mainText);
+      margin-bottom: 2%;
+      font-size: 1rem;
+      font-weight: 500;
       letter-spacing: 0.2rem;
-      padding-bottom: 5%;
+      padding-bottom: 3%;
+      padding-top: 2%;
+    }
+
+    .span{
+      color: rgb(206, 55, 55);
+      font-weight: 900;
+      letter-spacing: 0.2rem;
+      font-size: 1.2rem;
     }
 // ----------
     button{

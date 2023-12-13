@@ -12,8 +12,9 @@
             letter-spacing: 0.2rem;
         }
         p{
-            font-weight: 200;
-            font-size: 1.1rem;            
+            font-weight: 300;
+            font-size: 1.1rem; 
+            color: var(--accent);           
         }
     }
 
@@ -60,6 +61,13 @@
     .btnAv{
         margin-top: 3rem;
         margin-left: 79%;
+        background-color: var(--mainText);
+    }
+
+    .btnAv:hover{
+        background-color: var(--accent);
+        transform: scale(1.05);
+        color: var(--mainText);
     }
 }
 
