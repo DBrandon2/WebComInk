@@ -31,7 +31,6 @@ function Profile() {
 
   async function addAvatar(){
     const formData = new FormData(); 
-    // console.log(avatarRef)
     if (avatarRef.current && avatarRef.current.files[0]){
       const maxFileSize = 5000000;
       if(avatarRef.current.files[0].size > maxFileSize) {

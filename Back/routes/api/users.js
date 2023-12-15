@@ -1,3 +1,5 @@
+require("dotenv").config()
+
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const jsonwebtoken = require("jsonwebtoken")
@@ -10,8 +12,8 @@ const sharp = require('sharp');
 const transporter = nodemailer.createTransport({
   service : "Gmail",
   auth: {
-    user: "demaretzz.brandon@gmail.com",
-    pass: "gdfu ofse gipr ansb"
+    user: process.env.USER_MAIL,
+    pass: process.env.PASSWORD_MAIL,
   }
 })
 

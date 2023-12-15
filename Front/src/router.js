@@ -11,8 +11,6 @@ const Register = lazy(() => import ("./Page/Form/register/Register"))
 const Login = lazy(() => import ("./Page/Form/login/Login"))
 const Profile = lazy(()=> import ("./Page/Profile/Profile"))
 const Comics = lazy (() => import ("./Page/Comics/Comics"))
-
-
 export const router = createBrowserRouter ([
     {
         path:"/",
