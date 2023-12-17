@@ -17,7 +17,6 @@ function Comics() {
         fetchData();
     }, []);
 
-    
   return (
     <div className={`${styles.MainDiv}`}>
         <div className={`${styles.Left}`}>
@@ -47,17 +46,14 @@ function Comics() {
                     <li>Exclusivité</li>
                 </ul>
             </div>
-
+        {/*  Liste des comics */}
             <div className={`${styles.gridComics}`}>
                 {comicsData.map((comics, idComics) => (
                     <ComicsItem key={idComics} data={comics}/>
                 ))
                 }    
             </div>
-
-
         </div>
-
     </div>
   )
 }

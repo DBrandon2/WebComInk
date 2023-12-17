@@ -9,6 +9,7 @@ import { fetchComicsData } from '../../apis/comics';
 
 function Homepage() {
   const [comicsData, setComicsData] = useState([]);
+  const idComics = comicsData.length > 0 ? comicsData[0].idComics : null;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -20,13 +21,12 @@ function Homepage() {
         };
         fetchData();
     }, []);
-
   
   return (
     <div>
         <Carousel comicsData={comicsData}/>
-        <Populaires comicsData={comicsData}/>
-        <AvantPremière comicsData={comicsData}/>
+        <Populaires comicsData={comicsData} key={idComics}/>
+        <AvantPremière comicsData={comicsData} />
         <Book/>
         <FAQ/>
     </div>

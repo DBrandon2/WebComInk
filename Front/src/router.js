@@ -4,6 +4,7 @@ import { lazy} from "react";
 import { userLoader } from "./loaders/userLoader";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute"
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
+import Details from "./Page/Comics/Details/Details";
 const ResetPassword = lazy(() => import ("./Page/Security/ResetPassword"))
 const ForgotPassword = lazy(() => import ("./Page/Security/ForgotPassword"))
 const Homepage = lazy(() => import("./Page/Homepage/Homepage"))
@@ -35,6 +36,10 @@ export const router = createBrowserRouter ([
                 element: <Login/>
             },
             {
+                path: "details/:idComics",
+                element: <Details/>,
+              },
+            {
                 path:"comics",
                 element: <Comics/> 
             },
@@ -53,7 +58,7 @@ export const router = createBrowserRouter ([
             {
                 path: "changermotdepasse",
                 element: (<ResetPassword/>)
-            }
+            },
         ]
     }
 ])

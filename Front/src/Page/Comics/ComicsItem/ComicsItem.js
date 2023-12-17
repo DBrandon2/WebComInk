@@ -23,15 +23,23 @@ function ComicsItem({data}) {
 
 
   return (
-    <div className={` my30 ${styles.comics}`}>
+    <div className={`${styles.comics}`}>
       <div className={`${styles.comicsImg}`}>
-      <NavLink to={`details/${idComics}`}>
+      <NavLink to={`../details/${idComics}`}>
         <img src={`http://localhost:8000/${banner}`} alt="Comics" />
       </NavLink>
+      <NavLink to={`../details/${idComics}`}>
+      <div className={`${styles.infoHover}`}>
+        <h2>{title}</h2>
+        <p>{author}</p>
+        <p>{illustrator}</p>
+        <span>{likes}  |  {favorite}  |  {vue}</span>
       </div>
-      <div className={`${styles.comicsTitle}`}>
+      </NavLink>
+      </div>
+      {/* <div className={`${styles.comicsTitle}`}>
         <h3>{title}</h3>
-      </div>
+      </div> */}
     </div>
   )
 }

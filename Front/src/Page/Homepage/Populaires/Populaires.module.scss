@@ -1,74 +1,85 @@
-// .background{
-//     background-color: var(--primary);
-// }
-img{
+.background {
+
+
+img {
     width: 100%;
 }
 
-.title{
+.title {
     flex-direction: column;
     text-align: center;
     margin-bottom: 4rem;
     margin-top: 5rem;
     color: var(--mainText);
-        h1{
-            font-weight: 500;
-            letter-spacing: 0.2rem;
-            font-size: 3rem;
-        }
 
-        p{
-            font-weight: 300;
-            font-size: 1.1rem;
-            color: var(--accent);
-        }
-    
+    h1 {
+        font-weight: 500;
+        letter-spacing: 0.2rem;
+        font-size: 3rem;
+    }
+
+    p {
+        font-weight: 300;
+        font-size: 1.1rem;
+        color: var(--accent);
+    }
 }
 
-.mangaPopulaire{
+.mangaPopulaire {
     width: 80%;
     margin: 0 auto;
     justify-content: center;
-    
-    .mangaA1{
-        width: 19%;
+    margin-bottom: 4%;
+
+    a{
+        width: 100%;
+        height: auto;
+    }
+
+    .aNav{
+        width: 15vw;
+        height: 50%;
+    }
+
+    .mangaA1 {
+        width: 100%;
+        display: flex;
         align-self: center;
         justify-content: center;
-        margin: 1rem; 
-        margin-top: 1.5rem;  
-        img{
+
+        img { 
             border-radius: 15px;
-        } 
+        }
     }
-    .mangaA2{
+
+    .mangaA2 {
         width: 50%;
         display: flex;
         justify-content: center;
-        
     }
-    
-    .mangaC1{
+
+    .mangaC1 {
         width: fit-content;
         display: flex;
         justify-content: center;
         align-items: center;
         margin: 1rem;
-        img{
+
+        img {
             border-radius: 15px;
         }
     }
-
-    
 }
 
 .btnPopulaire{
-    margin-top: 3rem;
+    margin-top: 5vh;
     margin-left: 72%;
     background-color: var(--mainText);
 }
+.btnPopulaire:hover{
+    background-color: var(--accent);
+    transform: scale(1.05);
+    color: var(--mainText);
+}
 
-    
-
-
-
-
+}

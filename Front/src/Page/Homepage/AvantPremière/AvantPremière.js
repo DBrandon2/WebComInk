@@ -23,7 +23,7 @@ function AvantPremière({comicsData}) {
       </div>}
       </div>
     </div>
-    <NavLink to="/comics" className={`whiteButton ${styles.btnAv}`}> Découvrir </NavLink>
+    <NavLink to={`details/${comicsData[5]?.idComics}`} className={`whiteButton ${styles.btnAv}`}> Découvrir </NavLink>
     </div>
   )
 }

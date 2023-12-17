@@ -1,14 +1,60 @@
 .comics{
-    width: 300px;
-    display: flex;
-    justify-content:center;
-    flex-direction: column;
-    align-items: center;
-    .comicsImg{
-        img{
-            aspect-ratio: 16/9;
-            object-fit: contain;
-            width: 300px
-        }
+    
+.comicsImg {
+    position: relative;
+  
+    img {
+      aspect-ratio: 16/9;
+      object-fit: contain;
+      width: 300px;
     }
+  
+    .infoHover {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        visibility: hidden;
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, #163739 10%, rgba(22, 55, 57, 0.418) 90%);
+        color: white;
+        padding: 20px;
+        box-sizing: border-box;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+
+        h2{
+            font-size: 1.2rem;
+            color: var(--accent);
+            letter-spacing: .1rem;
+            font-weight: 500;
+            font-style: italic;
+        }
+        p{
+          font-weight: 300;
+        }
+        span{
+          width: 50%;
+        }
+
+    }
+  
+    &:hover .infoHover {
+      visibility: visible;
+      opacity: 1;
+      cursor: pointer;
+    }
+  }
+
+  .comicsTitle{
+    display: flex;
+    justify-content: center;
+    h3{
+       font-weight: 500;
+    }
+  }
+
 }

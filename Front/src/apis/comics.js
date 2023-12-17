@@ -15,3 +15,25 @@ export const fetchComicsData = async () => {
         return null;
     }
 };
+
+export const fetchComicsDataOne = async (idComics) => {
+    try {
+        if (!idComics) {
+            console.error('idComics is not defined.');
+            return null;
+        }
+        const response = await fetch(`${API_INFO}/getOneComics/${idComics}`);
+        const data = await response.json();
+        if (data.length > 0) {
+            return data;
+        } else {
+            console.error('No data received.');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error during data retrieval:', error);
+        return null;
+    }
+
+
+}
