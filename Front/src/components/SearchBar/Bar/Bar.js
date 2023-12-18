@@ -28,7 +28,6 @@ function Bar({setResults}) {
       console.error('Error fetching data:', error);
     }
   }
-    
   const handleChange = (value) => {
     setInput(value)
     fetchData(value)

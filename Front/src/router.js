@@ -5,6 +5,7 @@ import { userLoader } from "./loaders/userLoader";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute"
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 import Details from "./Page/Comics/Details/Details";
+import Bibliothèque from "./Page/Bibliothèque/Bibliothèque";
 const ResetPassword = lazy(() => import ("./Page/Security/ResetPassword"))
 const ForgotPassword = lazy(() => import ("./Page/Security/ForgotPassword"))
 const Homepage = lazy(() => import("./Page/Homepage/Homepage"))
@@ -42,6 +43,10 @@ export const router = createBrowserRouter ([
             {
                 path:"comics",
                 element: <Comics/> 
+            },
+            {
+                path:"bibliothèque",
+                element: <Bibliothèque/> 
             },
             {
                 path: "profile",

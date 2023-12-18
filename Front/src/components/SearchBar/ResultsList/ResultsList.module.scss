@@ -1,10 +1,21 @@
 .mainDiv{
-    padding: 10px 20px;
+    padding: 10px 10px;
+    a{
+        width: 100%;
+        justify-content: flex-start;
+
+        .imgPreview{
+            width: 50px;
+            height: auto;
+            margin-right: 8%;
+        }
+    }
 }
 
 .mainDiv:hover{
     background-color: #efefef;
     color: black;
     box-shadow: none;
+    border-radius: 5px;
 
 }

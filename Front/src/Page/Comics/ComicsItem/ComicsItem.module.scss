@@ -1,12 +1,17 @@
 .comics{
-    
+    margin-top: 5%;
+    margin-left: 1%;
 .comicsImg {
     position: relative;
   
     img {
       aspect-ratio: 16/9;
-      object-fit: contain;
+      object-fit: cover;
       width: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px;
     }
   
     .infoHover {
@@ -34,7 +39,8 @@
             font-style: italic;
         }
         p{
-          font-weight: 300;
+          font-weight: 200;
+          font-size: .9rem;
         }
         span{
           width: 50%;

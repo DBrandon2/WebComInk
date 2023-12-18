@@ -34,7 +34,7 @@ export default function NavBar () {
                     {/* <li className={`${styles.liNav}`}><a href="" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Accueil</a></li> */}
                     <li className={`${styles.liNav}`}><NavLink  to="/" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Accueil</NavLink></li>
                     <li className={`${styles.liNav}`}><NavLink  to="/comics" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Comics</NavLink></li>
-                    <li className={`${styles.liNav}`}><a href="" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Bibliothèque</a></li>
+                    <li className={`${styles.liNav}`}><NavLink  to="/bibliothèque" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Bibliothèque</NavLink></li>
                 </ul>
             </div>
             <div className={`${styles.iconNav}`}>

@@ -2,9 +2,13 @@
     display: flex;
     color: var(--mainText);
     margin: 15% 4%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     .Left{
-        width: 20%;
+        width: 16%;
+        margin-right: 3%;
         .Genre{
             background-color: var(--secondary);
             display: flex;
