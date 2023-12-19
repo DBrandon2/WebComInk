@@ -30,7 +30,7 @@ export default function NavBar () {
                 </NavLink>
             </div>
             <div className="ulNav">
-                <ul className="d-flex gap2 ">
+                <ul className={` d-flex gap2 `}>
                     {/* <li className={`${styles.liNav}`}><a href="" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Accueil</a></li> */}
                     <li className={`${styles.liNav}`}><NavLink  to="/" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Accueil</NavLink></li>
                     <li className={`${styles.liNav}`}><NavLink  to="/comics" className={`${styles.acustom} ${styles.abtn} ${styles.fromleft}`}>Comics</NavLink></li>

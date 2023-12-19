@@ -33,7 +33,7 @@ function ComicsItem({data}) {
         <h2>{title}</h2>
         <p>{author}</p>
         <p>{illustrator}</p>
-        <span>{likes}  |  {favorite}  |  {vue}</span>
+        <span><i class="fa-solid fa-heart"></i>{likes}  |  <i class="fa-solid fa-bookmark"></i>{favorite}  |  <i class="fa-solid fa-eye"></i>{vue}</span>
       </div>
       </NavLink>
       </div>
