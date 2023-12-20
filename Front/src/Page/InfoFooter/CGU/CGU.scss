@@ -1,0 +1,44 @@
+.maindiv{
+    margin: 0 auto;
+    margin-top: 10%;
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    gap: 3rem;
+    color: var(--mainText);
+
+    h1{
+        color: var(--accent);
+    }
+
+    h2{
+        color: var(--accent);
+    }
+
+    h3{
+        color: var(--accent);
+    }
+
+    a{
+        color: rgb(244, 126, 126);
+    }
+
+    ul{
+        li{
+            span{
+                color: var(--accent);
+                font-weight: 500;
+            }
+        }
+    }
+
+    i{
+        font-size: 3rem;
+        margin-top: 3%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    
+}

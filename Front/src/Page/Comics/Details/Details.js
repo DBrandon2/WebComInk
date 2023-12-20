@@ -35,13 +35,23 @@ function Details() {
         };
         fetchData();
     }, [idComics]);
+
+    function formatDate(dateString) {
+        const utcDate = new Date(dateString);
+        const formattedDate = utcDate.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        });
+        return formattedDate;
+      }
     
 
   return (
   <div className={`${styles.mainDiv}`}>
     <div className={`${styles.headerDiv}`}>
             <img src={`http://localhost:8000/${comicsData[0]?.banner}`} alt="" /> 
-            <div className={`${styles.filter}`}>0</div>  
+            <div className={`${styles.filter}`}></div>  
         <div className={`${styles.headerComponent}`}>
             <h2>{comicsData[0]?.title}</h2>
             <p>{comicsData[0]?.author}</p>
@@ -54,16 +64,26 @@ function Details() {
         <ul>
         {chapters.map((chapter) => (
             <Link key={chapter.idChapter} to={`/chapter/${chapter.idChapter}`}>
-                <img src={`http://localhost:8000/${comicsData[0]?.portrait}`} alt="" />
-                <p>{chapter.chapterNb}</p>
-                <p>{chapter.name}</p>
-                <p>{chapter.date}</p>
+                <div className={`${styles.chapterLeft}`}>
+                    <img src={`http://localhost:8000/${comicsData[0]?.portrait}`} alt="" />
+                    <p>{chapter.chapterNb}</p>
+                </div>
+                <div className={`${styles.chapterRight}`}>
+                    <p>{chapter.name}</p>
+                    <p>{formatDate(chapter.date)}</p>
+                </div>
             </Link>
         ))}
         </ul>
         </div>
         <div className={`${styles.rightDiv}`}>
-            <button className={`whiteButton ${styles.rightBtn}`}>Lire le premier chapitre</button>
+        {chapters.length > 0 && (
+            <Link to={`/chapter/${chapters[0].idChapter}`}>
+              <button className={`whiteButton ${styles.rightBtn}`}>
+                Lire le premier chapitre
+              </button>
+            </Link>
+          )}
             <div className={`${styles.rightSynopsis}`}>
             <div className={`${styles.numbers}`}>
                 <ul>

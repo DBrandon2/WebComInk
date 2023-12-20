@@ -1,6 +1,6 @@
+import { NavLink } from "react-router-dom"
 import styles from "./Footer.module.scss"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-
 
 
 function Footer() {
@@ -10,25 +10,25 @@ function Footer() {
         <div className={`${styles.liens}`}>
             <span className={`${styles.footerSpan}`}>WebComInk</span>
             <ul>
-                <li>Politique de protéction des données</li>
-                <li>Conditions générales d'utilisation</li>
-                <li>Politique de cookies</li>
+                <NavLink to="/Politique-de-confidentialité"><li>Politique de protéction des données</li></NavLink>
+                <NavLink to="/CGU"><li>Conditions générales d'utilisation</li></NavLink>
+                <NavLink to="/Politique-des-cookies"><li>Politique de cookies</li></NavLink>
             </ul>
         </div>
         <div className={`${styles.liens}`}>
             <span className={`${styles.footerSpan}`}>Liens utiles</span>
             <ul>
-                <li>Aide</li>
-                <li>Signaler un bug</li>
-                <li>Mention Légales</li>
+                <NavLink to="/Aide-Signalé-un-bug"><li>Aide</li></NavLink>
+                <NavLink to="/Aide-Signalé-un-bug"><li>Signaler un bug</li></NavLink>
+                <NavLink to="/Mentions-légales"><li>Mention Légales</li></NavLink>      
             </ul>
         </div>
         <div className={`${styles.liens}`}>
             <span className={`${styles.footerSpan}`}>Nous contacter</span>
             <ul>
-                <li>SAV</li>
-                <li>Media</li>
-                <li>Partenariats</li>
+                <NavLink to="/SAV"><li>SAV</li></NavLink>
+                <NavLink to="/Réseaux-Sociaux"><li>Media</li></NavLink>
+                <NavLink to="/Partenariat"><li>Partenariats</li></NavLink>
             </ul>
         </div>
     </div>

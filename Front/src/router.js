@@ -7,6 +7,14 @@ import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 import Details from "./Page/Comics/Details/Details";
 import Bibliothèque from "./Page/Bibliothèque/Bibliothèque";
 import ImgChapter from "./Page/Comics/ImgChapter/ImgChapter";
+import CGU from "./Page/InfoFooter/CGU/CGU";
+import InfoCookie from "./Page/InfoFooter/InfoCookie/InfoCookie";
+import Partenariat from "./Page/InfoFooter/Partenariat/Partenariat";
+import Mentionslégal from "./Page/InfoFooter/MentionsLégal/Mentionslégal";
+import Confidentialité from "./Page/InfoFooter/Politique de confidentialité/Confidentialité";
+import BugAide from "./Page/InfoFooter/SignalerBugAide/BugAide";
+import Réseaux from "./Page/InfoFooter/Réseaux/Réseaux";
+import SAV from "./Page/InfoFooter/SAV/SAV";
 const ResetPassword = lazy(() => import ("./Page/Security/ResetPassword"))
 const ForgotPassword = lazy(() => import ("./Page/Security/ForgotPassword"))
 const Homepage = lazy(() => import("./Page/Homepage/Homepage"))
@@ -68,6 +76,38 @@ export const router = createBrowserRouter ([
             {
                 path: "/chapter/:idChapter",
                 element: (<ImgChapter/>)
+            },
+            {
+                path: "CGU",
+                element: (<CGU/>)
+            },
+            {
+                path: "Politique-des-cookies",
+                element: (<InfoCookie/>)
+            },
+            {
+                path: "Partenariat",
+                element: (<Partenariat/>)
+            },
+            {
+                path: "Mentions-légales",
+                element: (<Mentionslégal/>)
+            },
+            {
+                path: "Politique-de-confidentialité",
+                element: (<Confidentialité/>)
+            },
+            {
+                path: "Aide-Signalé-un-bug",
+                element: (<BugAide/>)
+            },
+            {
+                path: "Réseaux-Sociaux",
+                element: (<Réseaux/>)
+            },
+            {
+                path: "SAV",
+                element: (<SAV/>)
             },
         ]
     }

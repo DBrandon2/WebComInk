@@ -35,6 +35,9 @@ export default function Register() {
         [yup.ref("password", "")],
         "Les mots de passe ne correspondents pas"
       ),
+    acceptTerms: yup
+    .boolean()
+    .oneOf([true], "Vous devez accepter les CGU et la Politique de Confidentialité"),
   });
 
   const defaultValues = {
@@ -57,14 +60,20 @@ export default function Register() {
   });
 
   async function submit(values) {
-    // console.log(values);
     try {
+      if (!values.acceptTerms) {
+        setError("acceptTerms", {
+          type: "acceptTerms",
+          message: "Vous devez accepter les CGU et la Politique de Confidentialité",
+        });
+        return;
+      }
       clearErrors();
       await createUser(values);
-      setFeedbackGood("Inscription réussie, redirection vers la page connexion...")
+      setFeedbackGood("Inscription réussie, redirection vers la page connexion...");
       setTimeout(() => {
         navigate("/connexion");
-      }, 2000) 
+      }, 2000);
     } catch (error) {
       setError("generic", { type: "generic", message: "Mail déjà existant" });
     }
@@ -146,6 +155,21 @@ export default function Register() {
             {feedbackGood}
           </p>
         )}
+    {/* Confirm CGU*/}
+        <div className={`d-flex align-items-center  ${styles.labelDiv}`}>
+          <input
+            className={` ${styles.inputCheckbox}`}
+            type="checkbox"
+            id="acceptTerms"
+            {...register("acceptTerms")}
+          />
+          <label htmlFor="acceptTerms" className="ml5">
+            J'accepte les <a href="/CGU" target="_blank">Conditions Générales d'Utilisation</a> et la <a href="/Politique-de-confidentialité" target="_blank">Politique de Confidentialité</a>.
+          </label>
+        </div>
+        {errors?.acceptTerms && (
+            <p className={`${styles.feedback}`}>{errors.acceptTerms.message}</p>
+          )}
 
         <button disabled={isSubmitting} className={`${styles.submitBtn}`}>
           Submit

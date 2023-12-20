@@ -66,24 +66,46 @@
             width: 50%;
             display: flex;
             flex-direction: column;
+            justify-content: flex-start;
+
+            h2{
+                display: flex;
+                justify-content: center;
+            }
             
             ul{
                 background-color: white;
                 gap: 2rem;
-
-                
-                    
+                border-radius: 2px;
                 a{
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    
-                    img{
-                        width: 35px;
-                        height: 50px;
+                    gap: 2rem;
+
+                    .chapterLeft{
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        img{
+                            width: 53px;
+                            height: 70px;
+                        }
+                        p{
+                            font-size: 1.2rem;
+                            color: var(--accent);
+                        }
                     }
+                    .chapterRight{
+                        display: flex;
+                        gap: 2rem;
+                        align-items: center;
+                        margin-right: 10%;
+                    }
+                    
                     p{
-                        color: black;
+                        color: var(--primary);
+                        font-weight: 500;
                     }
                 }
             }
