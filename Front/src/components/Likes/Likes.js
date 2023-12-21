@@ -9,33 +9,28 @@ function Likes({ idComics, iduser }) {
         fetchLikes(idComics, iduser)
           .then(data => {
               setLikeCount(data.likeCount);
-              setIsLiked(data.likeCount === 0);
+              setIsLiked(data.isLiked);
           })
           .catch(error => console.error('Error fetching likes:', error));
     }, [idComics, iduser]);
 
-    console.log("data:", likeCount)
-
     const handleLike = async () => {
-        try {
-            if (isLiked) {
-                const success = await removeLike(idComics, iduser);
-                if (success) {
-                    setLikeCount(prevCount => prevCount - 1);
-                    setIsLiked(false);
-                }
-            } else {
-                const success = await addLike(idComics, iduser);
-                if (success) {
-                    setLikeCount(prevCount => prevCount + 1);
-                    setIsLiked(true);
-                }
-            }
-        } catch (error) {
-            console.error('Error handling like:', error);
-        }
-    };
+      try {
+          if (isLiked) {
+              await removeLike(idComics, iduser);
+              setLikeCount(prevCount => prevCount - 1);
+              setIsLiked(false);
+          } else {
+              await addLike(idComics, iduser);
+              setLikeCount(prevCount => prevCount + 1);
+              setIsLiked(true);
+          }
+      } catch (error) {
+          console.error('Erreur lors de la gestion du like :', error);
+      }
+  };
 
+  
   return (
     <div>
       <button onClick={handleLike}>
