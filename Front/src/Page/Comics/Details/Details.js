@@ -1,12 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import styles from "./Details.module.scss"
 import { fetchComicsDataOne, fetchChapters } from '../../../apis/comics';
 import { Link, NavLink, useParams } from 'react-router-dom';
+import Likes from '../../../components/Likes/Likes';
+import { AuthContext } from '../../../context';
+
 
 function Details() {
     const [comicsData, setComicsData] = useState([]);
     const [chapters, setChapters] = useState([]);
-    const { idComics } = useParams();
+    const [key, setKey] = useState(0);
+    const [likeCount, setLikeCount] = useState(0)
+    const {idComics} = useParams();
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -36,6 +42,10 @@ function Details() {
         fetchData();
     }, [idComics]);
 
+
+
+
+
     function formatDate(dateString) {
         const utcDate = new Date(dateString);
         const formattedDate = utcDate.toLocaleDateString(undefined, {
@@ -44,6 +54,10 @@ function Details() {
           day: '2-digit',
         });
         return formattedDate;
+      }
+
+      function handleLikeChange() {
+        setKey((prevKey) => prevKey + 1);
       }
     
 
@@ -87,6 +101,7 @@ function Details() {
             <div className={`${styles.rightSynopsis}`}>
             <div className={`${styles.numbers}`}>
                 <ul>
+                    <Likes key={key} idComics={idComics} iduser={user.iduser} onLikeChange={handleLikeChange} />
                     <li><i className="fa-solid fa-heart"></i>{comicsData[0]?.likes}</li>
                     <li><i className="fa-solid fa-bookmark"></i>{comicsData[0]?.favorite}</li>
                     <li><i className="fa-solid fa-eye"></i>{comicsData[0]?.vue}</li>
