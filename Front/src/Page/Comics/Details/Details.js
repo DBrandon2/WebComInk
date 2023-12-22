@@ -4,6 +4,9 @@ import { fetchComicsDataOne, fetchChapters } from '../../../apis/comics';
 import { Link, useParams } from 'react-router-dom';
 import Likes from '../../../components/Likes/Likes';
 import { AuthContext } from '../../../context';
+import { AllLikes, fetchLikes } from '../../../apis/likes';
+import Bookmarks from '../../../components/Bookmarks/Bookmarks';
+import { AllBooks, fetchBooks } from '../../../apis/bookmarks';
 
 
 function Details() {
@@ -11,6 +14,12 @@ function Details() {
     const [chapters, setChapters] = useState([]);
     const {idComics} = useParams();
     const { user } = useContext(AuthContext);
+
+    const [likeCount, setLikeCount] = useState(0)
+    const [isLiked, setIsLiked] = useState(false);
+
+    const [bookCount, setBookCount] = useState(0)
+    const [isBooked, setIsBooked] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,15 +39,30 @@ function Details() {
                     } else {
                         console.error('No data received.');
                     }
+
+                    fetchLikes(idComics, user.iduser)
+                        .then(data => {
+                            setIsLiked(data.isLiked);
+                        })
+                    .catch(error => console.error('Error fetching likes:', error));
+
+                    fetchBooks(idComics, user.iduser)
+                    .then(data => {
+                        setIsBooked(data.isBooked);
+                    })
+                .catch(error => console.error('Error fetching bookmarks:', error));
+
+
                 } else {
                     console.error('idComics is not defined.');
                 }
+                
             } catch (error) {
                 console.error('Error fetching comics data:', error);
             }
         };
         fetchData();
-    }, [idComics]);
+    }, [idComics, user.iduser]);
 
     function formatDate(dateString) {
         const utcDate = new Date(dateString);
@@ -50,8 +74,49 @@ function Details() {
         return formattedDate;
       }
 
-      async function handleLikeChange() {
+      useEffect(() => {
+
+        AllLikes(idComics)
+          .then(data => {
+            console.log("likes is:", data)
+            setLikeCount(data);
+          })
+          .catch(error => {
+            console.error('Error fetching all likes:', error);
+          });
+
+          AllBooks(idComics)
+          .then(data => {
+            console.log("bookmarks is:", data)
+            setBookCount(data);
+          })
+          .catch(error => {
+            console.error("Error fetching all bookmarks", error)
+          })
+      }, [idComics]);
+      
+
+        function handleLikeChange() {
+           if (isLiked) {
+            setLikeCount(prevLikeCount => prevLikeCount - 1 );
+            } else {
+            setLikeCount(prevLikeCount => prevLikeCount + 1 );
+            }
+            setIsLiked(!isLiked)
       }
+
+      function handleBookChange() {
+        if (isBooked) {
+         setBookCount(prevBookCount => prevBookCount - 1 );
+         } else {
+         setBookCount(prevBookCount => prevBookCount + 1 );
+         }
+         setIsBooked(!isBooked)
+   }
+
+
+      
+    
     
 
   return (
@@ -94,13 +159,22 @@ function Details() {
             <div className={`${styles.rightSynopsis}`}>
             <div className={`${styles.numbers}`}>
                 <ul>
+                <li onClick={handleLikeChange}>
                     <Likes
-                    idComics={idComics}
-                    iduser={user.iduser}
-                    onLikeChange={handleLikeChange} />
+                        idComics={idComics}
+                        iduser={user.iduser}
+                         />
+                </li>
 
-                    <li><i className="fa-solid fa-heart"></i>{comicsData[0]?.likes}</li>
-                    <li><i className="fa-solid fa-bookmark"></i>{comicsData[0]?.favorite}</li>
+                <li onClick={handleBookChange}>
+                    <Bookmarks
+                        idComics={idComics}
+                        iduser={user.iduser}
+                         />
+                </li>
+                    {/* <li><i className="fa-solid fa-heart"></i>{comicsData[0]?.likes}</li> */}
+                    <li>{likeCount}</li>
+                    <li>{bookCount}</li>
                     <li><i className="fa-solid fa-eye"></i>{comicsData[0]?.vue}</li>
                 </ul>
             </div>

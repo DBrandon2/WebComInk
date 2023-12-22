@@ -5,7 +5,6 @@ import Populaires from "./Populaires/Populaires"
 import Carousel from "./Carousel/carousel.component"
 import { useEffect, useState } from "react";
 import { fetchComicsData } from '../../apis/comics';
-import CookieConsent from "react-cookie-consent";
 
 
 function Homepage() {
@@ -25,18 +24,6 @@ function Homepage() {
   
   return (
     <div>
-      <CookieConsent
-        location="bottom"
-        buttonText="J'accepte"
-        cookieName="myAwesomeCookieName2"
-        style={{ background: "#2B373B" }}
-        buttonStyle={{ color: "var(--maintext)", fontSize: "13px", backgroundColor: "var(--accent)" }}
-        expires={150}
-        overlay
-      >
-        Ce site utilise des cookies pour une meilleur expérience utilisateur.{" "}
-        <span style={{ fontSize: "10px", color: "var(--accent)", marginLeft:"2%" }}>Veuillez accepter pour pouvoir naviguer librement sur le site.</span>
-      </CookieConsent>
 
         <Carousel comicsData={comicsData}/>
         <Populaires comicsData={comicsData} key={idComics}/>

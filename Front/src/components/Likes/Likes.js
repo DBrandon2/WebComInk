@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchLikes, addLike, removeLike } from '../../apis/likes';
 
+
 function Likes({ idComics, iduser }) {
     const [likeCount, setLikeCount] = useState(0);
     const [isLiked, setIsLiked] = useState(false);
@@ -32,11 +33,8 @@ function Likes({ idComics, iduser }) {
 
   
   return (
-    <div>
-      <button onClick={handleLike}>
-        {isLiked ? 'Unlike' : 'Like'}
-      </button>
-      <p>{likeCount}</p>
+    <div onClick={handleLike}>
+        {isLiked ? <i className="fa-solid fa-heart"></i> : <i className="fa-solid fa-heart"></i>}
     </div>
   )
 }

@@ -77,3 +77,38 @@ export const fetchChapters = async (idComics) => {
       return null;
     }
   };
+
+  export const fetchBookedComics = async () => {
+    try {
+        const response = await fetch(`${API_INFO}/getBookedComics/:iduser`);
+        const data = await response.json();
+        if (data.length > 0) {
+            return data;
+        } else {
+            console.error('Aucune donnée récupérée.');
+            return null;
+        }
+    } catch (error) {
+        console.error("Erreur lors de la récupération des données :", error);
+        return null;
+    }
+};
+
+export const incrementViews = async (idComics) => {
+  try {
+      const response = await fetch(`${API_INFO}/incrementViews/${idComics}`, {
+          method: 'PATCH',
+      });
+      if (response.status === 200) {
+          console.log("Vues incrémentées avec succès.");
+          return true;
+      } else {
+          console.error("Échec de l'incrémentation des vues.");
+          return false;
+      }
+  } catch (error) {
+      console.error("Erreur lors de l'incrémentation des vues :", error);
+      return null;
+  }
+};
+

@@ -1,11 +1,14 @@
 import { NavLink } from "react-router-dom";
-import { fetchComicsData } from "../../../apis/comics";
-import { useEffect, useState } from "react";
+import { fetchComicsData, incrementViews } from "../../../apis/comics";
+import { useContext, useEffect, useState } from "react";
 import styles from "./ComicsItem.module.scss"
+import { AuthContext } from "../../../context";
 
 function ComicsItem({data}) {
-  const {idComics, title, banner, synopsis, author, illustrator, likes, favorite, vue} = data
+  const {idComics, title, banner, synopsis, author, illustrator, likes, bookmarks, vue} = data
   const [comicsData, setComicsData] = useState([]);
+  const { user } = useContext(AuthContext);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -17,13 +20,19 @@ function ComicsItem({data}) {
         fetchData();
     }, []);
 
+    const handleComicClick = async () => {
+
+      const idComics = data.idComics;
+      await incrementViews(idComics);
+    }
+
   
 
     
 
 
   return (
-    <div className={`${styles.comics}`}>
+    <div className={`${styles.comics}`} onClick={handleComicClick}>
       <div className={`${styles.comicsImg}`}>
       <NavLink to={`../details/${idComics}`}>
         <img src={`http://localhost:8000/${banner}`} alt="Comics" />
@@ -33,7 +42,7 @@ function ComicsItem({data}) {
         <h2>{title}</h2>
         <p>{author}</p>
         <p>{illustrator}</p>
-        <span><i class="fa-solid fa-heart"></i>{likes}  |  <i class="fa-solid fa-bookmark"></i>{favorite}  |  <i class="fa-solid fa-eye"></i>{vue}</span>
+        <span><i class="fa-solid fa-heart"></i>{likes}  |  <i class="fa-solid fa-bookmark"></i>{bookmarks}  |  <i class="fa-solid fa-eye"></i>{vue}</span>
       </div>
       </NavLink>
       </div>
