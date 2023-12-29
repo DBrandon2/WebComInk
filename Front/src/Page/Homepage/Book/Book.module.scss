@@ -1,66 +1,99 @@
-.mainDiv{
-    width: 80%;
-    margin: 0 auto;
-    color: var(--mainText);
-    margin-top: 7rem;
+.mainDiv {
+  width: 80%;
+  margin: 0 auto;
+  color: var(--mainText);
+  margin-top: 7rem;
+  display: flex;
+  justify-content: center;
+
+  .book1 {
+    background-color: var(--secondary);
+    width: 35%;
+    height: 30rem;
+    text-align: center;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 20px;
+    box-shadow: 20px 0px 30px rgba(0, 0, 0, 0.466);
+
+    h4 {
+      color: var(--accent);
+      font-size: 1.2rem;
+      margin-top: 2rem;
+      margin-bottom: 3rem;
+    }
+    p {
+      font-weight: 300;
+      width: 60%;
+      margin-bottom: 2rem;
+      margin-left: -4rem;
+      text-align: start;
+    }
+    span {
+      font-weight: 300;
+      width: 60%;
+      margin-left: -4rem;
+      text-align: start;
+    }
+  }
+
+  .book2 {
+    background-color: var(--accent);
+    width: 25%;
+    height: 20rem;
+    border-radius: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: flex-end;
+    margin-left: -5rem;
+    box-shadow: 20px 0px 25px rgba(0, 0, 0, 0.334);
+    h4 {
+      color: var(--mainText);
+      font-size: 1.1rem;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+      width: 80%;
+    }
+    p {
+      color: var(--secondary);
+      font-weight: 400;
+      width: 70%;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+@media (max-width: 990px) {
+  .mainDiv {
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
 
-    .book1{
-        background-color: var(--secondary);
-        width: 35%;
-        height: 30rem;
+    .book1 {
+      width: 85%;
+      margin: 0 auto;
+      margin-bottom: 15%;
+      p {
+        width: 90%;
+        margin: 0 auto;
         text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        border-radius: 20px;
-        h4{
-            color: var(--accent);
-            font-size: 1.2rem;
-            margin-top: 2rem;
-            margin-bottom: 3rem;
-
-        }
-        p{
-            font-weight: 300;
-            width: 60%;
-            margin-bottom: 2rem;
-            margin-left: -4rem;
-            text-align: start;
-        }
-        span{
-            font-weight: 300;
-            width: 60%;
-            margin-left: -4rem;
-            text-align: start;
-        }
-    }
-
-    .book2{
-        background-color: var(--accent);
-        width: 25%;
-        height: 20rem;
-        border-radius: 20px;
+        margin-bottom: 15%;
+      }
+      span {
+        width: 90%;
+        margin: 0 auto;
         text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        align-self: flex-end;
-        margin-left: -5rem;
-        h4{
-            color: var(--mainText);
-            font-size: 1.1rem;
-            margin-top: 2rem;
-            margin-bottom: 2rem;
-            width: 80%;
-        }
-        p{
-            color: var(--secondary);
-            font-weight: 400;
-            width: 70%;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
+      }
     }
+    .book2 {
+      width: 75%;
+      margin: 0 auto;
+    }
+  }
 }

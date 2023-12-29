@@ -1,41 +1,49 @@
-import React, { useEffect, useState } from 'react'
-import { addBook, fetchBooks, removeBook } from '../../apis/bookmarks';
+import React, { useEffect, useRef, useState } from "react";
+import { addBook, fetchBooksUser, removeBook } from "../../apis/bookmarks";
+import "./Bookmarks.scss";
 
 function Bookmarks({ idComics, iduser }) {
-    const [bookCount, setBookCount] = useState(0);
-    const [isBooked, setIsBooked] = useState(false);
+  const [bookCount, setBookCount] = useState(0);
+  const [isBooked, setIsBooked] = useState(false);
+  const [isUnbooked, setIsUnbooked] = useState(false);
 
-    useEffect(() => {
-        fetchBooks(idComics, iduser)
-          .then(data => {
-              setBookCount(data.bookCount);
-              setIsBooked(data.isBooked);
-          })
-          .catch(error => console.error('Error fetching bookmarks:', error));
-    }, [idComics, iduser]);
+  const bookmarkRef = useRef();
 
-    const handleBookmarks = async () => {
-        try {
-            if (isBooked) {
-                await removeBook(idComics, iduser);
-                setBookCount(prevCount => prevCount - 1);
-                setIsBooked(false);
-            } else {
-                await addBook(idComics, iduser);
-                setBookCount(prevCount => prevCount + 1);
-                setIsBooked(true);
-            }
-        } catch (error) {
-            console.error('Erreur lors de la gestion du like :', error);
-        }
-    };
+  useEffect(() => {
+    fetchBooksUser(idComics, iduser)
+      .then((data) => {
+        setBookCount(data.bookCount);
+        setIsBooked(data.isBooked);
+      })
+      .catch((error) => console.error("Error fetching bookmarks:", error));
+  }, [idComics, iduser]);
 
+  const handleBookmarks = async () => {
+    try {
+      if (isBooked) {
+        await removeBook(idComics, iduser);
+        setIsBooked(false);
+      } else {
+        await addBook(idComics, iduser);
+        setIsBooked(true);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la gestion du like :", error);
+    }
+  };
 
   return (
-    <div onClick={handleBookmarks}>
-        {isBooked ? <i className="fa-solid fa-bookmark"></i> : <i className="fa-solid fa-bookmark"></i>}
+    <div
+      className={`mainDiv ${isBooked ? "booked" : ""} ${
+        !isBooked ? "unbooked" : ""
+      }`}
+      onClick={handleBookmarks}
+    >
+      <i
+        className={`fa-solid fa-bookmark heart ${!isBooked ? "gray" : ""}`}
+      ></i>
     </div>
-  )
+  );
 }
 
-export default Bookmarks
+export default Bookmarks;

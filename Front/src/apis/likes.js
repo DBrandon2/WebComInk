@@ -3,7 +3,7 @@ const API_LIKES = "/api/comics";
 
 export const fetchLikes = async (idComics, iduser) => {
   try {
-      const response = await fetch(`/api/comics/getLikes/${idComics}/${iduser}`);
+      const response = await fetch(`${API_LIKES}/getLikes/${idComics}/${iduser}`);
       const data = await response.json();
       return { likeCount: data.likeCount, isLiked: data.isLiked };
   } catch (error) {

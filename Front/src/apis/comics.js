@@ -112,3 +112,14 @@ export const incrementViews = async (idComics) => {
   }
 };
 
+export const fetchGenresData = async () => {
+  try {
+      const response = await fetch(`${API_INFO}/getGenre`);
+      const data = await response.json();
+      return data;
+  } catch (error) {
+      console.error("Error fetching genres data:", error);
+      return [];
+  }
+};
+

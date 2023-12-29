@@ -1,11 +1,9 @@
 .background {
-
-
-img {
+  img {
     width: 100%;
-}
+  }
 
-.title {
+  .title {
     flex-direction: column;
     text-align: center;
     margin-bottom: 4rem;
@@ -13,73 +11,147 @@ img {
     color: var(--mainText);
 
     h1 {
-        font-weight: 500;
-        letter-spacing: 0.2rem;
-        font-size: 3rem;
+      font-weight: 500;
+      letter-spacing: 0.2rem;
+      font-size: 3rem;
     }
 
     p {
-        font-weight: 300;
-        font-size: 1.1rem;
-        color: var(--accent);
+      font-weight: 300;
+      font-size: 1.1rem;
+      color: var(--accent);
     }
-}
+  }
 
-.mangaPopulaire {
-    width: 80%;
+  .mangaPopulaire {
+    width: 90%;
     margin: 0 auto;
     justify-content: center;
     margin-bottom: 4%;
+    margin-left: 5rem;
 
-    a{
-        width: 100%;
-        height: auto;
+    a {
+      width: 100%;
+      height: auto;
     }
 
-    .aNav{
-        width: 15vw;
-        height: 50%;
+    .aNav {
+      width: 15vw;
+      height: 50%;
     }
 
     .mangaA1 {
-        width: 100%;
-        display: flex;
-        align-self: center;
-        justify-content: center;
+      width: 110%;
+      display: flex;
+      align-self: center;
+      justify-content: center;
 
-        img { 
-            border-radius: 15px;
-        }
+      img {
+        border-radius: 15px;
+        margin-right: 5rem;
+
+        transition: transform 0.4s;
+      }
+
+      img:hover {
+        transform: scale(1.08);
+      }
     }
 
     .mangaA2 {
-        width: 50%;
-        display: flex;
-        justify-content: center;
+      width: 50%;
+      display: flex;
+      justify-content: center;
     }
 
     .mangaC1 {
-        width: fit-content;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 1rem;
+      width: fit-content;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 1.5rem;
 
-        img {
-            border-radius: 15px;
-        }
+      img {
+        border-radius: 15px;
+
+        transition: transform 0.4s;
+      }
+
+      img:hover {
+        -ms-transform: scale(1.5);
+        -webkit-transform: scale(1.5);
+        transform: scale(1.08);
+      }
     }
-}
+  }
 
-.btnPopulaire{
+  .btnPopulaire {
     margin-top: 5vh;
     margin-left: 72%;
     background-color: var(--mainText);
-}
-.btnPopulaire:hover{
+  }
+  .btnPopulaire:hover {
     background-color: var(--accent);
     transform: scale(1.05);
     color: var(--mainText);
+  }
 }
 
+@media (max-width: 990px) {
+  .background {
+    width: 100vw;
+
+    .title {
+      margin-top: 5%;
+      width: 95vw;
+      margin: 0 auto;
+      margin-bottom: 15%;
+      h1 {
+        font-size: 1.5rem;
+        text-align: center;
+        margin-top: 15%;
+        margin-bottom: 5%;
+      }
+      p {
+        font-size: 0.9rem;
+        text-align: center;
+      }
+    }
+
+    .mangaPopulaire {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto;
+
+      .mangaA1 {
+        display: none;
+      }
+      .mangaA2 {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin-top: -10%;
+        margin-bottom: 15%;
+        .mangaB1 {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+        .mangaB2 {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+      }
+    }
+    .btnPopulaire {
+      margin-left: 50%;
+    }
+  }
 }

@@ -1,73 +1,153 @@
-.mainDiv{
-    width: 80%;
-    margin: 0 auto;
+.mainDiv {
+  width: 80%;
+  margin: 0 auto;
+  color: var(--mainText);
+  margin-top: 7rem;
+
+  .titleAv {
+    margin-bottom: 5rem;
+    .h2TitleAv {
+      font-weight: 500;
+      font-size: 3rem;
+      letter-spacing: 0.2rem;
+    }
+    p {
+      font-weight: 300;
+      font-size: 1.1rem;
+      color: var(--accent);
+    }
+  }
+
+  .mangaAv {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    .imgAv {
+      width: 40%;
+      img {
+        border-radius: 5px;
+        transition: transform 0.2s ease-in-out;
+      }
+
+      img:hover {
+        transform: scale(1.05) rotate(-3deg);
+        box-shadow: 10px 5px 25px rgba(0, 0, 0, 0.466);
+      }
+    }
+    .textAv {
+      width: 33%;
+      justify-self: center;
+      align-self: center;
+      .titleTextAv {
+        margin-bottom: 2rem;
+
+        h3 {
+          font-size: 2rem;
+          font-weight: 500;
+          transition: transform 0.3s;
+        }
+
+        h3:hover {
+          transform: scale(1.01);
+          text-shadow: rgba(0, 0, 0, 0.552) 4px 4px 10px;
+        }
+
+        span {
+          color: grey;
+        }
+        p {
+          color: grey;
+        }
+      }
+      .synopsisAv {
+        background-color: var(--secondary);
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 200;
+        padding: 1rem;
+      }
+    }
+  }
+
+  .btnAv {
+    margin-top: 3rem;
+    margin-left: 79%;
+    background-color: var(--mainText);
+  }
+
+  .btnAv:hover {
+    background-color: var(--accent);
+    transform: scale(1.05);
     color: var(--mainText);
-    margin-top: 7rem;
-
-    .titleAv{
-        margin-bottom: 5rem;
-        .h2TitleAv{
-            font-weight: 500;
-            font-size: 3rem;
-            letter-spacing: 0.2rem;
-        }
-        p{
-            font-weight: 300;
-            font-size: 1.1rem; 
-            color: var(--accent);           
-        }
-    }
-
-    .mangaAv{
-        display: flex;
-        justify-content: center;
-        gap: 3rem;
-        .imgAv{
-            width: 40%;
-            img{
-                border-radius: 5px;
-            }
-        }
-        .textAv{
-            width: 33%;
-            justify-self: center;
-            align-self: center;
-            .titleTextAv{
-                margin-bottom: 2rem;
-                h3{
-                    font-size: 2rem;
-                    font-weight: 500;
-                }
-                span{
-                    color: grey;
-                    
-                }
-                p{
-                    color: grey;
-                }
-
-                
-            }
-            .synopsisAv{
-                background-color: var(--secondary);
-                border-radius: 5px;
-                font-size: 1rem;
-                font-weight: 200;
-                padding: 1rem;
-            }
-        }
-    }
-
-    .btnAv{
-        margin-top: 3rem;
-        margin-left: 79%;
-        background-color: var(--mainText);
-    }
-
-    .btnAv:hover{
-        background-color: var(--accent);
-        transform: scale(1.05);
-        color: var(--mainText);
-    }
+  }
 }
 
+@media (max-width: 990px) {
+  .mainDiv {
+    width: 100vw;
+
+    .titleAv {
+      width: 95%;
+      margin: 0 auto;
+      margin-bottom: 10%;
+      .h2TitleAv {
+        font-size: 1.5rem;
+        text-align: center;
+        margin-top: 15%;
+        margin-bottom: 5%;
+      }
+      p {
+        font-size: 0.9rem;
+        text-align: center;
+      }
+    }
+
+    .mangaAv {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .imgAv {
+        margin: 0 auto;
+        width: 100vw;
+        height: auto;
+
+        img {
+          margin: 0 auto;
+          width: 100vw;
+          height: auto;
+          border-radius: 0;
+        }
+      }
+
+      .textAv {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .titleTextAv {
+          text-align: center;
+          margin-top: -5%;
+          margin-bottom: 15%;
+          h3 {
+            font-size: 1.5rem;
+          }
+          p {
+            font-size: 0.8rem;
+            font-weight: 300;
+          }
+        }
+
+        .synopsisAv {
+          border-radius: 0;
+        }
+      }
+    }
+
+    .btnAv {
+      margin-left: 50%;
+    }
+  }
+}

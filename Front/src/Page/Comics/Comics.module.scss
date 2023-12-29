@@ -1,103 +1,115 @@
-.MainDiv{
-    display: flex;
-    color: var(--mainText);
-    margin: 15% 4%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.MainDiv {
+  display: flex;
+  color: var(--mainText);
+  margin: 15% 4%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-    .Left{
-        width: 16%;
-        margin-right: 3%;
-        .Genre{
-            background-color: var(--secondary);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 105%;
-            
-            
-            .h2Genre{
-                font-size: 1.8rem;
-                letter-spacing: .5rem;
-                line-height: 5rem;
-                border-bottom: 1px solid var(--mainText);
-             }
+  .Left {
+    width: 16%;
+    margin-right: 3%;
+    .Genre {
+      background-color: var(--secondary);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 105%;
 
-            .ulGenre{
-                text-align: center;
-                margin: 15% 0%;
-               
-                .TDVStyle{
-                    letter-spacing: normal;
-                    font-size: 1rem;
-                    letter-spacing: .2rem;
-                    width: 170%;
-                    margin-left: -35%;
-                }
-                li{
-                    line-height: 4rem;
-                    letter-spacing: .2rem;
-                    font-size: 1.2rem;
-                    font-weight: 300;
-                }
-            }
+      .h2Genre {
+        font-size: 1.8rem;
+        letter-spacing: 0.5rem;
+        line-height: 5rem;
+        border-bottom: 1px solid var(--mainText);
+      }
+
+      .ulGenre {
+        text-align: center;
+        margin: 15% 0%;
+
+        .TDVStyle {
+          letter-spacing: normal;
+          font-size: 1rem;
+          letter-spacing: 0.2rem;
+          width: 170%;
+          margin-left: -35%;
         }
+        li {
+          line-height: 4rem;
+          letter-spacing: 0.2rem;
+          font-size: 1.2rem;
+          font-weight: 300;
+        }
+      }
+    }
+  }
+
+  .Right {
+    width: 80%;
+
+    .Trie {
+      display: flex;
+      justify-content: center;
+
+      p {
+        font-size: 1.4rem;
+        margin-right: 10%;
+        display: flex;
+        align-items: center;
+      }
+
+      .ulTrie {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+
+        li {
+          font-weight: 300;
+          background-color: var(--secondary);
+          padding: 1% 6%;
+          border-radius: 20px;
+          margin: 0 4%;
+          letter-spacing: 0.1rem;
+        }
+      }
     }
 
-    .Right{
-        width: 80%;
+    .ComicsList {
+      display: flex;
+      margin: 0 auto;
+      width: 50%;
+      height: 50%;
 
-        .Trie{
-            display: flex;
-            justify-content: center;
-
-            p{
-                font-size: 1.4rem;
-                margin-right: 10%;
-                display: flex;
-                align-items: center;
-            }
-
-            .ulTrie{
-                display: flex;
-                align-items: center;
-                justify-content: space-around;
-
-                li{
-                    font-weight: 300;
-                    background-color: var(--secondary);
-                    padding: 1% 6%;
-                    border-radius: 20px;
-                    margin: 0 4%;
-                    letter-spacing: 0.1rem;
-                }
-            }
-        }
-
-        .ComicsList{
-            display: flex;
-            margin: 0 auto;
-            width: 50%;
-            height: 50%;
-
-            .Comics{
-                background-color: var(--secondary);
-                width: 25%;
-                height: 35%;
-                aspect-ratio: auto 210/210;
-            }
-            
-        }
-        
-        .gridComics {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 2rem;
-          }
+      .Comics {
+        background-color: var(--secondary);
+        width: 25%;
+        height: 35%;
+        aspect-ratio: auto 210/210;
+      }
     }
 
+    .gridComics {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 2rem;
+    }
+  }
+}
+
+@media (max-width: 990px) {
+  .MainDiv {
+    .Left {
+      display: none;
+    }
+
+    .Right {
+      margin-top: 15%;
+      .Trie {
+        display: none;
+      }
+    }
+  }
 }

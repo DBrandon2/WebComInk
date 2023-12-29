@@ -6,10 +6,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { createUser } from "../../../apis/users";
 import { useState } from "react";
 
-
 export default function Register() {
-
-  const [feedbackGood, setFeedbackGood] = useState("")
+  const [feedbackGood, setFeedbackGood] = useState("");
 
   const navigate = useNavigate();
 
@@ -36,8 +34,11 @@ export default function Register() {
         "Les mots de passe ne correspondents pas"
       ),
     acceptTerms: yup
-    .boolean()
-    .oneOf([true], "Vous devez accepter les CGU et la Politique de Confidentialité"),
+      .boolean()
+      .oneOf(
+        [true],
+        "Vous devez accepter les CGU et la Politique de Confidentialité"
+      ),
   });
 
   const defaultValues = {
@@ -64,13 +65,16 @@ export default function Register() {
       if (!values.acceptTerms) {
         setError("acceptTerms", {
           type: "acceptTerms",
-          message: "Vous devez accepter les CGU et la Politique de Confidentialité",
+          message:
+            "Vous devez accepter les CGU et la Politique de Confidentialité",
         });
         return;
       }
       clearErrors();
       await createUser(values);
-      setFeedbackGood("Inscription réussie, redirection vers la page connexion...");
+      setFeedbackGood(
+        "Inscription réussie, redirection vers la page connexion..."
+      );
       setTimeout(() => {
         navigate("/connexion");
       }, 2000);
@@ -79,7 +83,7 @@ export default function Register() {
     }
   }
 
-  console.log("ok")
+  console.log("ok");
 
   return (
     <div
@@ -87,7 +91,9 @@ export default function Register() {
     >
       <div className={`${styles.Entête}`}>
         <h1 className={`${styles.h1}`}>Tu n'es pas encore inscrit ?</h1>
-        <span className={`${styles.span}`}>N'attends plus, profite de toutes les fonctionnalitées de WebComInk !</span>
+        <span className={`${styles.span}`}>
+          N'attends plus, profite de toutes les fonctionnalitées de WebComInk !
+        </span>
       </div>
       <div className={`${styles.linkdiv}`}>
         <NavLink to="" className={`${styles.link}`}>
@@ -146,16 +152,14 @@ export default function Register() {
             </p>
           )}
         </div>
-        {errors?.generic && ( 
+        {errors?.generic && (
           <p className={`${styles.feedback}`}>{errors.generic.message}</p>
         )}
 
         {feedbackGood && (
-          <p className={`${styles.feedbackGood}`}>
-            {feedbackGood}
-          </p>
+          <p className={`${styles.feedbackGood}`}>{feedbackGood}</p>
         )}
-    {/* Confirm CGU*/}
+        {/* Confirm CGU*/}
         <div className={`d-flex align-items-center  ${styles.labelDiv}`}>
           <input
             className={` ${styles.inputCheckbox}`}
@@ -164,12 +168,20 @@ export default function Register() {
             {...register("acceptTerms")}
           />
           <label htmlFor="acceptTerms" className="ml5">
-            J'accepte les <a href="/CGU" target="_blank">Conditions Générales d'Utilisation</a> et la <a href="/Politique-de-confidentialité" target="_blank">Politique de Confidentialité</a>.
+            J'accepte les{" "}
+            <a href="/CGU" target="_blank">
+              Conditions Générales d'Utilisation
+            </a>{" "}
+            et la{" "}
+            <a href="/Politique-de-confidentialité" target="_blank">
+              Politique de Confidentialité
+            </a>
+            .
           </label>
         </div>
         {errors?.acceptTerms && (
-            <p className={`${styles.feedback}`}>{errors.acceptTerms.message}</p>
-          )}
+          <p className={`${styles.feedback}`}>{errors.acceptTerms.message}</p>
+        )}
 
         <button disabled={isSubmitting} className={`${styles.submitBtn}`}>
           Submit

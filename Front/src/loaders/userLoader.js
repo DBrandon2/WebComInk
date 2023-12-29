@@ -2,16 +2,15 @@ import { getConnectedUser } from "../apis/users";
 
 export async function userLoader() {
   try {
-    const user = getConnectedUser()
+    const user = getConnectedUser();
 
-    console.log(user)
-    
+    console.log(user);
+
     if (!user.profilePicture) {
-        user.profilePicture = "Default_Avatar.png";
-      }
-      return user
+      user.profilePicture = "Default_Avatar.png";
+    }
+    return user;
   } catch (error) {
-    console.error(error, getConnectedUser())
+    console.error(error, getConnectedUser());
   }
-  
 }

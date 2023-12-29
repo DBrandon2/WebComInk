@@ -1,51 +1,51 @@
-*{
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-    text-decoration: none;
-    box-sizing: border-box;
-    font-family: var(--font-family);
+* {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  text-decoration: none;
+  box-sizing: border-box;
+  font-family: var(--font-family);
 }
 
-html{
-    background-color: var(--primary);
+html {
+  background-color: var(--primary);
 }
 
-a{
-    color: var(--mainText);
+a {
+  color: var(--mainText);
 }
 
-.whiteButton{
-    color: var(--primary);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.18;
-    padding: .6rem 1.8rem;
-    // width: 12rem;
-    border-radius: 5px;
-    border: none;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    cursor: pointer;
+.whiteButton {
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.18;
+  padding: 0.6rem 1.8rem;
+  // width: 12rem;
+  border-radius: 5px;
+  border: none;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
 }
 
 .whiteButton:hover {
-    background-color: var(--accent);
-    transform: scale(1.05);
-    color: var(--mainText);
-  }
-
-  .whiteButton:active {
-    transform: scale(0.95);
-  }
-
-.passwordProfile{
-    letter-spacing: .5rem;
+  background-color: var(--accent);
+  transform: scale(1.05);
+  color: var(--mainText);
 }
 
-.HeartUnLiked{
-    color: white;
+.whiteButton:active {
+  transform: scale(0.95);
 }
 
-.HeartLiked{
-    color: white;
+.passwordProfile {
+  letter-spacing: 0.5rem;
+}
+
+.HeartUnLiked {
+  color: white;
+}
+
+.HeartLiked {
+  color: white;
 }

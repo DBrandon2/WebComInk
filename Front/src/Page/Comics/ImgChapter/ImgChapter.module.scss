@@ -1,12 +1,22 @@
-.mainDiv{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-top: 10%;
+.mainDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10%;
 
-    img{
-        width: 70%;
-        height: auto;
+  img {
+    width: 70%;
+    height: auto;
+  }
+}
+
+@media (max-width: 990px) {
+  .mainDiv {
+    width: 100vw;
+    margin-top: 25%;
+    img {
+      width: 100%;
     }
+  }
 }

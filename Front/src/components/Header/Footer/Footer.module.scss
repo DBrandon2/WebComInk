@@ -1,54 +1,84 @@
-footer{
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    margin-top: 10rem;
-  
+footer {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin-top: 10rem;
 }
 
-.linksContainer{
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
+.linksContainer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 
-    .liens{
-        color: var(--mainText);
-        font-size: 1rem;
-        line-height: 4rem;
-
-        .footerSpan{
-            font-size: 1.3rem;
-            letter-spacing: 0.2rem;
-            font-weight: 500;
-            color: var(--mainText);
-        }
-
-        li{
-            font-weight: 100;
-            width: 100%;
-        }
-    }
-}
-
-.h2{
-    color: var(--accentText1);
-    display: flex;
-    justify-content: center;
-    margin-top: 5rem;
-}
-
-.reseaux{
-    display: flex;
-    justify-content: center;
+  .liens {
     color: var(--mainText);
-    font-size: 2.5rem;
-    margin-top: 4rem;
-    margin-bottom: 5rem;
-    
-    
-    i{
-      margin: 0 6%
+    font-size: 1rem;
+    line-height: 4rem;
+
+    .footerSpan {
+      font-size: 1.3rem;
+      letter-spacing: 0.2rem;
+      font-weight: 500;
+      color: var(--mainText);
     }
 
-   
+    li {
+      font-weight: 100;
+      width: 100%;
+    }
+  }
+}
+
+.h2 {
+  color: var(--accentText1);
+  display: flex;
+  justify-content: center;
+  margin-top: 5rem;
+}
+
+.reseaux {
+  display: flex;
+  justify-content: center;
+  color: var(--mainText);
+  font-size: 2.5rem;
+  margin-top: 4rem;
+  margin-bottom: 5rem;
+
+  i {
+    margin: 0 6%;
+  }
+}
+
+@media (max-width: 990px) {
+  footer {
+    display: flex;
+    flex-direction: column;
+
+    .linksContainer {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      .liens {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 8%;
+
+        .footerSpan {
+          font-size: 1.6rem;
+          letter-spacing: 0.3rem;
+        }
+
+        ul {
+          li {
+            font-weight: 100;
+          }
+        }
+      }
+    }
+  }
 }

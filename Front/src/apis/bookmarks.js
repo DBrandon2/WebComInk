@@ -3,9 +3,22 @@ const API_BOOKS = "/api/comics";
 export const fetchBooks = async (iduser) => {
     console.log("test")
         const response = await fetch(`${API_BOOKS}/getBooksComics/${iduser}`);
+        const backResponse = await response.json();
+        if (response.ok) {
+            return backResponse;
+        }else {
+            if(backResponse) {
+                throw backResponse;
+            }else {
+                throw new Error("Une erreur est survenue")
+            }
+        }
+  };
+
+export const fetchBooksUser = async (idComics, iduser) => {
+        const response = await fetch(`${API_BOOKS}/getBooks/${idComics}/${iduser}`);
         // return { bookCount: data.bookCount, isBooked: data.isBooked };
         const backResponse = await response.json();
-        console.log(backResponse)
         if (response.ok) {
             return backResponse;
         }else {

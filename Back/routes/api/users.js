@@ -1,38 +1,34 @@
-require("dotenv").config()
+require("dotenv").config();
 
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
-const jsonwebtoken = require("jsonwebtoken")
-const { key, keyPub } = require("../../keys")
-const nodemailer= require("nodemailer");
+const jsonwebtoken = require("jsonwebtoken");
+const { key, keyPub } = require("../../keys");
+const nodemailer = require("nodemailer");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const sharp = require('sharp');
+const sharp = require("sharp");
 const transporter = nodemailer.createTransport({
-  service : "Gmail",
+  service: "Gmail",
   auth: {
     user: process.env.USER_MAIL,
     pass: process.env.PASSWORD_MAIL,
-  }
-})
+  },
+});
 
 const connection = require("../../database");
 
-
-
-
-
 router.post("/register", (req, res) => {
-  const { username, email, password} = req.body;
-  const verifyMailSql = "SELECT * FROM user WHERE email = ?" // vérification de l'existence du mail
+  const { username, email, password } = req.body;
+  const verifyMailSql = "SELECT * FROM user WHERE email = ?"; // vérification de l'existence du mail
   connection.query(verifyMailSql, [email], async (err, result) => {
     try {
-      if ( result.length === 0) {
+      if (result.length === 0) {
         // Si il n'existe pas on hashe le mdp et on insère en BDD
         const hashedPassword = await bcrypt.hash(password, 10);
-        const insertSql = 
-        "INSERT INTO user (username, email, password) VALUES (?, ?, ?)";
+        const insertSql =
+          "INSERT INTO user (username, email, password) VALUES (?, ?, ?)";
         connection.query(
           insertSql,
           [username, email, hashedPassword],
@@ -40,25 +36,25 @@ router.post("/register", (req, res) => {
             if (err) throw err;
             let iduser = result.insertId;
             const sqlSelect =
-            "SELECT iduser, username, email FROM user WHERE iduser = ?";
+              "SELECT iduser, username, email FROM user WHERE iduser = ?";
             connection.query(sqlSelect, [iduser], (err, result) => {
               // On récupère les données correspondant à cet id -> front
               if (err) throw err;
               res.json(result);
             });
           }
-          );
-        } else {
-          res.status(400).json("Mail déjà existant")
-        }
-      } catch (error) {
-      console.error(error)
+        );
+      } else {
+        res.status(400).json("Mail déjà existant");
+      }
+    } catch (error) {
+      console.error(error);
     }
   });
 });
 
 router.post("/login", (req, res) => {
-  const {email, password} = req.body
+  const { email, password } = req.body;
   const sqlVerify = "SELECT * FROM user WHERE email = ?";
   connection.query(sqlVerify, [email], (err, result) => {
     try {
@@ -80,20 +76,20 @@ router.post("/login", (req, res) => {
         } else {
           res.status(400).json("Email et/ou mot de passe incorrects");
         }
-      }else {
+      } else {
         res.status(400).json("Email et/ou mot de passe incorrects");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  })
+  });
 });
 
 router.get("/logout", (req, res) => {
   console.log("Déconnexion en cours");
-  res.clearCookie("token")
-  res.end()
-})
+  res.clearCookie("token");
+  res.end();
+});
 
 router.get("/userConnected", (req, res) => {
   const { token } = req.cookies;
@@ -103,11 +99,11 @@ router.get("/userConnected", (req, res) => {
         algorithms: "RS256",
       });
       const sqlSelect =
-      "SELECT iduser, username, email, aboutme, profilePicture, admin FROM user WHERE iduser  = ?";
+        "SELECT iduser, username, email, aboutme, profilePicture, admin FROM user WHERE iduser  = ?";
       connection.query(sqlSelect, [decodedToken.sub], (err, result) => {
         if (err) throw err;
         const connectedUser = result[0];
-        console.log(connectedUser)
+        console.log(connectedUser);
         connectedUser.password = "";
         if (connectedUser) {
           if (!connectedUser.profilePicture) {
@@ -126,61 +122,63 @@ router.get("/userConnected", (req, res) => {
   }
 });
 
-
 router.get("/changermotdepasse/:email", (req, res) => {
   console.log(req.params);
   const email = req.params.email;
-  const sqlSearchMail = "SELECT * FROM user WHERE email = ?"
+  const sqlSearchMail = "SELECT * FROM user WHERE email = ?";
   connection.query(sqlSearchMail, [email], (err, result) => {
     if (err) throw err;
-    if (result.length !==0) {
+    if (result.length !== 0) {
       const confirmLink = `http://localhost:3000/changermotdepasse?email=${email}`;
       const mailOptions = {
         from: "demaretzz.brandon@gmail.com",
         to: email,
         subject: "Mot de passe WebComInk oublié",
-        text: `Cliquez sur ce lien pour modifier votre mot de passe: ${confirmLink}`
+        text: `Cliquez sur ce lien pour modifier votre mot de passe: ${confirmLink}`,
       };
       transporter.sendMail(mailOptions, (err, info) => {
-        if (err){
+        if (err) {
           throw err;
-        }else {
+        } else {
           res.end();
         }
-      })
+      });
     }
-  })
-})
+  });
+});
 
 router.patch("/changepassword", async (req, res) => {
-  console.log(req.body)
-  try{
+  console.log(req.body);
+  try {
     const { email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const sqlUpdate = "UPDATE user SET password = ? ";
-    const values = [hashedPassword, email ]; //Peut poser problème ?//
+    const values = [hashedPassword, email];
     connection.query(sqlUpdate, values, (err, result) => {
       if (err) {
         console.error(err);
-        res.status(500).send("Une erreur s'est produite lors du changement de mot de passe");
-        return
+        res
+          .status(500)
+          .send("Une erreur s'est produite lors du changement de mot de passe");
+        return;
       }
       console.log(result);
       let passwordChanged = {
-        messageGood: "Le mot de passe à bien été changé"
+        messageGood: "Le mot de passe à bien été changé",
       };
-      res.json(passwordChanged)
+      res.json(passwordChanged);
     });
-  }catch (error) {
+  } catch (error) {
     console.error(error);
-    res.status(500).send("Une erreur s'est produite lors du changement de mot de passe")
+    res
+      .status(500)
+      .send("Une erreur s'est produite lors du changement de mot de passe");
   }
 });
 
-
 // --------Multer Image site ( comics et pp )
 
-const upload = multer ({
+const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, path.join(__dirname, "../../upload"));
@@ -192,16 +190,15 @@ const upload = multer ({
   fileFilter: (req, file, cb) => {
     const allowedExtensions = ["jpg", "jpeg", "png", "avif", "webp"];
     const fileExtension = file.originalname.split(".").pop().toLowerCase();
-  
+
     if (!allowedExtensions.includes(fileExtension)) {
       return cb(new Error("Format de fichier non supporté"), false);
     }
-  
+
     cb(null, true);
-  }
+  },
 });
 // -----------------
-
 
 router.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
   try {
@@ -209,21 +206,28 @@ router.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
       return res.status(400).json({ message: "Aucun fichier d'avatar fourni" });
     }
     const profilePicture = req.file.filename;
-    const {iduser} = req.body; 
+    const { iduser } = req.body;
     const originalImagePath = path.join("upload", profilePicture);
-    const resizedImagePath = path.join("uploadResized", 'resized_' + profilePicture);
-    await sharp(originalImagePath)
-      .resize(250, 250)
-      .toFile(resizedImagePath);
+    const resizedImagePath = path.join(
+      "uploadResized",
+      "resized_" + profilePicture
+    );
+    await sharp(originalImagePath).resize(250, 250).toFile(resizedImagePath);
     const sqlUpdate = "UPDATE user SET profilePicture = ? WHERE iduser = ?";
-    connection.query(sqlUpdate, ['resized_' + profilePicture, iduser], (err, result) => {
-      if (err) {
-        console.error(err);
-        res.status(500).json({ message: "Erreur lors de la mise à jour de l'avatar" });
-      } else {
-        res.status(200).json({ message: "Avatar mis à jour avec succès" });
+    connection.query(
+      sqlUpdate,
+      ["resized_" + profilePicture, iduser],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          res
+            .status(500)
+            .json({ message: "Erreur lors de la mise à jour de l'avatar" });
+        } else {
+          res.status(200).json({ message: "Avatar mis à jour avec succès" });
+        }
       }
-    });
+    );
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Erreur interne du serveur" });
@@ -233,43 +237,62 @@ router.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
 // ---------------------
 router.delete("/deleteUser/:iduser", (req, res) => {
   const id = req.params.iduser;
-  const deleteSql = "DELETE FROM user WHERE iduser = ?"
+  const deleteSql = "DELETE FROM user WHERE iduser = ?";
   connection.query(deleteSql, [id], (err, result) => {
     if (err) {
       console.error(err);
       return res
-      .status(500)
-      .json({message : "Erreur lors de la suppréssion de l'utilisateur"});
+        .status(500)
+        .json({ message: "Erreur lors de la suppréssion de l'utilisateur" });
     }
-    return res.json({message: "Compte supprimé"})
+    return res.json({ message: "Compte supprimé" });
   });
 });
 // ---------------------
 
-
-router.post("/insertComics", upload.fields([{ name: 'banner', maxCount: 1 }, { name: 'portrait', maxCount: 1 }]), (req, res) => {
-  try {
-    if (!req.files || !req.files['banner'] || !req.files['portrait'] || !req.files['banner'][0].filename || !req.files['portrait'][0].filename) {
-      return res.status(400).json({ message: "Les fichiers nécessaires ne sont pas fournis." });
-    }
-
-    const banner = req.files['banner'][0].filename;
-    const portrait = req.files['portrait'][0].filename;
-    const { title, synopsis, author, illustrator } = req.body;
-
-    const sqlInsert = 'INSERT INTO comics (title, banner, portrait, synopsis, author, illustrator) VALUES (?, ?, ?, ?, ?, ?)';
-    connection.query(sqlInsert, [title, banner, portrait, synopsis, author, illustrator], (err, result) => {
-      if (err) {
-        console.error(err);
-        res.status(500).json({ message: "Erreur lors de l'insertion" });
-      } else {
-        res.status(200).json({ message: "Insertion réussie" });
+router.post(
+  "/insertComics",
+  upload.fields([
+    { name: "banner", maxCount: 1 },
+    { name: "portrait", maxCount: 1 },
+  ]),
+  (req, res) => {
+    try {
+      if (
+        !req.files ||
+        !req.files["banner"] ||
+        !req.files["portrait"] ||
+        !req.files["banner"][0].filename ||
+        !req.files["portrait"][0].filename
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Les fichiers nécessaires ne sont pas fournis." });
       }
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Erreur interne du serveur" });
-  }
-});
 
-module.exports = router
+      const banner = req.files["banner"][0].filename;
+      const portrait = req.files["portrait"][0].filename;
+      const { title, synopsis, author, illustrator } = req.body;
+
+      const sqlInsert =
+        "INSERT INTO comics (title, banner, portrait, synopsis, author, illustrator) VALUES (?, ?, ?, ?, ?, ?)";
+      connection.query(
+        sqlInsert,
+        [title, banner, portrait, synopsis, author, illustrator],
+        (err, result) => {
+          if (err) {
+            console.error(err);
+            res.status(500).json({ message: "Erreur lors de l'insertion" });
+          } else {
+            res.status(200).json({ message: "Insertion réussie" });
+          }
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Erreur interne du serveur" });
+    }
+  }
+);
+
+module.exports = router;

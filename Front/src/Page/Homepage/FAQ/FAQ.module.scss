@@ -1,35 +1,38 @@
-.mainDiv{
-    width: 80%;
-    margin: 0 auto;
-    color: var(--mainText);
-    margin-top: 10rem;
-   
+.mainDiv {
+  width: 80%;
+  margin: 0 auto;
+  color: var(--mainText);
+  margin-top: 10rem;
 
-    h1{
-       text-align: center;
-       font-weight: 500;
-       font-size: 3rem;
-       letter-spacing: 0.2rem;
-       margin-bottom: 3rem;
+  h1 {
+    text-align: center;
+    font-weight: 500;
+    font-size: 3rem;
+    letter-spacing: 0.2rem;
+    margin-bottom: 3rem;
+  }
+
+  .faqList {
+    details {
+      background-color: var(--secondary);
+      margin: 2rem;
+      border-radius: 1rem 1rem 0 0;
+      cursor: pointer;
+      summary {
+        padding: 1rem;
+      }
+      p {
+        color: var(--accent);
+        background-color: var(--primary);
+        padding: 0.5rem;
+        gap: 1rem;
+      }
     }
+  }
+}
 
-    .faqList{
-
-        details{
-            background-color: var(--secondary);
-            margin: 2rem;
-            border-radius: 1rem 1rem 0 0;
-            summary{
-                padding: 1rem;
-            }
-            p{
-                
-                background-color: var(--accent);
-                padding: 0.5rem;
-                gap: 1rem;
-                border-top: 0.5rem solid var(--primary);
-                
-            }
-        }
-    }
+@media (max-width: 990px) {
+  .mainDiv {
+    width: 100vw;
+  }
 }
