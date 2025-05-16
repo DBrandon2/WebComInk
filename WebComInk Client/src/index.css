@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+.active {
+  @apply text-red-500;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    @apply transition-colors duration-500 ease-in-out;
+  }
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+  --color-purple: #3f3cbb;
+  --color-midnight: #121063;
+  --color-metal: #565584;
+  --color-tahitiLight: #67e8f9;
+  --color-tahitiDefault: #06b6d4;
+  --color-tahitiDark: #0e7490;
+  --color-silver: #ecebff;
+  --color-bubble-gum: #ff77e9;
+  --color-bermuda: #78dcca;
+}
