@@ -6,7 +6,6 @@ import ErrorPage from "./pages/ErrorPage";
 import Profile from "./pages/Profile/Profile";
 import Overview from "./pages/Profile/pages/Overview";
 import Data from "./pages/Profile/pages/Data";
-import Details from "./pages/Details/Details";
 import UserConnected from "./components/ProtectedRoutes/UserConnected";
 import UserNotConnected from "./components/ProtectedRoutes/UserNotConnected";
 import { rootLoader } from "./loaders/rootLoader";
@@ -49,14 +48,6 @@ export const router = createBrowserRouter([
       //   path: "resetpassword",
       //   element: <ResetPassword />,
       // },
-      {
-        path: "/details/:id",
-        element: (
-          <UserConnected>
-            <Details />
-          </UserConnected>
-        ),
-      },
       {
         path: "/profile",
         element: (

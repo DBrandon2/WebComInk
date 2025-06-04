@@ -1,4 +1,3 @@
-import Header from "./components/Header";
 import AuthProvider from "./components/providers/AuthProvider";
 import { Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
@@ -11,9 +10,7 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <NavBar />
-          <div>
             <Outlet />
-          </div>
         </AuthProvider>
       </ThemeProvider>
       <Toaster />

@@ -10,68 +10,71 @@ import image5 from "../assets/MangaCover/Banner/Naruto Banner.png";
 const images = [image1, image2, image3, image4, image5];
 
 export default function Carousel() {
-  // Références et états pour gérer le carrousel
-  const containerRef = useRef(null); // Référence pour le conteneur du carrousel
-  const [containerWidth, setContainerWidth] = useState(0); // État pour la largeur du conteneur
-  const [currentIndex, setCurrentIndex] = useState(0); // État pour l'index de l'image actuelle
-  const controls = useAnimation(); // Contrôles pour l'animation
-  const intervalRef = useRef(null); // Référence pour l'intervalle de défilement automatique
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const controls = useAnimation();
+  const intervalRef = useRef(null);
 
   useEffect(() => {
-    // Fonction pour mettre à jour la largeur du conteneur
     const updateWidth = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
       }
     };
 
-    // Ajouter un écouteur d'événement pour le redimensionnement de la fenêtre
     window.addEventListener("resize", updateWidth);
-    updateWidth(); // Appel initial pour définir la largeur
+    updateWidth();
 
-    // Nettoyage de l'écouteur d'événement lors du démontage
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  // Fonction pour réinitialiser l'intervalle de défilement automatique
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        containerRef.current.classList.add("calc-height");
+      } else {
+        containerRef.current.classList.remove("calc-height");
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const resetInterval = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 10000); // Change l'image toutes les 10 secondes
+    }, 10000);
   };
 
   useEffect(() => {
-    resetInterval(); // Démarrer l'intervalle au montage
-    return () => clearInterval(intervalRef.current); // Nettoyage de l'intervalle lors du démontage
+    resetInterval();
+    return () => clearInterval(intervalRef.current);
   }, []);
 
   useEffect(() => {
-    // Démarrer l'animation pour déplacer le carrousel à l'image actuelle
     controls.start({
       x: -currentIndex * containerWidth,
       transition: { type: "spring", stiffness: 300, damping: 30 },
     });
   }, [currentIndex, containerWidth, controls]);
 
-  // Gestion de la fin du glissement
   const handleDragEnd = (_, info) => {
-    const offsetX = info.offset.x; // Décalage horizontal
-
+    const offsetX = info.offset.x;
     let newIndex = currentIndex;
 
-    // Utiliser uniquement la distance pour déterminer le changement d'image
     if (Math.abs(offsetX) > containerWidth / 4) {
-      // Ajuster le seuil de distance
       newIndex = offsetX < 0 ? currentIndex + 1 : currentIndex - 1;
     }
 
-    // Limiter l'index entre 0 et le nombre d'images - 1
     newIndex = Math.max(0, Math.min(images.length - 1, newIndex));
 
-    // Si l'index n'a pas changé, recentrer l'image actuelle
     if (newIndex === currentIndex) {
       controls.start({
         x: -currentIndex * containerWidth,
@@ -81,14 +84,28 @@ export default function Carousel() {
       setCurrentIndex(newIndex);
     }
 
-    resetInterval(); // Réinitialiser l'intervalle lorsque l'utilisateur glisse
+    resetInterval();
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "ArrowRight") {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      } else if (event.key === "ArrowLeft") {
+        setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+      }
+      resetInterval();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [resetInterval]);
 
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden w-full"
-      style={{ height: "calc(100vh - 80px)" }}
+      className="relative overflow-hidden w-full carousel-3xl-height"
+      // style={{ height: 'calc(100vh - 80px)' }}
     >
       <motion.div
         className="flex"
@@ -102,20 +119,21 @@ export default function Carousel() {
             key={index}
             src={src}
             alt={`Image ${index + 1}`}
-            className="w-screen h-screen  flex-shrink-0"
+            className="w-full h-full object-cover flex-shrink-0"
             draggable={false}
+            loading="lazy"
           />
         ))}
       </motion.div>
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 space-x-24 ">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 space-x-6 lg:space-x-24">
         {images.map((_, index) => (
           <button
             key={index}
             onClick={() => {
               setCurrentIndex(index);
-              resetInterval(); // Réinitialiser l'intervalle lorsque l'utilisateur clique sur un point
+              resetInterval();
             }}
-            className={`w-6 h-6 rounded-full ${
+            className={`w-3 h-3 xl:w-6 xl:h-6 rounded-full  ${
               index === currentIndex ? "bg-accent" : "bg-light-bg"
             }`}
           />
