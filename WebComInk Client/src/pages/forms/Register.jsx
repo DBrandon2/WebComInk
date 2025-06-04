@@ -35,7 +35,7 @@ export default function Register() {
       .string()
       .required("Le champ est obligatoire")
       .min(5, "trop court")
-      .max(10, "trop long"),
+      .max(20, "trop long"),
     confirmPassword: yup
       .string()
       .required("Le champ est obligatoire")
@@ -85,7 +85,28 @@ export default function Register() {
     }
   }
   return (
-    <div className="flex-1 flex items-center justify-center">
+    <div className="flex-1 items-center justify-center">
+      <div className="w-full h-[500px]">
+        <img
+          src="https://cdn.pixabay.com/photo/2025/04/14/16/31/animals-9533774_960_720.jpg"
+          alt=""
+          className="w-full h-full"
+        />
+      </div>
+      <div className="w-full h-[500px]">
+        <img
+          src="https://cdn.pixabay.com/photo/2025/04/14/16/31/animals-9533774_960_720.jpg"
+          alt=""
+          className="w-full h-full"
+        />
+      </div>
+      <div className="w-full h-[500px]">
+        <img
+          src="https://cdn.pixabay.com/photo/2025/04/14/16/31/animals-9533774_960_720.jpg"
+          alt=""
+          className="w-full h-full"
+        />
+      </div>
       <div className="w-full max-w-md p-6 bg-white shadow-xl rounded">
         <form
           onSubmit={handleSubmit(submit)}

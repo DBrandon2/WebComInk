@@ -11,7 +11,7 @@ const {
 const router = require("express").Router();
 
 // POST 
-router.post("/", signup);
+router.post("/register", signup);
 router.post("/login", signin);
 
 // GET

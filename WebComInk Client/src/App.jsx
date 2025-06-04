@@ -3,14 +3,15 @@ import AuthProvider from "./components/providers/AuthProvider";
 import { Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import ThemeProvider from "./components/providers/ThemeProvider";
+import NavBar from "./components/shared/NavBar";
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 w-full">
+    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 w-full lg:my-[80px]">
       <ThemeProvider>
         <AuthProvider>
-          <Header />
-          <div className="flex flex-col flex-1 justify-center items-center w-full">
+          <NavBar />
+          <div>
             <Outlet />
           </div>
         </AuthProvider>

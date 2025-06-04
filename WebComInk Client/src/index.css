@@ -1,30 +1,66 @@
 @import "tailwindcss";
 
-.active {
-  @apply text-red-500;
+
+
+@theme {
+  --color-white: #ffffff;
+  --color-dark-bg: #171219;
+  --color-light-bg: #2c2c3c;
+  --color-text-title: #edf060;
+  --color-text-color: #ffffff;
+  --color-red-btn: #ff4345;
+  --color-white-btn: #ffffff;
+  --color-accent: #edf060;
+  --color-accent-hover: #2d2821;
+
+  --font-text: "Poppins", "sans-serif"
+  --font-title: "Monserrat", "sans-serif"
+  
+}
+
+/* --- Poppins --- */
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* --- Montserrat --- */
+@font-face {
+  font-family: "Montserrat";
+  src: url("./assets//fonts//Montserrat/Montserrat-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* --- OpenDyslexic --- */
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("./assets/fonts/OpenDyslexic/OpenDyslexic-Regular.woff2")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("./assets/fonts/OpenDyslexic/OpenDyslexic-Bold.woff2")
+    format("truetype");
+  font-weight: 700;
+  font-style: normal;
 }
 
 @layer base {
-  *,
-  *::before,
-  *::after {
-    @apply transition-colors duration-500 ease-in-out;
+  body {
+    @apply font-text bg-dark-bg text-text-color transition-colors duration-500 ease-in-out;
   }
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
-
-@theme {
-  --color-transparent: transparent;
-  --color-current: currentColor;
-  --color-white: #ffffff;
-  --color-purple: #3f3cbb;
-  --color-midnight: #121063;
-  --color-metal: #565584;
-  --color-tahitiLight: #67e8f9;
-  --color-tahitiDefault: #06b6d4;
-  --color-tahitiDark: #0e7490;
-  --color-silver: #ecebff;
-  --color-bubble-gum: #ff77e9;
-  --color-bermuda: #78dcca;
-}

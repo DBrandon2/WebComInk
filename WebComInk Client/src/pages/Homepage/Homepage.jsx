@@ -1,5 +1,12 @@
 import React from "react";
+import Carousel from "../../components/carousel";
+import ButtonAnimated from "../../components/ButtonAnimated";
 
 export default function Homepage() {
-  return <div>Homepage</div>;
+  return (
+    <div className="w-full h-full flex flex-col bg-yellow-200">
+      <Carousel />
+      <ButtonAnimated />
+    </div>
+  );
 }

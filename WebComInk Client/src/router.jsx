@@ -22,9 +22,7 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: (
-          <UserConnected>
             <Homepage />
-          </UserConnected>
         ),
       },
       {
@@ -43,6 +41,14 @@ export const router = createBrowserRouter([
           </UserNotConnected>
         ),
       },
+      //  {
+      //   path: "forgotpassword",
+      //   element: <ForgotPassword />,
+      // },
+      // {
+      //   path: "resetpassword",
+      //   element: <ResetPassword />,
+      // },
       {
         path: "/details/:id",
         element: (

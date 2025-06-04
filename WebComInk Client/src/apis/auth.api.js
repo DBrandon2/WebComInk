@@ -19,7 +19,7 @@ export async function signin(values) {
 
 export async function signup(values) {
   try {
-    const response = await fetch(`${BASE_URL}/user`, {
+    const response = await fetch(`${BASE_URL}/user/register`, {
       method: "POST",
       body: JSON.stringify(values),
       headers: {
@@ -42,7 +42,7 @@ export async function update(values) {
     username: values.username,
   };
   try {
-    const response = await fetch(`${BASE_URL}/user`, {
+    const response = await fetch(`${BASE_URL}/auth`, {
       method: "PUT",
       body: JSON.stringify(user),
       headers: {
@@ -59,7 +59,7 @@ export async function update(values) {
 
 export async function updateAvatar(values) {
   try {
-    const response = await fetch(`${BASE_URL}/user/avatar`, {
+    const response = await fetch(`${BASE_URL}/auth/avatar`, {
       method: "PUT",
       body: JSON.stringify(values),
       headers: {
@@ -76,7 +76,7 @@ export async function updateAvatar(values) {
 
 export async function getCurrentUser() {
   try {
-    const response = await fetch(`${BASE_URL}/user/currentUser`, {
+    const response = await fetch(`${BASE_URL}/auth/currentUser`, {
       method: "GET",
       credentials: "include",
     });
@@ -91,7 +91,7 @@ export async function getCurrentUser() {
 }
 
 export async function signOut() {
-  await fetch(`${BASE_URL}/user/deleteToken`, {
+  await fetch(`${BASE_URL}/auth/deleteToken`, {
     method: "DELETE",
     credentials: "include",
   });
