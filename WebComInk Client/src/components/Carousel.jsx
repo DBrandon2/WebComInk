@@ -2,10 +2,12 @@ import { useRef, useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import image1 from "../assets/MangaCover/Banner/Innocent banner.png";
 import image2 from "../assets/MangaCover/Banner/Chainsaw man banner.png";
-import image3 from "../assets/MangaCover/Banner/5265-SeriesHeaders_OP_2000x800_wm.jpg";
+import image3 from "../assets/MangaCover/Banner/Frieren Banner.png";
+import image4 from "../assets/MangaCover/Banner/Dandadan Banner.png";
+import image5 from "../assets/MangaCover/Banner/Naruto Banner.png";
 
 // Tableau contenant les images du carrousel
-const images = [image1, image2, image3];
+const images = [image1, image2, image3, image4, image5];
 
 export default function Carousel() {
   // Références et états pour gérer le carrousel
@@ -100,7 +102,7 @@ export default function Carousel() {
             key={index}
             src={src}
             alt={`Image ${index + 1}`}
-            className="w-screen h-screen  flex-shrink-0 bg-red-300" 
+            className="w-screen h-screen  flex-shrink-0"
             draggable={false}
           />
         ))}

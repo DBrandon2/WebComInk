@@ -4,7 +4,7 @@ import ButtonAnimated from "../../components/ButtonAnimated";
 
 export default function Homepage() {
   return (
-    <div className="w-full h-full flex flex-col bg-yellow-200">
+    <div className="w-full h-full flex flex-col">
       <Carousel />
       <ButtonAnimated />
     </div>
