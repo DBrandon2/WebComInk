@@ -1,13 +1,13 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
-export default function ButtonAnimated() {
+export default function ButtonAnimated({ text }) {
   return (
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors"
+      className="px-12 py-2 bg-white text-dark-bg rounded-lg shadow transition-colors sm:px-16 sm:py-3 cursor-pointer font-medium tracking-widest"
     >
-      Clique moi
+      {text}
     </motion.button>
   );
 }

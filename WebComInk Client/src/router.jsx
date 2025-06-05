@@ -10,6 +10,11 @@ import UserConnected from "./components/ProtectedRoutes/UserConnected";
 import UserNotConnected from "./components/ProtectedRoutes/UserNotConnected";
 import { rootLoader } from "./loaders/rootLoader";
 import Homepage from "./pages/Homepage/Homepage";
+import Comics from "./pages/Comics/Comics";
+import Library from "./pages/Library/Library";
+import Settings from "./pages/Settings/Settings";
+import ForgotPass from "./pages/forms/Security/ForgotPass";
+import ResetPass from "./pages/forms/Security/ResetPass";
 
 export const router = createBrowserRouter([
   {
@@ -21,8 +26,22 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: (
+          <UserNotConnected>
             <Homepage />
+          </UserNotConnected>
         ),
+      },
+      {
+        path: "/comics",
+        element: (
+          <UserNotConnected>
+            <Comics />
+          </UserNotConnected>
+        ),
+      },
+      {
+        path: "/library",
+        element: <Library />,
       },
       {
         path: "/register",
@@ -40,14 +59,14 @@ export const router = createBrowserRouter([
           </UserNotConnected>
         ),
       },
-      //  {
-      //   path: "forgotpassword",
-      //   element: <ForgotPassword />,
-      // },
-      // {
-      //   path: "resetpassword",
-      //   element: <ResetPassword />,
-      // },
+      {
+        path: "forgotpassword",
+        element: <ForgotPass/>,
+      },
+      {
+        path: "resetpassword",
+        element: <ResetPass />,
+      },
       {
         path: "/profile",
         element: (
@@ -65,6 +84,10 @@ export const router = createBrowserRouter([
             element: <Data />,
           },
         ],
+      },
+      {
+        path: "/settings",
+        element: <Settings />,
       },
     ],
   },

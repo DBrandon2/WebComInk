@@ -3,14 +3,16 @@ import { Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import ThemeProvider from "./components/providers/ThemeProvider";
 import NavBar from "./components/shared/NavBar";
+import Footer from "./components/shared/Footer";
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 w-full lg:my-[80px]">
+    <div className=" w-full pb-[128px] lg:pb-0 lg:my-[80px]">
       <ThemeProvider>
         <AuthProvider>
           <NavBar />
-            <Outlet />
+          <Outlet />
+          <Footer />
         </AuthProvider>
       </ThemeProvider>
       <Toaster />

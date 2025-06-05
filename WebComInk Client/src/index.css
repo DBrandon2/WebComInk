@@ -12,12 +12,13 @@
   --color-white-btn: #ffffff;
   --color-accent: #edf060;
   --color-accent-hover: #2d2821;
+  --color-btn-color: #d4d44d;
 
   --font-text: "Poppins", "sans-serif"
   --font-title: "Monserrat", "sans-serif"
 
   ---3xl: "1920px"
-  
+
 }
 
 /* --- Poppins --- */
@@ -73,3 +74,4 @@
     height: calc(100vh - 80px) !important;
   }
 }
+

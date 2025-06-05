@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, useAnimation } from "framer-motion";
 import image1 from "../assets/MangaCover/Banner/Innocent banner.png";
 import image2 from "../assets/MangaCover/Banner/Chainsaw man banner.png";
@@ -44,19 +44,19 @@ export default function Carousel() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const resetInterval = () => {
+  const resetInterval = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 10000);
-  };
+  }, []);
 
   useEffect(() => {
     resetInterval();
     return () => clearInterval(intervalRef.current);
-  }, []);
+  }, [resetInterval]);
 
   useEffect(() => {
     controls.start({
@@ -92,7 +92,9 @@ export default function Carousel() {
       if (event.key === "ArrowRight") {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
       } else if (event.key === "ArrowLeft") {
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+        setCurrentIndex(
+          (prevIndex) => (prevIndex - 1 + images.length) % images.length
+        );
       }
       resetInterval();
     };
@@ -104,8 +106,7 @@ export default function Carousel() {
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden w-full carousel-3xl-height"
-      // style={{ height: 'calc(100vh - 80px)' }}
+      className="relative overflow-hidden w-full carousel-3xl-height bg-dark-bg"
     >
       <motion.div
         className="flex"
