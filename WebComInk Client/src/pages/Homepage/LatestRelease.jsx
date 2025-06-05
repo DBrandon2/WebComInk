@@ -75,7 +75,7 @@ export default function LatestRelease() {
   ];
 
  return (
-    <div className="flex flex-col items-center justify-center gap-10">
+    <div className="flex flex-col items-center justify-center gap-10 mx-3">
       <div className="flex flex-col justify-center items-center gap-2">
         <h1 className="text-3xl text-accent font-medium tracking-wider">
           Les dernières sorties
