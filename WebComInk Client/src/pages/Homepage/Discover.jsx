@@ -5,8 +5,8 @@ import image from "../../assets/MangaCover/OMRWP Cover.jpg";
 export default function Discover() {
   const dailyComics = {
     title: "Omniscient Reader Viewpoint",
-    author: "",
-    illustrator: "",
+    author: "UMI",
+    illustrator: "Sleepy-C",
     genre: ["Action", "Adventure", "Fantasy"],
     description: `Back then, Dok-Ja had no idea. He had no idea his favorite web novel 'Three Ways to Survive the Apocalypse' was going to come to life,
       and that he would become the only person to know how the world was going to end.
@@ -17,7 +17,7 @@ export default function Discover() {
     chapter: "252",
   };
   return (
-    <div className="flex flex-col items-center justify-center gap-10 mx-3">
+    <div className="flex flex-col items-center justify-center gap-4 mx-3">
       <div className="flex flex-col w-full justify-center items-center">
         <h1 className="text-3xl text-accent font-medium tracking-wider">
           Découverte
@@ -30,19 +30,50 @@ export default function Discover() {
       <div>
         <img src={dailyComics.image} alt="" />
       </div>
-      <div className="flex flex-col justify-center items-center gap-2">
-        <h2>{dailyComics.title}</h2>
-        <p>{dailyComics.author}</p>
-        <p>{dailyComics.illustrator}</p>
-        {dailyComics.genre.map((genre) => (
-          <span key={genre}>{genre}</span>
-        ))}
-        <p>{dailyComics.status}</p>
-        <p>{dailyComics.chapter}</p>
-        <p>{dailyComics.description}</p>
+      <div className="flex flex-col gap-3">
+        <h2 className="font-bold text-xl text-accent">{dailyComics.title}</h2>
+        <div className="flex w-full">
+          <p>
+            {" "}
+            <span className="font-semibold">Auteur :</span> {dailyComics.author}
+          </p>
+        </div>
+        <div className="flex w-full">
+          <p>
+            {" "}
+            <span className="font-semibold">Artiste :</span>{" "}
+            {dailyComics.illustrator}
+          </p>
+        </div>
+        <div className="flex w-full gap-1">
+          <span className="font-semibold">Genre : </span>
+          <div className="flex gap-2">
+            {dailyComics.genre.map((genre) => (
+              <span key={genre}>{genre}</span>
+            ))}
+          </div>
+        </div>
+        <div className="flex w-full ">
+          <p>
+            {" "}
+            <span className="font-semibold">Status :</span> {dailyComics.status}
+          </p>
+        </div>
+        <div className="flex w-full">
+          <p>
+            {" "}
+            <span className="font-semibold">Nombre de chapitre :</span>{" "}
+            {dailyComics.chapter}
+          </p>
+        </div>
+        <div className="flex flex-col justify-center items-center w-full gap-2 mt-4">
+          <span className="w-[90%] h-[1px] bg-accent"></span>
+          <p className="description text-gray-200">{dailyComics.description}</p>
+          <span className="w-[90%] h-[1px] mt-3 bg-accent"></span>
+        </div>
       </div>
 
-      <ButtonAnimated text={["Afficher plus"]} justify="justify-center" />
+      <ButtonAnimated text={["En savoir plus"]} justify="justify-end" />
     </div>
   );
 }

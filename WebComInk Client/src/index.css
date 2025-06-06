@@ -75,3 +75,13 @@
   }
 }
 
+.description {
+  text-indent: 0.5em; /* Ajoute un alinéa */
+  letter-spacing: 0.01rem;
+}
+
+.description::first-letter {
+  font-size: 2em; /* Agrandit la première lettre */
+  font-weight: 600; /* Rend la première lettre en gras */
+  margin-right: 0.1rem;
+}

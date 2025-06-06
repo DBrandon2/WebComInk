@@ -84,7 +84,7 @@ export default function LatestRelease() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-10 mx-3">
+    <div className="flex flex-col items-center justify-center gap-8 mx-3">
       <div className="flex flex-col w-full justify-center items-center">
         <h1 className="text-3xl text-accent font-medium tracking-wider">
           Les dernières sorties
@@ -94,7 +94,7 @@ export default function LatestRelease() {
         </h2>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+      <div className="grid grid-cols-2 gap-x-2 gap-y-4">
         {comicsItems.map((item, index) => (
           <div key={index} className="flex flex-col items-center gap-2">
             <div className="w-[160px] h-[240px] bg-gray-200 flex items-center justify-center">

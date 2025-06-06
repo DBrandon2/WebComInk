@@ -74,11 +74,14 @@ export default function MostPopular() {
       </div>
 
       <div className="flex flex-col items-center gap-y-4">
-        <div className="flex flex-col gap-2 mb-2">
-          <img src={ComicsBanner.img} alt="" />
-          <h3 className="font-medium text-accent text-center">
-            {ComicsBanner.title}
-          </h3>
+        <div className="relative flex flex-col gap-2 mb-2">
+          <img src={ComicsBanner.img} alt="" className="w-full h-auto" />
+          <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-dark-bg to-transparent"></div>
+          <div className="absolute bottom-0 left-0 right-0 pb-1 flex justify-center items-end">
+            <h3 className="font-medium text-center text-accent text-xl tracking-wide">
+              {ComicsBanner.title}
+            </h3>
+          </div>
         </div>
         <div className="grid grid-cols-3 gap-x-2 gap-y-6 w-full max-w-full">
           {comicsItems.map((item, index) => (
@@ -94,7 +97,9 @@ export default function MostPopular() {
                 <h3 className="font-medium text-accent text-center line-clamp-2 text-sm tracking-wide">
                   {item.title}
                 </h3>
-                <span className="text-sm font-light text-gray-200">{item.author}</span>
+                <span className="text-sm font-light text-gray-200">
+                  {item.author}
+                </span>
               </div>
             </div>
           ))}

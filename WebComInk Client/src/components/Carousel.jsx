@@ -50,7 +50,7 @@ export default function Carousel() {
     }
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 10000);
+    }, 6000);
   }, []);
 
   useEffect(() => {
