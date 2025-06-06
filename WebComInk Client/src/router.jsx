@@ -13,8 +13,8 @@ import Homepage from "./pages/Homepage/Homepage";
 import Comics from "./pages/Comics/Comics";
 import Library from "./pages/Library/Library";
 import Settings from "./pages/Settings/Settings";
-import ForgotPass from "./pages/forms/Security/ForgotPass";
-import ResetPass from "./pages/forms/Security/ResetPass";
+// import ForgotPass from "./pages/forms/Security/ForgotPass";
+// import ResetPass from "./pages/forms/Security/ResetPass";
 
 export const router = createBrowserRouter([
   {
@@ -59,14 +59,14 @@ export const router = createBrowserRouter([
           </UserNotConnected>
         ),
       },
-      {
-        path: "forgotpassword",
-        element: <ForgotPass/>,
-      },
-      {
-        path: "resetpassword",
-        element: <ResetPass />,
-      },
+      // {
+      //   path: "forgotpassword",
+      //   element: <ForgotPass/>,
+      // },
+      // {
+      //   path: "resetpassword",
+      //   element: <ResetPass />,
+      // },
       {
         path: "/profile",
         element: (
