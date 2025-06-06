@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import image1 from "../../assets/MangaCover/kaiju cover.webp";
 import image2 from "../../assets/MangaCover/OP manga cover.jpg";
-import image3 from "../../assets/MangaCover/vinland-Saga-28.webp";
+import image3 from "../../assets/MangaCover/Vinland-Saga-28.webp";
 import image4 from "../../assets/MangaCover/Sakamoto Cover.webp";
 import ButtonAnimated from "../../components/ButtonAnimated";
 import { IoIosArrowDown } from "react-icons/io";
