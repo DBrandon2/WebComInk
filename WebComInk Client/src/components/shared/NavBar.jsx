@@ -20,7 +20,7 @@ export default function NavBar() {
   return (
     <div>
         {/* NAV MOBILE */}
-      <nav className="bg-light-bg w-full h-[64px] fixed bottom-0 lg:hidden z-50">
+      <nav className="bg-light-bg w-screen h-[64px] fixed bottom-0 lg:hidden z-50">
         <ul className="flex justify-around items-center h-full w-full relative">
           {navItems.map((item, index) => (
             <NavLink key={index} to={item.to}>
