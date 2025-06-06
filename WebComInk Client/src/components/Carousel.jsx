@@ -1,13 +1,14 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, useAnimation } from "framer-motion";
-import image1 from "../assets/MangaCover/Banner/Innocent banner.png";
-import image2 from "../assets/MangaCover/Banner/Chainsaw man banner.png";
-import image3 from "../assets/MangaCover/Banner/Frieren Banner.png";
-import image4 from "../assets/MangaCover/Banner/Dandadan Banner.png";
-import image5 from "../assets/MangaCover/Banner/Naruto Banner.png";
 
 // Tableau contenant les images du carrousel
-const images = [image1, image2, image3, image4, image5];
+const images = [
+  "https://res.cloudinary.com/drib6vkyw/image/upload/v1749214624/Innocent-banner_rzsl5k.webp",
+  "https://res.cloudinary.com/drib6vkyw/image/upload/v1749214796/Chainsaw-man-banner_tawlei.webp",
+  "https://res.cloudinary.com/drib6vkyw/image/upload/v1749214462/Frieren-Banner_pllefm.webp",
+  "https://res.cloudinary.com/drib6vkyw/image/upload/v1749214624/Dandadan-Banner_wivgsj.webp",
+  "https://res.cloudinary.com/drib6vkyw/image/upload/v1749214463/Naruto-Banner_gxo8jm.webp",
+];
 
 export default function Carousel() {
   const containerRef = useRef(null);
@@ -126,7 +127,7 @@ export default function Carousel() {
           />
         ))}
       </motion.div>
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 space-x-6 lg:space-x-24">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 space-x-6 lg:space-x-24 ">
         {images.map((_, index) => (
           <button
             key={index}
@@ -134,7 +135,7 @@ export default function Carousel() {
               setCurrentIndex(index);
               resetInterval();
             }}
-            className={`w-3 h-3 xl:w-6 xl:h-6 rounded-full  ${
+            className={`w-3 h-3 xl:w-6 xl:h-6 rounded-full cursor-pointer  ${
               index === currentIndex ? "bg-accent" : "bg-light-bg"
             }`}
           />

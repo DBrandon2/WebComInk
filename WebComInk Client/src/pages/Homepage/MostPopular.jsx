@@ -4,8 +4,10 @@ import image2 from "../../assets/MangaCover/OP manga cover.jpg";
 import image3 from "../../assets/MangaCover/vinland-Saga-28.webp";
 import image4 from "../../assets/MangaCover/Sakamoto Cover.webp";
 import ButtonAnimated from "../../components/ButtonAnimated";
-import { IoIosArrowDown } from "react-icons/io";
-import imageBanner from "../../assets/MangaCover/Banner/Dandadan Banner.png";
+import { NavLink } from "react-router-dom";
+
+const imageBanner =
+  "https://res.cloudinary.com/drib6vkyw/image/upload/v1749214624/Dandadan-Banner_wivgsj.webp";
 
 export default function MostPopular() {
   const comicsItems = [
@@ -105,8 +107,9 @@ export default function MostPopular() {
           ))}
         </div>
       </div>
-
-      <ButtonAnimated text={"Parcourir plus"} />
+      <NavLink to="/comics">
+        <ButtonAnimated text={"Parcourir plus"} />
+      </NavLink>
     </div>
   );
 }
