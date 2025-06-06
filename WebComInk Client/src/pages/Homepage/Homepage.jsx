@@ -1,5 +1,5 @@
 import React from "react";
-import Carousel from "../../components/carousel";
+import Carousel from "../../components/Carousel";
 import LatestRelease from "./LatestRelease";
 import MostPopular from "./MostPopular";
 import Discover from "./Discover";
