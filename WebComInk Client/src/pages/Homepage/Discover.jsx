@@ -36,7 +36,7 @@ export default function Discover() {
         </div>
       </div>
 
-      <div className="lg:flex lg:justify-center lg:gap-8 gap-24">
+      <div className="lg:flex lg:justify-center lg:gap-8 xl:gap-24">
         {/* Image */}
         <div className="flex justify-center lg:bg-red-300 lg:w-[583px] lg:h-[874px]">
           <img
