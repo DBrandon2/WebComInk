@@ -200,18 +200,18 @@ export default function LatestRelease() {
     comicsItems.length * (itemWidth + itemSpacing) - itemSpacing;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 mx-3 lg:my-8">
+    <div className="flex flex-col items-center justify-center gap-8 mx-3 lg:my-8 lg:gap-y-12">
       <div className="flex w-full h-full">
-        <div className="flex w-full justify-between items-center lg:px-7">
+        <div className="flex w-full justify-center lg:justify-between items-center lg:px-7">
           <div className="flex flex-col">
             <h1 className="text-3xl text-accent font-medium tracking-wider lg:text-4xl">
               Les dernières sorties
             </h1>
-            <h2 className="text font-light">
+            <h2 className="text-center lg:text-start font-light">
               Découvre les sorties des derniers chapitres
             </h2>
           </div>
-          <NavLink to="/comics">
+          <NavLink to="/comics" className="hidden lg:flex">
             <ButtonAnimated text="Voir les comics" />
           </NavLink>
         </div>
