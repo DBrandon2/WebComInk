@@ -1,15 +1,19 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = "https://api.mangadex.org/";
 
-export const getMangas = async (limit = 10, lang = "fr") => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}manga`, {
-      params: { limit, lang },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Erreur getMangas:", error);
-    throw error;
-  }
+export const getMangas = (limit = 10, lang = "fr") => {
+  return axios.get(`${API_BASE_URL}manga`, {
+    params: {
+      limit,
+      "contentRating[]": ["safe"],
+      "availableTranslatedLanguage[]": [lang],
+    },
+  }).then(res => res.data);
+};
+
+export const getCoverById = (coverId) => {
+  return axios.get(`${API_BASE_URL}cover/${coverId}`)
+    .then(res => res.data.data.attributes.fileName)
+    .catch(() => null);
 };

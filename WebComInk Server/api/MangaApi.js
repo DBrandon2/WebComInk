@@ -34,7 +34,38 @@ const fetchMangaById = async (id) => {
   }
 };
 
+const fetchCoverUrlByMangaId = async (mangaId) => {
+  try {
+    const mangaData = await fetchMangaById(mangaId);
+    const relationships = mangaData.data.relationships;
+
+    // Trouver le cover_art dans les relationships
+    const coverArt = relationships.find((rel) => rel.type === "cover_art");
+    if (!coverArt) {
+      console.warn(`Pas de cover trouvée pour le manga ${mangaId}`);
+      return null;
+    }
+
+    const coverId = coverArt.id;
+
+    // Récupérer le filename de la cover
+    const coverResponse = await axios.get(
+      `https://api.mangadex.org/cover/${coverId}`
+    );
+    const fileName = coverResponse.data.data.attributes.fileName;
+
+    // Construire l'URL finale de la cover
+    const coverUrl = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
+    return coverUrl;
+  } catch (error) {
+    console.error("Erreur dans fetchCoverUrlByMangaId:", error.message);
+    return null;
+  }
+};
+
 module.exports = {
   fetchMangas,
   fetchMangaById,
+  fetchCoverUrlByMangaId,
 };
+

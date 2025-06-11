@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getMangas } from "../../services/mangaService";
+import { getMangas, getCoverById } from "../../services/mangaService";
 
 export default function MangaList() {
   const [mangas, setMangas] = useState([]);
@@ -10,9 +10,30 @@ export default function MangaList() {
     async function fetchMangas() {
       try {
         const data = await getMangas(10, "fr");
-        console.log("Données reçues :", data);
-        setMangas(data.data);
+        const mangasData = data.data;
+
+        // Pour chaque manga on récupère son cover_url
+        const mangasWithCover = await Promise.all(
+          mangasData.map(async (manga) => {
+            const coverRel = manga.relationships.find(
+              (rel) => rel.type === "cover_art"
+            );
+
+            if (!coverRel) return { ...manga, coverUrl: null };
+
+            // Appel pour récupérer le filename du cover
+            const fileName = await getCoverById(coverRel.id);
+
+            if (!fileName) return { ...manga, coverUrl: null };
+
+            const coverUrl = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg`;
+            return { ...manga, coverUrl };
+          })
+        );
+
+        setMangas(mangasWithCover);
       } catch (err) {
+        console.error(err);
         setError("Impossible de charger les mangas");
       } finally {
         setLoading(false);
@@ -29,22 +50,26 @@ export default function MangaList() {
     <div className="manga-list">
       {mangas.map((manga) => (
         <div key={manga.id} className="manga-card">
-          <h3>{manga.attributes.title.fr || "Titre non dispo"}</h3>
-          {/* Exemple d'image couverture - faut construire l'url avec le coverId */}
-          {manga.relationships
-            .filter((rel) => rel.type === "cover_art")
-            .map((cover) => {
-              const fileName = cover.attributes.fileName;
-              const coverUrl = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}`;
-              return (
-                <img
-                  key={cover.id}
-                  src={coverUrl}
-                  alt={`${manga.attributes.title.fr} cover`}
-                  style={{ width: 150, height: 220, objectFit: "cover" }}
-                />
-              );
-            })}
+          <h3>
+            {manga.attributes.title.fr ||
+              manga.attributes.title.en ||
+              "Titre non dispo"}
+          </h3>
+          {manga.coverUrl ? (
+            <img
+              src={manga.coverUrl}
+              alt={`${
+                manga.attributes.title.fr || manga.attributes.title.en
+              } cover`}
+              style={{ width: 150, height: 220, objectFit: "cover" }}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/default-cover.png"; // fallback local si tu veux
+              }}
+            />
+          ) : (
+            <p>Pas d'image disponible</p>
+          )}
         </div>
       ))}
     </div>
