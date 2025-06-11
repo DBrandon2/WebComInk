@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_BASE_URL = "https://api.mangadex.org/";
 
-export const getMangas = (limit = 10, lang = "fr") => {
+export const getMangas = async (limit = 20, lang = "fr") => {
   return axios.get(`${API_BASE_URL}manga`, {
     params: {
       limit,

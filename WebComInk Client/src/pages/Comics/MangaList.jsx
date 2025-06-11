@@ -9,7 +9,7 @@ export default function MangaList() {
   useEffect(() => {
     async function fetchMangas() {
       try {
-        const data = await getMangas(10, "fr");
+        const data = await getMangas(20, "fr");
         const mangasData = data.data;
 
         // Pour chaque manga on récupère son cover_url
