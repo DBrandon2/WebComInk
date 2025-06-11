@@ -85,3 +85,18 @@
   font-weight: 600; /* Rend la première lettre en gras */
   margin-right: 0.1rem;
 }
+
+/* Masquer la barre de défilement pour les navigateurs WebKit (Chrome, Safari) */
+.scrollBar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Masquer la barre de défilement pour Firefox */
+.scrollBar {
+  scrollbar-width: none; /* Masque la barre de défilement */
+}
+
+/* Masquer la barre de défilement pour Internet Explorer et Edge */
+.scrollBar {
+  -ms-overflow-style: none; /* Masque la barre de défilement */
+}

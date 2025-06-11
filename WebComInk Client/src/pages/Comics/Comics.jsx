@@ -1,14 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import TopBarMobile from "./TopBarMobile";
-import ComicsFilter from "./ComicsFilter";
+import SwitchBtn from "../../components/shared/SwitchBtn";
+import SortComics from "./SortComics";
+import { motion } from "framer-motion";
+import MangaList from "./MangaList";
 
 export default function Comics() {
+  const [activeFilter, setActiveFilter] = useState("enCours");
+  const [previousFilter, setPreviousFilter] = useState(null);
+
+  const handleSwitchClick = (newFilter) => {
+    setPreviousFilter(activeFilter);
+    setActiveFilter(newFilter);
+  };
+
+  const handleAllClick = () => {
+    setPreviousFilter(activeFilter);
+    setActiveFilter("tous");
+    console.log("Tous button clicked");
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <TopBarMobile />
       <div className="flex w-full h-full xl:justify-center">
         <div className="flex w-full justify-center lg:justify-between items-center lg:px-7">
-          {/* Titre et sous-titre */}
           <div className="flex flex-col items-center">
             <h1 className="text-3xl text-accent text-center lg:text-start font-medium tracking-wider lg:text-4xl">
               Liste des Mangas
@@ -19,7 +35,32 @@ export default function Comics() {
           </div>
         </div>
       </div>
-      <ComicsFilter />
+      <div className="flex flex-col gap-0">
+        <SwitchBtn
+          btnleft="En cours"
+          btnright="Terminé"
+          activeFilter={activeFilter}
+          previousFilter={previousFilter}
+          onSwitchClick={handleSwitchClick}
+        />
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={`mx-auto mt-4 px-16 rounded-md h-[48px] ${
+            activeFilter === "tous"
+              ? "bg-accent text-dark-bg"
+              : "bg-accent-hover text-gray-300"
+          }`}
+          onClick={handleAllClick}
+        >
+          Tous
+        </motion.button>
+      </div>
+
+      <SortComics />
+
+      <MangaList />
     </div>
   );
 }
