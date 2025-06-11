@@ -10,7 +10,8 @@ export default function MangaList() {
     async function fetchMangas() {
       try {
         const data = await getMangas(10, "fr");
-        setMangas(data.data); // Selon la structure de MangaDex, le tableau des mangas est dans data.data
+        console.log("Données reçues :", data);
+        setMangas(data.data);
       } catch (err) {
         setError("Impossible de charger les mangas");
       } finally {

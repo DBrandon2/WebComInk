@@ -1,13 +1,16 @@
 const { fetchMangas, fetchMangaById } = require("../api/MangaApi");
 
-const getMangas = async (res, req) => {
+const getMangas = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
     const lang = req.query.lang || "fr";
 
-    const mangas = await fetchMangas(limit, lang);
+    console.log("Params dans getMangas:", { limit, lang });
+
+    const mangas = await fetchMangas({ limit, lang });
     res.json(mangas);
   } catch (error) {
+    console.error("Erreur getMangas:", error);
     res
       .status(500)
       .json({ message: "Erreur lors de la récupération des mangas" });

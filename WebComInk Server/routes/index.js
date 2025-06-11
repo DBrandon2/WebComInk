@@ -6,7 +6,7 @@ const apiMangas = require("./manga.route");
 
 router.use("/user", apiUsers);
 
-router.use("manga", apiMangas)
+router.use("/manga", apiMangas)
 
 module.exports = router;
 

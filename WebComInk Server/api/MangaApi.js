@@ -2,15 +2,25 @@ const axios = require("axios");
 
 const fetchMangas = async ({ limit = 10, lang = "fr" }) => {
   try {
+    console.log("Params envoyés à Mangadex:", {
+      limit,
+      "contentRating[]": ["safe"],
+      "translatedLanguage[]": [lang],
+    });
+
     const response = await axios.get("https://api.mangadex.org/manga", {
       params: {
         limit,
-        "contentRating[]": "safe",
-        "translatedLanguage[]": lang,
+        "contentRating[]": ["safe"],
+        "availableTranslatedLanguage[]": [lang], // <--- ici
       },
     });
     return response.data;
   } catch (error) {
+    console.error(
+      "Erreur dans fetchMangas:",
+      error.response?.data || error.message
+    );
     throw new Error("Erreur dans fetchMangas: " + error.message);
   }
 };

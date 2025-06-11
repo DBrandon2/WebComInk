@@ -6,15 +6,26 @@ const config = require("./database/config");
 const cookieParser = require("cookie-parser");
 
 const app = express();
+
 app.use(express.json());
 app.use(cookieParser());
 
+const allowedOrigins = [
+  "https://web-com-ink.vercel.app",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    credentials: true,
-    allowedHeaders: ["Content-Type"],
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // Pas d'origine = autoriser (ex: Postman)
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, origin); // autoriser cette origine, la renvoyer en header
+      } else {
+        callback(new Error("Not allowed by CORS"), false); // refuser
+      }
+    },
+    credentials: true, // si tu utilises cookies / auth
   })
 );
 
@@ -25,10 +36,10 @@ app.use(routes);
 mongoose
   .connect(config.mongoDb.uri)
   .then(() => {
-    console.log("Connexion Mongo DB OK");
+    console.log("Connexion MongoDB OK");
   })
-  .catch((err) => console.log(err));
+  .catch((err) => console.error("Erreur connexion MongoDB:", err));
 
-app.listen(3000);
-
-// localhost:3000
+app.listen(3000, () => {
+  console.log("Serveur démarré sur le port 3000");
+});
