@@ -135,7 +135,7 @@ export default function Carousel() {
               setCurrentIndex(index);
               resetInterval();
             }}
-            className={`w-3 h-3 xl:w-6 xl:h-6 rounded-full cursor-pointer  ${
+            className={`w-3 h-3 xl:w-5 xl:h-5 rounded-full cursor-pointer  ${
               index === currentIndex ? "bg-accent" : "bg-light-bg"
             }`}
           />

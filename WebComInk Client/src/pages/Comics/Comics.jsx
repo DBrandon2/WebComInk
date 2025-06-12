@@ -17,7 +17,6 @@ export default function Comics() {
   const handleAllClick = () => {
     setPreviousFilter(activeFilter);
     setActiveFilter("tous");
-    console.log("Tous button clicked");
   };
 
   return (
