@@ -6,11 +6,8 @@ router.get("/covers/:mangaId/:fileName", async (req, res) => {
   try {
     const { mangaId, fileName } = req.params;
 
-    // Exemple : fileName = "7f27c05b-16be-4f97-b317-df6544f6d4b8.256.jpg"
-    // On enlève le ".256" avant l'extension pour reconstruire l'original
     const originalFileName = fileName.replace(".256", "");
 
-    // Reconstruit l'URL MangaDex
     const url = `https://uploads.mangadex.org/covers/${mangaId}/${originalFileName}.256.jpg`;
 
     console.log(`Proxy: ${url}`);

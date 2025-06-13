@@ -5,19 +5,6 @@ import ButtonAnimated from "../../components/ButtonAnimated";
 const BATCH_SIZE = 18;
 const LIMIT_STEP = 301;
 
-function getSizedFileName(fileName, size) {
-  if (fileName.includes(`.${size}.`)) {
-    return fileName; // Déjà "sized"
-  }
-  const lastDotIndex = fileName.lastIndexOf(".");
-  if (lastDotIndex === -1) return `${fileName}.${size}`;
-  return (
-    fileName.substring(0, lastDotIndex) +
-    `.${size}` +
-    fileName.substring(lastDotIndex)
-  );
-}
-
 function enrichMangas(mangasData) {
   return mangasData.map((manga) => {
     const title =
@@ -31,14 +18,9 @@ function enrichMangas(mangasData) {
     const coverRel = relationships.find((rel) => rel.type === "cover_art");
     const coverFileName = coverRel?.attributes?.fileName;
 
-    // Calcule la version 256 de la cover
-    const coverFileName256 = coverFileName
-      ? getSizedFileName(coverFileName, "256")
-      : null;
-
-    // Construction URL vers proxy
-    const coverUrl = coverFileName256
-      ? `/api/proxy/covers/${manga.id}/${coverFileName256}`
+    // Construction URL vers proxy avec le nom original (sans ajout de ".256")
+    const coverUrl = coverFileName
+      ? `/api/proxy/covers/${manga.id}/${coverFileName}`
       : "/default-cover.png";
 
     // Auteurs / artistes
