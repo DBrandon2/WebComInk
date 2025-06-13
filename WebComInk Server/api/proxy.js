@@ -1,15 +1,25 @@
-import axios from "axios";
+const express = require("express");
+const axios = require("axios");
+const app = express();
 
-export default async function handler(req, res) {
-  // Construit l'URL complète vers Mangadex en récupérant les query params
-  const query = req.url.replace('/api/proxy', ''); // Exemple: /manga?limit=18...
-  const mangadexUrl = `https://api.mangadex.org${query}`;
-
+app.get("/api/proxy/covers/:mangaId/:fileName", async (req, res) => {
   try {
-    const response = await axios.get(mangadexUrl);
-    // Transfert la réponse JSON telle quelle
-    res.status(response.status).json(response.data);
+    const { mangaId, fileName } = req.params;
+    const url = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
+
+    const response = await axios.get(url, {
+      responseType: "stream",
+      headers: {
+        Origin: PROD_URL, // Met ici ton domaine front
+        Referer: PROD_URL, // Parfois utile aussi
+      },
+    });
+
+    res.setHeader("Content-Type", response.headers["content-type"]);
+    response.data.pipe(res);
   } catch (error) {
-    res.status(error.response?.status || 500).json({ error: error.message });
+    res.status(500).send("Erreur lors du proxy");
   }
-}
+});
+
+app.listen(3000, () => console.log("Proxy lancé"));

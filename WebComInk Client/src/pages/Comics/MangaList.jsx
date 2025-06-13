@@ -18,7 +18,7 @@ function enrichMangas(mangasData) {
     const coverRel = relationships.find((rel) => rel.type === "cover_art");
     const coverFileName = coverRel?.attributes?.fileName;
     const coverUrl = coverFileName
-      ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}.256.jpg`
+      ? `/api/proxy/covers/${manga.id}/${coverFileName}.256.jpg`
       : "/default-cover.png";
 
     // AUTEURS
@@ -36,9 +36,14 @@ function enrichMangas(mangasData) {
       id: manga.id,
       title,
       coverUrl,
-      authorName: authors.length > 0 ? [...new Set(authors)].join(", ") : "Auteur inconnu",
+      authorName:
+        authors.length > 0
+          ? [...new Set(authors)].join(", ")
+          : "Auteur inconnu",
       artistName:
-        artists.length > 0 ? [...new Set(artists)].join(", ") : "Artiste inconnu",
+        artists.length > 0
+          ? [...new Set(artists)].join(", ")
+          : "Artiste inconnu",
     };
   });
 }
