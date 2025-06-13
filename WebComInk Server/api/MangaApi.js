@@ -41,7 +41,6 @@ const fetchCoverUrlByMangaId = async (mangaId) => {
     const mangaData = await fetchMangaById(mangaId);
     const relationships = mangaData.data.relationships;
 
-    // Trouver le cover_art dans les relationships
     const coverArt = relationships.find((rel) => rel.type === "cover_art");
     if (!coverArt) {
       console.warn(`Pas de cover trouvée pour le manga ${mangaId}`);
@@ -50,13 +49,16 @@ const fetchCoverUrlByMangaId = async (mangaId) => {
 
     const coverId = coverArt.id;
 
-    // Récupérer le filename de la cover
     const coverResponse = await axios.get(
-      `https://api.mangadex.org/cover/${coverId}`
+      `https://api.mangadex.org/cover/${coverId}`,
+      {
+        headers: {
+          Origin: "https://web-com-ink.vercel.app",
+        },
+      }
     );
-    const fileName = coverResponse.data.data.attributes.fileName;
 
-    // Construire l'URL finale de la cover
+    const fileName = coverResponse.data.data.attributes.fileName;
     const coverUrl = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
     return coverUrl;
   } catch (error) {
