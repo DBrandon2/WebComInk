@@ -5,6 +5,8 @@ import ButtonAnimated from "../../components/ButtonAnimated";
 const BATCH_SIZE = 18;
 const LIMIT_STEP = 301;
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 function enrichMangas(mangasData) {
   return mangasData.map((manga) => {
     const title =
@@ -20,7 +22,7 @@ function enrichMangas(mangasData) {
 
     // Construction URL vers proxy avec le nom original (sans ajout de ".256")
     const coverUrl = coverFileName
-      ? `/api/proxy/covers/${manga.id}/${coverFileName}`
+      ? `${API_BASE_URL}api/proxy/covers/${manga.id}/${coverFileName}`
       : "/default-cover.png";
 
     // Auteurs / artistes
