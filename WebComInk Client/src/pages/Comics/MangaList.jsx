@@ -17,13 +17,21 @@ function enrichMangas(mangasData) {
     // COVER
     const coverRel = relationships.find((rel) => rel.type === "cover_art");
     const coverFileName = coverRel?.attributes?.fileName;
-    const coverUrl = coverFileName
-      ? `/api/proxy/covers/${manga.id}/${coverFileName}.256.jpg`
+
+    // On enlève l’extension .jpg si elle est présente
+    const baseFileName = coverFileName
+      ? coverFileName.replace(/\.jpg$/, "")
+      : null;
+
+    const coverUrl = baseFileName
+      ? `/api/proxy/covers/${encodeURIComponent(manga.id)}/${encodeURIComponent(
+          coverFileName
+        )}.256.jpg`
       : "/default-cover.png";
 
     // Log pour debug dans la console du navigateur
     console.log(
-      `Manga: ${title}, id: ${manga.id}, coverFileName: ${coverFileName}`
+      `Manga: ${title}, id: ${manga.id}, coverFileName: ${coverFileName}, coverUrl: ${coverUrl}`
     );
 
     // AUTEURS
