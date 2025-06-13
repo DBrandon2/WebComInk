@@ -6,7 +6,9 @@ const BATCH_SIZE = 18;
 const LIMIT_STEP = 301;
 
 function getSizedFileName(fileName, size) {
-  // Ajoute .256 avant l'extension
+  if (fileName.includes(`.${size}.`)) {
+    return fileName; // Déjà "sized"
+  }
   const lastDotIndex = fileName.lastIndexOf(".");
   if (lastDotIndex === -1) return `${fileName}.${size}`;
   return (
