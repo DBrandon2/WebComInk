@@ -21,6 +21,11 @@ function enrichMangas(mangasData) {
       ? `/api/proxy/covers/${manga.id}/${coverFileName}.256.jpg`
       : "/default-cover.png";
 
+    // Log pour debug dans la console du navigateur
+    console.log(
+      `Manga: ${title}, id: ${manga.id}, coverFileName: ${coverFileName}`
+    );
+
     // AUTEURS
     const authors = relationships
       .filter((rel) => rel.type === "author")
@@ -131,6 +136,7 @@ export default function MangaList() {
                 alt={`${manga.title} cover`}
                 className="w-full h-full object-cover cursor-pointer"
                 onError={(e) => {
+                  console.warn("Erreur de chargement cover:", manga.coverUrl);
                   e.target.onerror = null;
                   e.target.src = "/default-cover.png";
                 }}

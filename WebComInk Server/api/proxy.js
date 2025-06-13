@@ -1,25 +1,36 @@
 const express = require("express");
 const axios = require("axios");
-const app = express();
+const router = express.Router(); // <-- router, pas app
 
-app.get("/api/proxy/covers/:mangaId/:fileName", async (req, res) => {
+const PROD_URL = process.env.PROD_URL;
+
+console.log("PROD_URL =", PROD_URL);
+
+router.get("/covers/:mangaId/:fileName", async (req, res) => {
   try {
     const { mangaId, fileName } = req.params;
+    console.log("Requête proxy reçue pour :", mangaId, fileName);
     const url = `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
+    console.log("Proxy vers:", url);
 
     const response = await axios.get(url, {
       responseType: "stream",
       headers: {
-        Origin: PROD_URL, // Met ici ton domaine front
-        Referer: PROD_URL, // Parfois utile aussi
+        Origin: "https://mangadex.org", // ton domaine front
+        Referer: "https://mangadex.org", // parfois utile
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+          "(KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
       },
     });
+    console.log("Status réponse :", response.status);
 
     res.setHeader("Content-Type", response.headers["content-type"]);
     response.data.pipe(res);
   } catch (error) {
+    console.error("Erreur proxy :", error.message);
     res.status(500).send("Erreur lors du proxy");
   }
 });
 
-app.listen(3000, () => console.log("Proxy lancé"));
+module.exports = router; // <-- exporte le router, pas le serveur
