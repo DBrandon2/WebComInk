@@ -5,6 +5,17 @@ import ButtonAnimated from "../../components/ButtonAnimated";
 const BATCH_SIZE = 18;
 const LIMIT_STEP = 301;
 
+function getSizedFileName(fileName, size) {
+  // Ajoute .256 avant l'extension
+  const lastDotIndex = fileName.lastIndexOf(".");
+  if (lastDotIndex === -1) return `${fileName}.${size}`;
+  return (
+    fileName.substring(0, lastDotIndex) +
+    `.${size}` +
+    fileName.substring(lastDotIndex)
+  );
+}
+
 function enrichMangas(mangasData) {
   return mangasData.map((manga) => {
     const title =
@@ -14,27 +25,21 @@ function enrichMangas(mangasData) {
 
     const relationships = manga.relationships || [];
 
-    // COVER
+    // Trouve la cover
     const coverRel = relationships.find((rel) => rel.type === "cover_art");
     const coverFileName = coverRel?.attributes?.fileName;
 
-    // On enlève l’extension .jpg si elle est présente
-    const baseFileName = coverFileName
-      ? coverFileName.replace(/\.jpg$/, "")
+    // Calcule la version 256 de la cover
+    const coverFileName256 = coverFileName
+      ? getSizedFileName(coverFileName, "256")
       : null;
 
-    const coverUrl = baseFileName
-      ? `/api/proxy/covers/${encodeURIComponent(manga.id)}/${encodeURIComponent(
-          coverFileName
-        )}.256.jpg`
+    // Construction URL vers proxy
+    const coverUrl = coverFileName256
+      ? `/api/proxy/covers/${manga.id}/${coverFileName256}`
       : "/default-cover.png";
 
-    // Log pour debug dans la console du navigateur
-    console.log(
-      `Manga: ${title}, id: ${manga.id}, coverFileName: ${coverFileName}, coverUrl: ${coverUrl}`
-    );
-
-    // AUTEURS
+    // Auteurs / artistes
     const authors = relationships
       .filter((rel) => rel.type === "author")
       .map((rel) => rel.attributes?.name)
