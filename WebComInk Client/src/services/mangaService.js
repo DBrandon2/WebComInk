@@ -11,7 +11,7 @@ export async function getMangas(limit, lang = "fr", offset = 0, includes = []) {
 
   includes.forEach((inc) => params.append("includes[]", inc));
 
-  const url = `https://api.mangadex.org/manga?${params.toString()}`;
+  const url = `${API_BASE_URL}manga?${params.toString()}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error("Erreur lors du chargement des mangas");
@@ -26,7 +26,7 @@ export const getCoverById = async (coverId) => {
 
 export const getPersonById = async (id, type) => {
   try {
-    const response = await axios.get(`https://api.mangadex.org/${type}/${id}`);
+    const response = await axios.get(`${API_BASE_URL}${type}/${id}`);
     return response.data.data.attributes.name;
   } catch (error) {
     console.error(
