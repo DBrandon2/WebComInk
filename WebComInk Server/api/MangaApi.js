@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const fetchMangas = async ({ limit = 10, lang = "fr" }) => {
+const fetchMangas = async ({ limit = 20, lang = "fr", offset = 0 }) => {
   try {
     console.log("Params envoyés à Mangadex:", {
       limit,
@@ -11,8 +11,10 @@ const fetchMangas = async ({ limit = 10, lang = "fr" }) => {
     const response = await axios.get("https://api.mangadex.org/manga", {
       params: {
         limit,
+        offset,
         "contentRating[]": ["safe"],
-        "availableTranslatedLanguage[]": [lang], // <--- ici
+        "availableTranslatedLanguage[]": [lang],
+        "includes[]": ["author", "artist", "cover_art"], // <-- Ajouté ic
       },
     });
     return response.data;
@@ -68,4 +70,3 @@ module.exports = {
   fetchMangaById,
   fetchCoverUrlByMangaId,
 };
-
