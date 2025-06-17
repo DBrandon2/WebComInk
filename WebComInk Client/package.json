@@ -20,11 +20,13 @@
     "framer-motion": "^12.16.0",
     "jsdom": "^26.1.0",
     "lucide-react": "^0.507.0",
+    "qs": "^6.14.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.55.0",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
+    "react-intersection-observer": "^9.16.0",
     "react-router-dom": "^7.5.0",
     "vitest": "^3.1.2",
     "yup": "^1.6.1"

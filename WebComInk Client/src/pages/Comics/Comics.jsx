@@ -8,6 +8,7 @@ import MangaList from "./MangaList";
 export default function Comics() {
   const [activeFilter, setActiveFilter] = useState("enCours");
   const [previousFilter, setPreviousFilter] = useState(null);
+  const [sort, setSort] = useState("Populaire");
 
   const handleSwitchClick = (newFilter) => {
     setPreviousFilter(activeFilter);
@@ -17,6 +18,10 @@ export default function Comics() {
   const handleAllClick = () => {
     setPreviousFilter(activeFilter);
     setActiveFilter("tous");
+  };
+
+  const handleSortChange = (newSort) => {
+    setSort(newSort);
   };
 
   return (
@@ -57,9 +62,9 @@ export default function Comics() {
         </motion.button>
       </div>
 
-      <SortComics />
+      <SortComics activeSort={sort} onSortChange={handleSortChange} />
 
-      <MangaList />
+      <MangaList sort={sort} />
     </div>
   );
 }

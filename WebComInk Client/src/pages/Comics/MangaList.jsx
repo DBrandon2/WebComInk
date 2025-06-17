@@ -2,26 +2,21 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { getMangas } from "../../services/mangaService";
 import ButtonAnimated from "../../components/ButtonAnimated";
 import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 
 const BATCH_SIZE = 18;
 const LIMIT_STEP = 300;
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const containerVariants = {
   hidden: { opacity: 1 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.06,
-    },
-  },
+  visible: { opacity: 1, transition: { staggerChildren: 0.06 } },
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
 };
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export function enrichMangas(mangas) {
   return mangas.map((manga) => {
@@ -61,32 +56,55 @@ export function enrichMangas(mangas) {
   });
 }
 
-export default function MangaList() {
+export default function MangaList({ sort }) {
   const [mangas, setMangas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [autoLoadFinished, setAutoLoadFinished] = useState(false);
 
   const offsetRef = useRef(0);
-  const observerRef = useRef();
 
+  const { ref: loadMoreRef, inView } = useInView({
+    rootMargin: "300px",
+    triggerOnce: false,
+  });
+
+  // Fonction de chargement avec gestion du tri
   const loadMangas = useCallback(async () => {
     if (loading || autoLoadFinished) return;
     setLoading(true);
 
     try {
-      const data = await getMangas({
+      const params = {
         limit: BATCH_SIZE,
         lang: "fr",
         offset: offsetRef.current,
         includes: ["author", "artist", "cover_art"],
-      });
+      };
+      params.sort = sort;
+      console.log("Trié par :", { sort });
+      switch (sort) {
+        case "Populaire":
+          params.order = { followedCount: "desc" };
+          break;
+        case "Nouveauté":
+          params.order = { createdAt: "desc" };
+          break;
+        case "A à Z":
+          params.order = { title: "asc" };
+          break;
+        case "Récents":
+          params.order = { updatedAt: "desc" };
+          break;
+        default:
+          break;
+      }
 
+      const data = await getMangas(params);
       const mangasWithDetails = enrichMangas(data.data);
 
       if (mangasWithDetails.length === 0) {
         setAutoLoadFinished(true);
-        setLoading(false);
         return;
       }
 
@@ -110,33 +128,22 @@ export default function MangaList() {
     } finally {
       setLoading(false);
     }
-  }, [loading, autoLoadFinished]);
+  }, [loading, autoLoadFinished, sort]);
 
+  // Chargement automatique quand la fin est visible
   useEffect(() => {
-    if (autoLoadFinished) return;
-
-    let throttleTimeout = null;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !loading && !throttleTimeout) {
-          loadMangas();
-          throttleTimeout = setTimeout(() => {
-            throttleTimeout = null;
-          }, 500);
-        }
-      },
-      { rootMargin: "300px" }
-    );
-
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
+    if (inView && !loading && !autoLoadFinished) {
+      loadMangas();
     }
+  }, [inView, loading, autoLoadFinished, loadMangas]);
 
-    return () => {
-      if (observerRef.current) observer.unobserve(observerRef.current);
-      if (throttleTimeout) clearTimeout(throttleTimeout);
-    };
-  }, [loadMangas, loading, autoLoadFinished]);
+  // Réinitialisation à chaque changement de tri
+  useEffect(() => {
+    offsetRef.current = 0;
+    setMangas([]);
+    setAutoLoadFinished(false);
+    setError(null);
+  }, [sort]);
 
   if (error) return <p className="text-red-500">{error}</p>;
 
@@ -166,9 +173,7 @@ export default function MangaList() {
                   alt={`${manga.title} cover`}
                   className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
                   loading="lazy"
-                  onLoad={(e) => {
-                    e.target.classList.remove("opacity-0");
-                  }}
+                  onLoad={(e) => e.target.classList.remove("opacity-0")}
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = "/default-cover.png";
@@ -195,7 +200,7 @@ export default function MangaList() {
         {loading && renderSkeletons(9)}
       </motion.div>
 
-      <div ref={observerRef} className="h-1 w-full" />
+      <div ref={loadMoreRef} className="h-1 w-full" />
 
       {autoLoadFinished && (
         <div className="text-center mt-6">

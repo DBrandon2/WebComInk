@@ -17,10 +17,11 @@ export default function Discover() {
     image: image,
     chapter: "252",
   };
+  
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-6 mx-3 lg:gap-y-12">
-      <div className="flex w-full h-full xl:justify-center">
-        <div className="flex w-full justify-center lg:justify-between items-center lg:px-7">
+      <div className="flex w-full h-full xl:justify-center ">
+        <div className="flex w-full justify-center lg:justify-between items-center lg:px-7 ">
           {/* Titre et sous-titre */}
           <div className="flex flex-col">
             <h1 className="text-3xl text-accent text-center lg:text-start font-medium tracking-wider lg:text-4xl">
@@ -46,7 +47,7 @@ export default function Discover() {
           />
         </div>
         {/* Infos */}
-        <div className="flex justify-start items-center text-center lg:text-start w-full flex-col gap-3 lg:w-[40%]">
+        <div className="flex justify-start items-center text-center lg:text-start w-full flex-col gap-3 lg:w-[40%] mt-4">
           <h2 className="font-bold text-xl text-accent text-center lg:text-3xl lg:tracking-wider lg:w-full lg:text-start lg:mb-8">
             {dailyComics.title}
           </h2>

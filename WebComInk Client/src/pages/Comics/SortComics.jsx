@@ -1,23 +1,15 @@
-import React, { useState, useRef } from "react";
+import { useState } from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
 
-export default function SortComics() {
-  const [activeSort, setActiveSort] = useState("Populaire");
-  const sorts = ["Populaire", "Nouveauté", "A à Z", "Récents"];
+export default function SortComics({ activeSort, onSortChange }) {
+  const sorts = ["Populaire", "Nouveauté", "A à Z", "Dernières sorties"];
   const containerRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleDragStart = () => {
-    setIsDragging(true);
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
-
   const handleClick = (sort) => {
-    if (!isDragging) {
-      setActiveSort(sort);
+    if (!isDragging && sort !== activeSort) {
+      onSortChange(sort);
     }
   };
 
@@ -31,8 +23,8 @@ export default function SortComics() {
         drag="x"
         dragConstraints={containerRef}
         whileTap={{ cursor: "grabbing" }}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={() => setIsDragging(false)}
       >
         {sorts.map((sort) => (
           <motion.button

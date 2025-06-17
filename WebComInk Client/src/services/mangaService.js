@@ -1,22 +1,29 @@
-
 import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-
-// Passage à axios
 
 export async function getMangas({
   limit = 15,
   offset = 0,
   lang = "fr",
   includes = [],
+  order = {},
+  sort = "Populaire",
 }) {
   const params = {
     limit,
     offset,
     lang,
     includes,
+    sort,
   };
+
+  // Convertir l'objet `order` en query string
+  Object.entries(order).forEach(([key, value]) => {
+    params[`order[${key}]`] = value;
+  });
+
+  console.log("Order:", order);
 
   try {
     const res = await axios.get(`${API_BASE_URL}/manga`, { params });
@@ -30,4 +37,3 @@ export async function getMangas({
     );
   }
 }
-

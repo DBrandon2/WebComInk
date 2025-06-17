@@ -1,24 +1,28 @@
 const { fetchMangas, fetchMangaById } = require("../api/MangaApi");
 
+const orderMapping = {
+  Populaire: { followedCount: "desc" },
+  Nouveauté: { createdAt: "desc" },
+  "A à Z": { title: "asc" },
+  Récents: { latestUploadedChapter: "desc" },
+};
+
 const getMangas = async (req, res) => {
-  console.log(req.query)
+  console.log("sort:", req.query.sort);
   try {
     const limit = parseInt(req.query.limit) || 15;
     const offset = parseInt(req.query.offset) || 0;
     const lang = req.query.lang || "fr";
-
-    // 💥 Nouvelle ligne
     const includes = Array.isArray(req.query["includes[]"])
       ? req.query["includes[]"]
       : req.query["includes[]"]
       ? [req.query["includes[]"]]
       : [];
 
-      console.log("Params dans getMangas:", req.query);
-console.log("limit:", limit, "offset:", offset, "lang:", lang, "includes:", includes);
+    const sort = req.query.sort || "Populaire";
+    const order = orderMapping[sort] || {};
 
-    const mangas = await fetchMangas({ limit, lang, offset, includes });
-
+    const mangas = await fetchMangas({ limit, lang, offset, includes, order });
     res.json(mangas);
   } catch (error) {
     console.error("Erreur getMangas:", error);
