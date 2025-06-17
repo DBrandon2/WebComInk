@@ -17,6 +17,8 @@ async function tryFetch(url, headers) {
   }
 }
 
+// Proxy modifié
+
 router.get("/covers/:mangaId/:fileName", async (req, res) => {
   const { mangaId, fileName } = req.params;
   const headers = {
