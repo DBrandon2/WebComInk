@@ -1,9 +1,25 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { getMangas } from "../../services/mangaService";
 import ButtonAnimated from "../../components/ButtonAnimated";
+import { motion } from "framer-motion";
 
 const BATCH_SIZE = 18;
-const LIMIT_STEP = 300; // plafond total max, pour arrêter l'auto-load
+const LIMIT_STEP = 300;
+
+const containerVariants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.06,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
 
 export function enrichMangas(mangas) {
   return mangas.map((manga) => {
@@ -57,15 +73,12 @@ export default function MangaList() {
     setLoading(true);
 
     try {
-      // ⚠️ IMPORTANT : appel corrigé, on passe un objet en paramètre
       const data = await getMangas({
         limit: BATCH_SIZE,
         lang: "fr",
         offset: offsetRef.current,
         includes: ["author", "artist", "cover_art"],
       });
-
-      console.log("[fetch complet]", data);
 
       const mangasWithDetails = enrichMangas(data.data);
 
@@ -78,13 +91,7 @@ export default function MangaList() {
       setMangas((prevMangas) => {
         const prevIds = new Set(prevMangas.map((m) => m.id));
         const filteredNew = mangasWithDetails.filter((m) => !prevIds.has(m.id));
-        const combined = [...prevMangas, ...filteredNew];
-
-        console.log(
-          `[fetch résumé] offset: ${offsetRef.current}, reçus: ${mangasWithDetails.length}, total en state: ${combined.length}`
-        );
-
-        return combined;
+        return [...prevMangas, ...filteredNew];
       });
 
       offsetRef.current += mangasWithDetails.length;
@@ -131,47 +138,62 @@ export default function MangaList() {
 
   if (error) return <p className="text-red-500">{error}</p>;
 
-  return (
-    <div>
-      <div className="grid grid-cols-3 gap-x-2 gap-y-6 w-full max-w-full lg:flex lg:flex-wrap 2xl:w-[70%] xl:gap-x-12 lg:justify-center">
-        {mangas.map((manga) => (
-          <div key={manga.id} className="flex flex-col items-center gap-2">
-            <div className="w-[100px] h-[150px] lg:w-[240px] lg:h-[360px] bg-gray-200 flex items-center justify-center">
-              <img
-                src={manga.coverUrl || "/default-cover.png"}
-                alt={`${manga.title} cover`}
-                className="w-full h-full object-cover cursor-pointer"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "/default-cover.png";
-                }}
-              />
-            </div>
-            <div className="flex flex-col justify-center items-center w-[100%] lg:w-[250px]">
-              <h3 className="font-medium text-accent text-center line-clamp-2 text-sm tracking-wide lg:text-lg">
-                {manga.title}
-              </h3>
-              <span className="text-xs text-gray-400 lg:text-sm text-center line-clamp-2 w-full">
-                Auteur : {manga.authorName}
-              </span>
-              {manga.artistName !== manga.authorName && (
-                <span className="text-xs text-gray-400 lg:text-sm text-center line-clamp-2 w-full">
-                  Artiste : {manga.artistName}
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
+  const renderSkeletons = (count = 6) =>
+    Array.from({ length: count }).map((_, i) => (
+      <div key={i} className="flex flex-col items-center gap-2 animate-pulse">
+        <div className="w-[120px] h-[180px] md:w-[180px] md:h-[270px] bg-gray-300 rounded" />
+        <div className="h-4 w-24 bg-gray-300 rounded mt-2" />
+        <div className="h-3 w-16 bg-gray-200 rounded" />
       </div>
+    ));
 
-      {loading && (
-        <p className="text-center my-4 font-medium text-gray-600">
-          Chargement...
-        </p>
-      )}
+  return (
+    <div className="min-h-screen w-full flex flex-col items-center px-4">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-2 gap-y-6 w-full max-w-7xl"
+      >
+        {mangas.map((manga) => (
+          <motion.div key={manga.id} variants={itemVariants}>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-[120px] h-[180px] md:w-[180px] md:h-[270px] bg-gray-200 relative overflow-hidden">
+                <img
+                  src={manga.coverUrl || "/default-cover.png"}
+                  alt={`${manga.title} cover`}
+                  className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
+                  loading="lazy"
+                  onLoad={(e) => {
+                    e.target.classList.remove("opacity-0");
+                  }}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/default-cover.png";
+                  }}
+                />
+              </div>
+              <div className="flex flex-col justify-center items-center text-center w-full">
+                <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg">
+                  {manga.title}
+                </h3>
+                <span className="text-xs text-gray-400 md:text-sm line-clamp-2">
+                  Auteur : {manga.authorName}
+                </span>
+                {manga.artistName !== manga.authorName && (
+                  <span className="text-xs text-gray-400 md:text-sm line-clamp-2">
+                    Artiste : {manga.artistName}
+                  </span>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ))}
 
-      {/* Div "trigger" pour l'observer */}
-      <div ref={observerRef} style={{ height: 1 }} />
+        {loading && renderSkeletons(9)}
+      </motion.div>
+
+      <div ref={observerRef} className="h-1 w-full" />
 
       {autoLoadFinished && (
         <div className="text-center mt-6">
