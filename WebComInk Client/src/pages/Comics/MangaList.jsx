@@ -1,14 +1,12 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { getMangas } from "../../services/mangaService";
 import ButtonAnimated from "../../components/ButtonAnimated";
 
 const BATCH_SIZE = 18;
-const LIMIT_STEP = 301;
+const LIMIT_STEP = 300; // plafond total max, pour arrêter l'auto-load
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
-function enrichMangas(mangasData) {
-  return mangasData.map((manga) => {
+export function enrichMangas(mangas) {
+  return mangas.map((manga) => {
     const title =
       manga.attributes.title?.fr ||
       manga.attributes.title?.en ||
@@ -16,16 +14,13 @@ function enrichMangas(mangasData) {
 
     const relationships = manga.relationships || [];
 
-    // Trouve la cover
     const coverRel = relationships.find((rel) => rel.type === "cover_art");
     const coverFileName = coverRel?.attributes?.fileName;
 
-    // Construction URL vers proxy avec le nom original (sans ajout de ".256")
     const coverUrl = coverFileName
-      ? `${API_BASE_URL}api/proxy/covers/${manga.id}/${coverFileName}`
+      ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}.256.jpg`
       : "/default-cover.png";
 
-    // Auteurs / artistes
     const authors = relationships
       .filter((rel) => rel.type === "author")
       .map((rel) => rel.attributes?.name)
@@ -41,13 +36,9 @@ function enrichMangas(mangasData) {
       title,
       coverUrl,
       authorName:
-        authors.length > 0
-          ? [...new Set(authors)].join(", ")
-          : "Auteur inconnu",
+        authors.length > 0 ? [...new Set(authors)].join(", ") : "Inconnu",
       artistName:
-        artists.length > 0
-          ? [...new Set(artists)].join(", ")
-          : "Artiste inconnu",
+        artists.length > 0 ? [...new Set(artists)].join(", ") : "Inconnu",
     };
   });
 }
@@ -56,73 +47,89 @@ export default function MangaList() {
   const [mangas, setMangas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [offset, setOffset] = useState(0);
   const [autoLoadFinished, setAutoLoadFinished] = useState(false);
-  const [limit, setLimit] = useState(LIMIT_STEP);
+
+  const offsetRef = useRef(0);
+  const observerRef = useRef();
 
   const loadMangas = useCallback(async () => {
-    if (loading) return;
-    if (offset >= limit) {
-      setAutoLoadFinished(true);
-      return;
-    }
-
+    if (loading || autoLoadFinished) return;
     setLoading(true);
+
     try {
-      const data = await getMangas(BATCH_SIZE, "fr", offset, [
-        "author",
-        "artist",
-        "cover_art",
-      ]);
+      // ⚠️ IMPORTANT : appel corrigé, on passe un objet en paramètre
+      const data = await getMangas({
+        limit: BATCH_SIZE,
+        lang: "fr",
+        offset: offsetRef.current,
+        includes: ["author", "artist", "cover_art"],
+      });
+
+      console.log("[fetch complet]", data);
 
       const mangasWithDetails = enrichMangas(data.data);
 
-      setMangas((prev) => {
-        const combined = [...prev, ...mangasWithDetails];
-        const uniqueMangas = Array.from(
-          new Map(combined.map((m) => [m.id, m])).values()
+      if (mangasWithDetails.length === 0) {
+        setAutoLoadFinished(true);
+        setLoading(false);
+        return;
+      }
+
+      setMangas((prevMangas) => {
+        const prevIds = new Set(prevMangas.map((m) => m.id));
+        const filteredNew = mangasWithDetails.filter((m) => !prevIds.has(m.id));
+        const combined = [...prevMangas, ...filteredNew];
+
+        console.log(
+          `[fetch résumé] offset: ${offsetRef.current}, reçus: ${mangasWithDetails.length}, total en state: ${combined.length}`
         );
-        return uniqueMangas;
+
+        return combined;
       });
 
-      setOffset((prev) => prev + BATCH_SIZE);
+      offsetRef.current += mangasWithDetails.length;
 
-      if (offset + BATCH_SIZE >= limit) {
+      if (
+        offsetRef.current >= LIMIT_STEP ||
+        mangasWithDetails.length < BATCH_SIZE
+      ) {
         setAutoLoadFinished(true);
       }
     } catch (err) {
       console.error(err);
-      setError("Impossible de charger les mangas.");
+      setError("Erreur lors du chargement des mangas");
     } finally {
       setLoading(false);
     }
-  }, [loading, offset, limit]);
-
-  useEffect(() => {
-    loadMangas();
-  }, []);
+  }, [loading, autoLoadFinished]);
 
   useEffect(() => {
     if (autoLoadFinished) return;
 
-    function onScroll() {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight =
-        window.innerHeight || document.documentElement.clientHeight;
+    let throttleTimeout = null;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading && !throttleTimeout) {
+          loadMangas();
+          throttleTimeout = setTimeout(() => {
+            throttleTimeout = null;
+          }, 500);
+        }
+      },
+      { rootMargin: "300px" }
+    );
 
-      if (scrollTop + clientHeight >= scrollHeight - 700 && !loading) {
-        loadMangas();
-      }
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
     }
 
-    window.addEventListener("scroll", onScroll);
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      if (observerRef.current) observer.unobserve(observerRef.current);
+      if (throttleTimeout) clearTimeout(throttleTimeout);
     };
   }, [loadMangas, loading, autoLoadFinished]);
 
-  if (error) return <p>{error}</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <div>
@@ -131,11 +138,10 @@ export default function MangaList() {
           <div key={manga.id} className="flex flex-col items-center gap-2">
             <div className="w-[100px] h-[150px] lg:w-[240px] lg:h-[360px] bg-gray-200 flex items-center justify-center">
               <img
-                src={manga.coverUrl}
+                src={manga.coverUrl || "/default-cover.png"}
                 alt={`${manga.title} cover`}
                 className="w-full h-full object-cover cursor-pointer"
                 onError={(e) => {
-                  console.warn("Erreur de chargement cover:", manga.coverUrl);
                   e.target.onerror = null;
                   e.target.src = "/default-cover.png";
                 }}
@@ -158,7 +164,14 @@ export default function MangaList() {
         ))}
       </div>
 
-      {loading && <p>Chargement...</p>}
+      {loading && (
+        <p className="text-center my-4 font-medium text-gray-600">
+          Chargement...
+        </p>
+      )}
+
+      {/* Div "trigger" pour l'observer */}
+      <div ref={observerRef} style={{ height: 1 }} />
 
       {autoLoadFinished && (
         <div className="text-center mt-6">
@@ -166,9 +179,10 @@ export default function MangaList() {
             text={"Afficher plus"}
             justify={"justify-center"}
             onClick={() => {
-              setLimit((prev) => prev + LIMIT_STEP);
               setAutoLoadFinished(false);
+              loadMangas();
             }}
+            disabled={loading}
           />
         </div>
       )}

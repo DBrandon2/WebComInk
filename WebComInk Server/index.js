@@ -6,7 +6,6 @@ const config = require("./database/config");
 const cookieParser = require("cookie-parser");
 
 const app = express();
-const proxyRouter = require("./api/proxy");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -33,8 +32,6 @@ app.use(
 const routes = require("./routes");
 
 app.use(routes);
-
-app.use("/api/proxy", proxyRouter);
 
 mongoose
   .connect(config.mongoDb.uri)
