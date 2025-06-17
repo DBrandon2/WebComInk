@@ -1,12 +1,14 @@
 const router = require("express").Router();
 
-
 const apiUsers = require("./user.route");
 const apiMangas = require("./manga.route");
+const proxyRouter = require("../api/proxy");
 
 router.use("/user", apiUsers);
 
-router.use("/manga", apiMangas)
+router.use("/manga", apiMangas);
+
+router.use("/", proxyRouter);
 
 module.exports = router;
 
