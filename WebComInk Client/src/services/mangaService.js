@@ -19,7 +19,7 @@ export async function getMangas({
   };
 
   try {
-    const res = await axios.get(`${API_BASE_URL}manga`, { params });
+    const res = await axios.get(`${API_BASE_URL}/manga`, { params });
     console.log("[GET MANGAS] URL:", res.config.url);
     return res.data;
   } catch (error) {
