@@ -3,6 +3,8 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+// Passage à axios
+
 export async function getMangas({
   limit = 15,
   offset = 0,
