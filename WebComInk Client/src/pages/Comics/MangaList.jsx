@@ -36,7 +36,7 @@ export function enrichMangas(mangas) {
     const coverFileName = coverRel?.attributes?.fileName;
 
     const coverUrl = coverFileName
-      ? `${API_BASE_URL}}/covers/${manga.id}/${coverFileName}.256.jpg`
+      ? `${API_BASE_URL}/covers/${manga.id}/${coverFileName}.256.jpg`
       : "/default-cover.png";
 
     const authors = relationships
