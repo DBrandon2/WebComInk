@@ -1,10 +1,10 @@
 const { fetchMangas, fetchMangaById } = require("../api/MangaApi");
 
 const orderMapping = {
-  Populaire: { followedCount: "desc" },
-  Nouveauté: { createdAt: "desc" },
+  Popularité: { followedCount: "desc" },
+  "Nouveaux mangas": { createdAt: "desc" },
   "A à Z": { title: "asc" },
-  Récents: { latestUploadedChapter: "desc" },
+  "Chapitres récents": { latestUploadedChapter: "desc" },
 };
 
 const getMangas = async (req, res) => {
@@ -19,7 +19,7 @@ const getMangas = async (req, res) => {
       ? [req.query["includes[]"]]
       : [];
 
-    const sort = req.query.sort || "Populaire";
+    const sort = req.query.sort || "Popularité";
     const order = orderMapping[sort] || {};
 
     const mangas = await fetchMangas({ limit, lang, offset, includes, order });

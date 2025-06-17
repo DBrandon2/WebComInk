@@ -84,16 +84,16 @@ export default function MangaList({ sort }) {
       params.sort = sort;
       console.log("Trié par :", { sort });
       switch (sort) {
-        case "Populaire":
+        case "Popularité":
           params.order = { followedCount: "desc" };
           break;
-        case "Nouveauté":
+        case "Nouveaux mangas":
           params.order = { createdAt: "desc" };
           break;
         case "A à Z":
           params.order = { title: "asc" };
           break;
-        case "Récents":
+        case "Chapitres récents":
           params.order = { updatedAt: "desc" };
           break;
         default:
@@ -162,12 +162,12 @@ export default function MangaList({ sort }) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-2 gap-y-6 w-full max-w-7xl"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-6 w-full"
       >
         {mangas.map((manga) => (
           <motion.div key={manga.id} variants={itemVariants}>
             <div className="flex flex-col items-center gap-2">
-              <div className="w-[120px] h-[180px] md:w-[180px] md:h-[270px] bg-gray-200 relative overflow-hidden">
+              <div className="w-[160px] h-[240px] lg:w-[240px] lg:h-[360px] bg-gray-200 relative overflow-hidden">
                 <img
                   src={manga.coverUrl || "/default-cover.png"}
                   alt={`${manga.title} cover`}

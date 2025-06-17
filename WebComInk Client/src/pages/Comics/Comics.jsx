@@ -8,7 +8,7 @@ import MangaList from "./MangaList";
 export default function Comics() {
   const [activeFilter, setActiveFilter] = useState("enCours");
   const [previousFilter, setPreviousFilter] = useState(null);
-  const [sort, setSort] = useState("Populaire");
+  const [sort, setSort] = useState("Popularité");
 
   const handleSwitchClick = (newFilter) => {
     setPreviousFilter(activeFilter);

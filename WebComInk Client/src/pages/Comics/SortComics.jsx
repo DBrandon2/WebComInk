@@ -1,15 +1,21 @@
-import { useState } from "react";
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { Flame, PlusCircle, ArrowDownAz, Clock } from "lucide-react";
 
 export default function SortComics({ activeSort, onSortChange }) {
-  const sorts = ["Populaire", "Nouveauté", "A à Z", "Dernières sorties"];
+  const sorts = [
+    { label: "Popularité", icon: <Flame className="w-6 h-6 " /> },
+    { label: "Chapitres récents", icon: <Clock className="w-6 h-6 " /> },
+    { label: "Nouveaux mangas", icon: <PlusCircle className="w-6 h-6" /> },
+    { label: "A à Z", icon: <ArrowDownAz className="w-6 h-6 " /> },
+  ];
+
   const containerRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleClick = (sort) => {
-    if (!isDragging && sort !== activeSort) {
-      onSortChange(sort);
+  const handleClick = (sortLabel) => {
+    if (!isDragging && sortLabel !== activeSort) {
+      onSortChange(sortLabel);
     }
   };
 
@@ -26,21 +32,22 @@ export default function SortComics({ activeSort, onSortChange }) {
         onDragStart={() => setIsDragging(true)}
         onDragEnd={() => setIsDragging(false)}
       >
-        {sorts.map((sort) => (
+        {sorts.map(({ label, icon }) => (
           <motion.button
-            key={sort}
-            onClick={() => handleClick(sort)}
-            className={`px-8 py-4 whitespace-nowrap rounded-md ${
-              activeSort === sort
+            key={label}
+            onClick={() => handleClick(label)}
+            className={`flex items-center px-6 py-3 whitespace-nowrap rounded-md transition-all ${
+              activeSort === label
                 ? "bg-accent text-dark-bg"
-                : "bg-accent-hover text-gray-300 border-accent border-1"
+                : "bg-accent-hover text-gray-300 border border-accent"
             }`}
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            style={{ margin: "0 8px" }}
           >
-            {sort}
+            <div className="flex gap-2 justify-center items-center">
+              {icon}
+              <span>{label}</span>
+            </div>
           </motion.button>
         ))}
       </motion.div>

@@ -8,7 +8,7 @@ export async function getMangas({
   lang = "fr",
   includes = [],
   order = {},
-  sort = "Populaire",
+  sort = "Popularité",
 }) {
   const params = {
     limit,
