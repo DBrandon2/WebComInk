@@ -21,7 +21,6 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export function enrichMangas(mangas) {
   return mangas.map((manga) => {
@@ -36,7 +35,7 @@ export function enrichMangas(mangas) {
     const coverFileName = coverRel?.attributes?.fileName;
 
     const coverUrl = coverFileName
-      ? `${API_BASE_URL}/covers/${manga.id}/${coverFileName}.256.jpg`
+      ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}.256.jpg`
       : "/default-cover.png";
 
     const authors = relationships
