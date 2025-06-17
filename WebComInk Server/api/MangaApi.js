@@ -24,6 +24,7 @@ const fetchMangas = async ({
       params,
       headers: {
         "Cache-Control": "no-cache",
+        "User-Agent": "WebComInk/1.0 (contact.webcomink@gmail.com)"
       },
     });
 
