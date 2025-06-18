@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Flame, PlusCircle, ArrowDownAz, Clock } from "lucide-react";
+import { Flame, PlusCircle, ArrowDownAz, ArrowUpZa, Clock } from "lucide-react";
 
 export default function SortComics({ activeSort, onSortChange }) {
   const sorts = [
@@ -8,6 +8,7 @@ export default function SortComics({ activeSort, onSortChange }) {
     { label: "Chapitres récents", icon: <Clock className="w-6 h-6 " /> },
     { label: "Nouveaux mangas", icon: <PlusCircle className="w-6 h-6" /> },
     { label: "A à Z", icon: <ArrowDownAz className="w-6 h-6 " /> },
+    { label: "Z à A", icon: <ArrowUpZa className="w-6 h-6 " /> },
   ];
 
   const containerRef = useRef(null);

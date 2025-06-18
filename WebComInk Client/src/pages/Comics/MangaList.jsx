@@ -103,6 +103,9 @@ export default function MangaList({ sort, filter }) {
         case "A à Z":
           params.order = { title: "asc" };
           break;
+        case "Z à A":
+          params.order = { title: "desc" };
+          break;
         case "Chapitres récents":
           params.order = { updatedAt: "desc" };
           break;

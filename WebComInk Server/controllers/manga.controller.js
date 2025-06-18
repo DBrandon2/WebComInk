@@ -4,6 +4,7 @@ const orderMapping = {
   Popularité: { followedCount: "desc" },
   "Nouveaux mangas": { createdAt: "desc" },
   "A à Z": { title: "asc" },
+  "Z à A": { title: "desc" },
   "Chapitres récents": { latestUploadedChapter: "desc" },
 };
 
@@ -23,7 +24,14 @@ const getMangas = async (req, res) => {
     const order = orderMapping[sort] || {};
     const status = req.query.status;
 
-    const mangas = await fetchMangas({ limit, lang, offset, includes, order, status });
+    const mangas = await fetchMangas({
+      limit,
+      lang,
+      offset,
+      includes,
+      order,
+      status,
+    });
     res.json(mangas);
   } catch (error) {
     console.error("Erreur getMangas:", error);
