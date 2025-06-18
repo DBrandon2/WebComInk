@@ -9,6 +9,7 @@ export async function getMangas({
   includes = [],
   order = {},
   sort = "Popularité",
+  status = null,
 }) {
   const params = {
     limit,
@@ -18,12 +19,17 @@ export async function getMangas({
     sort,
   };
 
+  if (status) {
+    params.status = status;
+  }
+
   // Convertir l'objet `order` en query string
   Object.entries(order).forEach(([key, value]) => {
     params[`order[${key}]`] = value;
   });
 
   console.log("Order:", order);
+  console.log("Status:", status);
 
   try {
     const res = await axios.get(`${API_BASE_URL}/manga`, { params });

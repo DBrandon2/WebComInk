@@ -21,8 +21,9 @@ const getMangas = async (req, res) => {
 
     const sort = req.query.sort || "Popularité";
     const order = orderMapping[sort] || {};
+    const status = req.query.status;
 
-    const mangas = await fetchMangas({ limit, lang, offset, includes, order });
+    const mangas = await fetchMangas({ limit, lang, offset, includes, order, status });
     res.json(mangas);
   } catch (error) {
     console.error("Erreur getMangas:", error);

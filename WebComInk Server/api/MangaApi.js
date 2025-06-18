@@ -26,6 +26,7 @@ async function fetchMangas({
   offset = 0,
   includes = [],
   order = {},
+  status = {},
 }) {
   console.log("order:", order);
 
@@ -36,6 +37,7 @@ async function fetchMangas({
     availableTranslatedLanguage: [lang],
     ...(includes.length > 0 && { includes }),
     ...(Object.keys(order).length > 0 && { order }),
+    ...(status ? { status: [status] } : {}),
   };
 
   const key = getCacheKey(params);

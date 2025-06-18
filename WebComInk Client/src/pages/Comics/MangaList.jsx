@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { getMangas } from "../../services/mangaService";
 import ButtonAnimated from "../../components/ButtonAnimated";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { getMangas } from "../../services/mangaService";
 
 const BATCH_SIZE = 18;
 const LIMIT_STEP = 300;
@@ -56,11 +56,17 @@ export function enrichMangas(mangas) {
   });
 }
 
-export default function MangaList({ sort }) {
+export default function MangaList({ sort, filter }) {
   const [mangas, setMangas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [autoLoadFinished, setAutoLoadFinished] = useState(false);
+
+  const statusMap = {
+    tous: null,
+    enCours: "ongoing",
+    termine: "completed",
+  };
 
   const offsetRef = useRef(0);
 
@@ -81,6 +87,10 @@ export default function MangaList({ sort }) {
         offset: offsetRef.current,
         includes: ["author", "artist", "cover_art"],
       };
+      const status = statusMap[filter];
+      if (status) {
+        params.status = status;
+      }
       params.sort = sort;
       console.log("Trié par :", { sort });
       switch (sort) {
@@ -128,7 +138,7 @@ export default function MangaList({ sort }) {
     } finally {
       setLoading(false);
     }
-  }, [loading, autoLoadFinished, sort]);
+  }, [loading, autoLoadFinished, sort, filter]);
 
   // Chargement automatique quand la fin est visible
   useEffect(() => {
@@ -143,7 +153,7 @@ export default function MangaList({ sort }) {
     setMangas([]);
     setAutoLoadFinished(false);
     setError(null);
-  }, [sort]);
+  }, [sort, filter]);
 
   if (error) return <p className="text-red-500">{error}</p>;
 

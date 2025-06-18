@@ -24,6 +24,7 @@ export default function Comics() {
     setSort(newSort);
   };
 
+
   return (
     <div className="flex flex-col gap-8">
       <TopBarMobile />
@@ -64,7 +65,7 @@ export default function Comics() {
 
       <SortComics activeSort={sort} onSortChange={handleSortChange} />
 
-      <MangaList sort={sort} />
+      <MangaList sort={sort} filter={activeFilter} />
     </div>
   );
 }

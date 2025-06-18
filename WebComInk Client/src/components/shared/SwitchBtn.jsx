@@ -12,10 +12,6 @@ export default function SwitchBtn({
   const isEnCours = activeFilter === "enCours";
   const isTermine = activeFilter === "termine";
 
-  // Pour l'animation on veut animer la propriété CSS 'left' : 0% pour "enCours", 50% pour "termine"
-  // L'animation commence en fonction de previousFilter et activeFilter pour avoir un effet de glisse.
-  // Ici on ne gère que la position de départ initiale de 'left' (0% ou 50%) en fonction du changement
-
   let initialLeft = "0%";
   if (isComingFromTous) {
     initialLeft = isEnCours ? "-50%" : "100%"; // slide depuis hors écran à gauche ou droite
