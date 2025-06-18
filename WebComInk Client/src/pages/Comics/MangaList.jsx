@@ -23,6 +23,9 @@ export function enrichMangas(mangas) {
     const title =
       manga.attributes.title?.fr ||
       manga.attributes.title?.en ||
+      manga.attributes.title?.ja ||
+      manga.attributes.title?.["ja-ro"] ||
+      Object.values(manga.attributes.title || {})[0] ||
       "Titre non disponible";
 
     const relationships = manga.relationships || [];

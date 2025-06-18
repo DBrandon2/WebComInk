@@ -10,7 +10,7 @@ export default function TopBarMobile() {
   };
 
   return (
-    <div className="flex justify-between items-center px-6 py-4">
+    <div className="flex justify-between items-center px-6 py-4 lg:hidden">
       <MdOutlineArrowBackIos className="text-3xl" onClick={handleBack} />
       <FaMagnifyingGlass className="text-3xl" />
     </div>
