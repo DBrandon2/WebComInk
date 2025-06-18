@@ -1,6 +1,9 @@
-const { getMangas, getMangaById } = require("../controllers/manga.controller");
+const { getMangas, getMangaById, getTags } = require("../controllers/manga.controller");
 
 const router = require("express").Router();
+
+// GET - tags disponibles (doit être avant /:id)
+router.get("/tags", getTags);
 
 // GET - liste des mangas (avec query params éventuels)
 router.get("/", getMangas);

@@ -10,6 +10,8 @@ export async function getMangas({
   order = {},
   sort = "Popularité",
   status = null,
+  includedTags = [],
+  excludedTags = [],
 }) {
   const params = {
     limit,
@@ -21,6 +23,16 @@ export async function getMangas({
 
   if (status) {
     params.status = status;
+  }
+
+  // Ajouter les genres inclus
+  if (includedTags && includedTags.length > 0) {
+    params.includedTags = includedTags;
+  }
+
+  // Ajouter les genres exclus
+  if (excludedTags && excludedTags.length > 0) {
+    params.excludedTags = excludedTags;
   }
 
   // Convertir l'objet `order` en query string

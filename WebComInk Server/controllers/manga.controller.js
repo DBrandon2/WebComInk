@@ -1,4 +1,4 @@
-const { fetchMangas, fetchMangaById } = require("../api/MangaApi");
+const { fetchMangas, fetchMangaById, fetchTags } = require("../api/MangaApi");
 
 const orderMapping = {
   Popularité: { followedCount: "desc" },
@@ -23,6 +23,17 @@ const getMangas = async (req, res) => {
     const sort = req.query.sort || "Popularité";
     const order = orderMapping[sort] || {};
     const status = req.query.status;
+    const includedTags = Array.isArray(req.query["includedTags[]"])
+      ? req.query["includedTags[]"]
+      : req.query["includedTags[]"]
+      ? [req.query["includedTags[]"]]
+      : [];
+
+    const excludedTags = Array.isArray(req.query["excludedTags[]"])
+      ? req.query["excludedTags[]"]
+      : req.query["excludedTags[]"]
+      ? [req.query["excludedTags[]"]]
+      : [];
 
     const mangas = await fetchMangas({
       limit,
@@ -31,6 +42,8 @@ const getMangas = async (req, res) => {
       includes,
       order,
       status,
+      includedTags,
+      excludedTags,
     });
     res.json(mangas);
   } catch (error) {
@@ -59,7 +72,20 @@ const getMangaById = async (req, res) => {
   }
 };
 
+const getTags = async (req, res) => {
+  try {
+    const tags = await fetchTags();
+    res.json(tags);
+  } catch (error) {
+    console.error("Erreur getTags:", error);
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la récupération des tags" });
+  }
+};
+
 module.exports = {
   getMangas,
   getMangaById,
+  getTags,
 };

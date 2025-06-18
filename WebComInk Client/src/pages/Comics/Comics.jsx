@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import TopBarMobile from "./TopBarMobile";
 import SwitchBtn from "../../components/shared/SwitchBtn";
 import SortComics from "./SortComics";
+import FloatingFilterButton from "../../components/FloatingFilterButton";
+import FilterGenreBtn from "../../components/FilterGenreBtn";
 import { motion } from "framer-motion";
 import MangaList from "./MangaList";
 
@@ -9,6 +11,9 @@ export default function Comics() {
   const [activeFilter, setActiveFilter] = useState("enCours");
   const [previousFilter, setPreviousFilter] = useState(null);
   const [sort, setSort] = useState("Popularité");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [excludedGenres, setExcludedGenres] = useState([]);
 
   const handleSwitchClick = (newFilter) => {
     setPreviousFilter(activeFilter);
@@ -24,6 +29,18 @@ export default function Comics() {
     setSort(newSort);
   };
 
+  const handleFilterToggle = () => {
+    setIsFilterOpen(!isFilterOpen);
+  };
+
+  const handleFilterClose = () => {
+    setIsFilterOpen(false);
+  };
+
+  const handleGenreChange = (genres) => {
+    setSelectedGenres(genres.included || []);
+    setExcludedGenres(genres.excluded || []);
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -37,6 +54,21 @@ export default function Comics() {
             <h2 className="text-center lg:text-start font-light w-[90%]">
               Le catalogue complet de WebComInk à ta disposition!
             </h2>
+            {(selectedGenres.length > 0 || excludedGenres.length > 0) && (
+              <div className="mt-2 text-sm text-accent">
+                {selectedGenres.length > 0 && (
+                  <span className="text-green-400">
+                    {selectedGenres.length} inclus
+                  </span>
+                )}
+                {selectedGenres.length > 0 && excludedGenres.length > 0 && " • "}
+                {excludedGenres.length > 0 && (
+                  <span className="text-red-400">
+                    {excludedGenres.length} exclus
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -65,7 +97,28 @@ export default function Comics() {
 
       <SortComics activeSort={sort} onSortChange={handleSortChange} />
 
-      <MangaList sort={sort} filter={activeFilter} />
+      <MangaList
+        sort={sort}
+        filter={activeFilter}
+        includedGenres={selectedGenres}
+        excludedGenres={excludedGenres}
+      />
+
+      {/* Bouton flottant pour mobile */}
+      <FloatingFilterButton
+        onClick={handleFilterToggle}
+        isOpen={isFilterOpen}
+        hasActiveFilters={selectedGenres.length > 0 || excludedGenres.length > 0}
+      />
+
+      {/* Interface de filtrage par genre */}
+      <FilterGenreBtn
+        isOpen={isFilterOpen}
+        onClose={handleFilterClose}
+        selectedGenres={selectedGenres}
+        excludedGenres={excludedGenres}
+        onGenreChange={handleGenreChange}
+      />
     </div>
   );
 }

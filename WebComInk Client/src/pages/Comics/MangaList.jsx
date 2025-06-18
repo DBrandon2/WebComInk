@@ -59,7 +59,12 @@ export function enrichMangas(mangas) {
   });
 }
 
-export default function MangaList({ sort, filter }) {
+export default function MangaList({
+  sort,
+  filter,
+  includedGenres = [],
+  excludedGenres = [],
+}) {
   const [mangas, setMangas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -94,6 +99,17 @@ export default function MangaList({ sort, filter }) {
       if (status) {
         params.status = status;
       }
+
+      // Ajouter les genres inclus
+      if (includedGenres && includedGenres.length > 0) {
+        params.includedTags = includedGenres;
+      }
+
+      // Ajouter les genres exclus
+      if (excludedGenres && excludedGenres.length > 0) {
+        params.excludedTags = excludedGenres;
+      }
+
       params.sort = sort;
       console.log("Trié par :", { sort });
       switch (sort) {
@@ -144,7 +160,7 @@ export default function MangaList({ sort, filter }) {
     } finally {
       setLoading(false);
     }
-  }, [loading, autoLoadFinished, sort, filter]);
+  }, [loading, autoLoadFinished, sort, filter, includedGenres, excludedGenres]);
 
   // Chargement automatique quand la fin est visible
   useEffect(() => {
@@ -159,7 +175,7 @@ export default function MangaList({ sort, filter }) {
     setMangas([]);
     setAutoLoadFinished(false);
     setError(null);
-  }, [sort, filter]);
+  }, [sort, filter, includedGenres, excludedGenres]);
 
   if (error) return <p className="text-red-500">{error}</p>;
 
