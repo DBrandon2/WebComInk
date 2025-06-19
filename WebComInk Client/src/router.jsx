@@ -12,6 +12,16 @@ import Homepage from "./pages/Homepage/Homepage";
 import Comics from "./pages/Comics/Comics";
 import Library from "./pages/Library/Library";
 import Settings from "./pages/Settings/Settings";
+import LegalMentions from "./pages/Legal/LegalMentions";
+import TermsOfUse from "./pages/Legal/TermsOfUse";
+import PrivacyPolicy from "./pages/Legal/PrivacyPolicy";
+import CookiesPolicy from "./pages/Legal/CookiesPolicy";
+import Support from "./pages/Legal/Support";
+import BugReport from "./pages/Legal/BugReport";
+import API from "./pages/Legal/API";
+import Contact from "./pages/Legal/Contact";
+import FAQ from "./pages/Legal/FAQ";
+import Media from "./pages/Legal/Media";
 // import ForgotPass from "./pages/forms/Security/ForgotPass";
 // import ResetPass from "./pages/forms/Security/ResetPass";
 
@@ -79,6 +89,46 @@ export const router = createBrowserRouter([
       {
         path: "/settings",
         element: <Settings />,
+      },
+      {
+        path: "/Mentions-Légales",
+        element: <LegalMentions />,
+      },
+      {
+        path: "/Conditions-Générales-d'utilisation",
+        element: <TermsOfUse />,
+      },
+      {
+        path: "/Politique-de-protection-des-données",
+        element: <PrivacyPolicy />,
+      },
+      {
+        path: "/Politique-des-Cookies",
+        element: <CookiesPolicy />,
+      },
+      {
+        path: "/Aide",
+        element: <Support />,
+      },
+      {
+        path: "/Signaler-un-bug",
+        element: <BugReport />,
+      },
+      {
+        path: "/API",
+        element: <API />,
+      },
+      {
+        path: "/Contact",
+        element: <Contact />,
+      },
+      {
+        path: "/FAQ",
+        element: <FAQ />,
+      },
+      {
+        path: "/Media",
+        element: <Media />,
       },
     ],
   },
