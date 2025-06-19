@@ -149,7 +149,7 @@ export default function Auth() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col justify-start items-center px-6 py-8 w-full max-w-xl mx-auto">
+      <div className="flex-1 flex flex-col justify-start items-center px-6 pb-8 w-full max-w-xl mx-auto">
         {/* Titre + texte */}
         <div className="flex flex-col items-center mb-8 text-center">
           <h1 className="text-2xl text-accent font-medium tracking-wider lg:text-4xl mb-2">
