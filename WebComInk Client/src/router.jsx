@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
-import Register from "./pages/forms/Register";
-import Login from "./pages/forms/Login";
+import Auth from "./pages/forms/Auth";
 import ErrorPage from "./pages/ErrorPage";
 import Profile from "./pages/Profile/Profile";
 import Overview from "./pages/Profile/pages/Overview";
@@ -44,18 +43,10 @@ export const router = createBrowserRouter([
         element: <Library />,
       },
       {
-        path: "/register",
+        path: "/auth",
         element: (
           <UserNotConnected>
-            <Register />
-          </UserNotConnected>
-        ),
-      },
-      {
-        path: "/login",
-        element: (
-          <UserNotConnected>
-            <Login />
+            <Auth />
           </UserNotConnected>
         ),
       },

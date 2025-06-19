@@ -13,7 +13,7 @@ export default function NavBar() {
     { to: "/", icon: <FaHome /> },
     { to: "/comics", icon: <HiOutlineMagnifyingGlass /> },
     { to: "/library", icon: <ImBooks /> },
-    { to: "/login", icon: <FaUser /> },
+    { to: "/auth", icon: <FaUser /> },
     { to: "/settings", icon: <IoSettingsSharp /> },
   ];
 
@@ -94,7 +94,7 @@ export default function NavBar() {
             <a href="">
               <HiOutlineMagnifyingGlass className="text-[32px]" />
             </a>
-            <NavLink to="/login">
+            <NavLink to="/auth">
               <FaUser className="text-[32px]" />
             </NavLink>
             <a href="">
