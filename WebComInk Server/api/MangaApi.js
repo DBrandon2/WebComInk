@@ -1,10 +1,12 @@
 const axios = require("axios");
 const qs = require("qs");
+const pLimit = require("p-limit").default;
+
+const limit = pLimit(5); // 👈 Limite à 5 appels simultanés
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes TTL
 const cache = new Map();
 
-// Mapping des genres français vers les IDs MangaDex
 const GENRE_TAG_MAPPING = {
   Action: "391b0423-d847-456f-aff0-8b0cfc03066b",
   Aventure: "87cc87cd-a395-47af-b27a-93258283bbc6",
@@ -49,7 +51,7 @@ function getCacheKey(params) {
 }
 
 async function fetchMangas({
-  limit = 15,
+  limit: limitVal = 15,
   lang = "fr",
   offset = 0,
   includes = [],
@@ -58,21 +60,15 @@ async function fetchMangas({
   includedTags = [],
   excludedTags = [],
 }) {
-  console.log("order:", order);
-  console.log("includedTags:", includedTags);
-  console.log("excludedTags:", excludedTags);
-
-  // Convertir les noms de genres en IDs MangaDex
   const includedTagIds = includedTags
     .map((genre) => GENRE_TAG_MAPPING[genre])
-    .filter(Boolean); // Enlever les undefined
-
+    .filter(Boolean);
   const excludedTagIds = excludedTags
     .map((genre) => GENRE_TAG_MAPPING[genre])
-    .filter(Boolean); // Enlever les undefined
+    .filter(Boolean);
 
   const params = {
-    limit,
+    limit: limitVal,
     offset,
     contentRating: ["safe"],
     availableTranslatedLanguage: [lang],
@@ -84,24 +80,22 @@ async function fetchMangas({
   };
 
   const key = getCacheKey(params);
-
-  // Check cache
   const cached = cache.get(key);
   if (cached && cached.expire > Date.now()) {
     return cached.data;
   }
 
   try {
-    console.log("➡️ Params envoyés à Mangadex:", params);
-
-    const response = await axios.get("https://api.mangadex.org/manga", {
-      params,
-      paramsSerializer: (params) => qs.stringify(params, { encode: false }),
-      headers: {
-        "Cache-Control": "no-cache",
-        "User-Agent": "WebComInk/1.0 (contact.webcomink@gmail.com)",
-      },
-    });
+    const response = await limit(() =>
+      axios.get("https://api.mangadex.org/manga", {
+        params,
+        paramsSerializer: (params) => qs.stringify(params, { encode: false }),
+        headers: {
+          "Cache-Control": "no-cache",
+          "User-Agent": "WebComInk/1.0 (contact.webcomink@gmail.com)",
+        },
+      })
+    );
 
     cache.set(key, { data: response.data, expire: Date.now() + CACHE_TTL });
     return response.data;
@@ -122,7 +116,9 @@ async function fetchMangaById(id) {
   }
 
   try {
-    const response = await axios.get(`https://api.mangadex.org/manga/${id}`);
+    const response = await limit(() =>
+      axios.get(`https://api.mangadex.org/manga/${id}`)
+    );
     cache.set(key, { data: response.data, expire: Date.now() + CACHE_TTL });
     return response.data;
   } catch (error) {
@@ -138,11 +134,13 @@ async function fetchTags() {
   }
 
   try {
-    const response = await axios.get("https://api.mangadex.org/manga/tag");
+    const response = await limit(() =>
+      axios.get("https://api.mangadex.org/manga/tag")
+    );
     cache.set(key, {
       data: response.data,
       expire: Date.now() + CACHE_TTL * 12,
-    }); // Cache plus long pour les tags
+    });
     return response.data;
   } catch (error) {
     console.error("Erreur dans fetchTags:", error.message);
@@ -169,13 +167,12 @@ async function fetchCoverUrlByMangaId(mangaId) {
 
     const coverId = coverArt.id;
 
-    const coverResponse = await axios.get(
-      `https://api.mangadex.org/cover/${coverId}`,
-      {
+    const coverResponse = await limit(() =>
+      axios.get(`https://api.mangadex.org/cover/${coverId}`, {
         headers: {
           Origin: "https://web-com-ink.vercel.app",
         },
-      }
+      })
     );
 
     const fileName = coverResponse.data.data.attributes.fileName;

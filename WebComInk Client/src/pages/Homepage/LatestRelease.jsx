@@ -1,174 +1,87 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import image1 from "../../assets/MangaCover/kaiju cover.webp";
-import image2 from "../../assets/MangaCover/OP manga cover.jpg";
-import image3 from "../../assets/MangaCover/Vinland-Saga-28.webp";
-import image4 from "../../assets/MangaCover/Sakamoto Cover.webp";
 import ButtonAnimated from "../../components/ButtonAnimated";
 import { IoIosArrowDown } from "react-icons/io";
 import { NavLink } from "react-router-dom";
+import { getMangas } from "../../services/mangaService";
+
+const BATCH_SIZE = 20;
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+export function enrichMangas(mangas) {
+  return mangas.map((manga) => {
+    const title =
+      manga.attributes.title?.fr ||
+      manga.attributes.title?.en ||
+      manga.attributes.title?.ja ||
+      manga.attributes.title?.["ja-ro"] ||
+      Object.values(manga.attributes.title || {})[0] ||
+      "Titre non disponible";
+
+    const relationships = manga.relationships || [];
+
+    const coverRel = relationships.find((rel) => rel.type === "cover_art");
+    const coverFileName = coverRel?.attributes?.fileName;
+
+    const coverUrl = coverFileName
+      ? `${API_BASE_URL}/covers/${manga.id}/${coverFileName}.256.jpg`
+      : "/default-cover.png";
+
+    return {
+      id: manga.id,
+      title,
+      coverUrl,
+    };
+  });
+}
 
 export default function LatestRelease() {
-  const comicsItems = [
-    {
-      title:
-        "Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8",
-      chapter: "152",
-      image: image1,
-    },
-    {
-      title: "One Piece",
-      chapter: "1112",
-      image: image2,
-    },
-    {
-      title: "Vinland Saga",
-      chapter: "52",
-      image: image3,
-    },
-    {
-      title: "Sakamoto Days",
-      chapter: "102",
-      image: image4,
-    },
-    {
-      title: "Kaiju n°8",
-      chapter: "152",
-      image: image1,
-    },
-    {
-      title: "One Piece",
-      chapter: "1522",
-      image: image2,
-    },
-    {
-      title: "Vinland Saga",
-      chapter: "112",
-      image: image3,
-    },
-    {
-      title: "Sakamoto Days",
-      chapter: "102",
-      image: image4,
-    },
-    {
-      title: "Kaiju n°8",
-      chapter: "152",
-      image: image1,
-    },
-    {
-      title: "One Piece",
-      chapter: "1542",
-      image: image2,
-    },
-    {
-      title:
-        "Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8",
-      chapter: "152",
-      image: image1,
-    },
-    {
-      title: "One Piece",
-      chapter: "1112",
-      image: image2,
-    },
-    {
-      title: "Vinland Saga",
-      chapter: "52",
-      image: image3,
-    },
-    {
-      title: "Sakamoto Days",
-      chapter: "102",
-      image: image4,
-    },
-    {
-      title: "Kaiju n°8",
-      chapter: "152",
-      image: image1,
-    },
-    {
-      title: "One Piece",
-      chapter: "1522",
-      image: image2,
-    },
-    {
-      title: "Vinland Saga",
-      chapter: "112",
-      image: image3,
-    },
-    {
-      title: "Sakamoto Days",
-      chapter: "102",
-      image: image4,
-    },
-    {
-      title: "Kaiju n°8",
-      chapter: "152",
-      image: image1,
-    },
-    {
-      title: "One Piece",
-      chapter: "1542",
-      image: image2,
-    },
-    {
-      title:
-        "Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8 Kaiju n°8",
-      chapter: "152",
-      image: image1,
-    },
-    {
-      title: "One Piece",
-      chapter: "1112",
-      image: image2,
-    },
-    {
-      title: "Vinland Saga",
-      chapter: "52",
-      image: image3,
-    },
-    {
-      title: "Sakamoto Days",
-      chapter: "102",
-      image: image4,
-    },
-    {
-      title: "Kaiju n°8",
-      chapter: "152",
-      image: image1,
-    },
-    {
-      title: "One Piece",
-      chapter: "1522",
-      image: image2,
-    },
-    {
-      title: "Vinland Saga",
-      chapter: "112",
-      image: image3,
-    },
-    {
-      title: "Sakamoto Days",
-      chapter: "102",
-      image: image4,
-    },
-    {
-      title: "Kaiju n°8",
-      chapter: "152",
-      image: image1,
-    },
-    {
-      title: "One Piece",
-      chapter: "1542",
-      image: image2,
-    },
-  ];
+  const [mangas, setMangas] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [autoLoadFinished, setAutoLoadFinished] = useState(false);
+  const offsetRef = useRef(0);
+
+  const loadLatestManga = useCallback(async () => {
+    if (loading || autoLoadFinished) return;
+    setLoading(true);
+
+    try {
+      const params = {
+        limit: BATCH_SIZE,
+        lang: "fr",
+        offset: offsetRef.current,
+        includes: ["cover_art"],
+        sort: { updatedAt: "desc" },
+      };
+
+      const data = await getMangas(params);
+      const mangasWithDetails = enrichMangas(data.data);
+
+      if (mangasWithDetails.length === 0) {
+        setAutoLoadFinished(true);
+        return;
+      }
+
+      setMangas((prevMangas) => [...prevMangas, ...mangasWithDetails]);
+      offsetRef.current += BATCH_SIZE;
+    } catch (error) {
+      console.error(error);
+      setError("Erreur lors du chargement des mangas");
+    } finally {
+      setLoading(false);
+    }
+  }, [loading, autoLoadFinished]);
+
+  useEffect(() => {
+    loadLatestManga();
+  }, []); // Load initial batch on mount
 
   const [visibleCount, setVisibleCount] = useState(10);
 
   const handleShowMore = () => {
     setVisibleCount((prevCount) => prevCount + 20);
+    loadLatestManga(); // Load more mangas when button is clicked
   };
 
   const getTitleFontSize = (title) => {
@@ -196,8 +109,7 @@ export default function LatestRelease() {
 
   const itemWidth = 240;
   const itemSpacing = 16;
-  const totalWidth =
-    comicsItems.length * (itemWidth + itemSpacing) - itemSpacing;
+  const totalWidth = mangas.length * (itemWidth + itemSpacing) - itemSpacing;
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 mx-3 lg:my-8 lg:gap-y-12">
@@ -218,24 +130,24 @@ export default function LatestRelease() {
       </div>
 
       <div className="lg:hidden grid grid-cols-2 md:grid-cols-4 gap-x-2 gap-y-4">
-        {comicsItems.slice(0, visibleCount).map((item, index) => (
+        {mangas.slice(0, visibleCount).map((manga, index) => (
           <div key={index} className="flex flex-col items-center gap-2">
             <div className="w-[160px] h-[240px] bg-gray-200 flex items-center justify-center">
               <img
                 className="w-full h-full object-cover"
-                src={item.image}
+                src={manga.coverUrl}
                 alt="Manga Cover"
               />
             </div>
             <div className="flex flex-col justify-center items-center w-[180px]">
               <h3
                 className={`font-medium text-accent text-center line-clamp-2 ${getTitleFontSize(
-                  item.title
+                  manga.title
                 )}`}
               >
-                {item.title}
+                {manga.title}
               </h3>
-              <p className="font-light">Chapitre : {item.chapter}</p>
+              <p className="font-light">Chapitre : {manga.chapter}</p>
             </div>
           </div>
         ))}
@@ -257,7 +169,7 @@ export default function LatestRelease() {
           }}
           whileTap={{ cursor: "grabbing" }}
         >
-          {comicsItems.map((item, index) => (
+          {mangas.map((manga, index) => (
             <motion.div
               key={index}
               className="flex flex-col items-center gap-2"
@@ -266,25 +178,25 @@ export default function LatestRelease() {
               <div className="w-[240px] h-[360px] bg-gray-200 flex items-center justify-center">
                 <img
                   className="w-full h-full object-cover cursor-pointer "
-                  src={item.image}
+                  src={manga.coverUrl}
                   alt="Manga Cover"
                   draggable={false}
                 />
               </div>
               <div className="flex flex-col justify-center items-center w-[240px]">
                 <h3 className="font-medium text-accent text-center line-clamp-2 text-lg tracking-wide">
-                  {item.title}
+                  {manga.title}
                 </h3>
-                <p className="">Chapitre : {item.chapter}</p>
+                <p className="">Chapitre : {manga.chapter}</p>
               </div>
             </motion.div>
           ))}
         </motion.div>
       </div>
 
-      {/*  */}
+      {/* Show More Button */}
       <div className="lg:hidden">
-        {visibleCount < comicsItems.length && (
+        {visibleCount < mangas.length && (
           <ButtonAnimated
             text={[
               <span key="text">Afficher plus</span>,
@@ -295,6 +207,10 @@ export default function LatestRelease() {
           />
         )}
       </div>
+
+      {/* Loading and Error Messages */}
+      {loading && <p>Loading...</p>}
+      {error && <p>{error}</p>}
     </div>
   );
 }
