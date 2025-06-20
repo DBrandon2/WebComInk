@@ -101,7 +101,7 @@ export default function MostPopular() {
         </div>
 
         {/* Liste des mangas */}
-        <div className="grid grid-cols-3 gap-x-2 gap-y-6 w-full max-w-full lg:flex lg:flex-wrap 2xl:w-[70%] xl:gap-x-12 lg:justify-center ">
+        <div className="grid grid-cols-3 gap-x-2 gap-y-6 w-full max-w-full lg:flex lg:flex-wrap 2xl:w-[90%] xl:gap-x-12 lg:justify-center ">
           {comicsItems.map((item, index) => (
             <div key={index} className="flex flex-col items-center gap-2">
               <div className="w-[100px] h-[150px] lg:w-[240px] lg:h-[360px] bg-gray-200 flex items-center justify-center">

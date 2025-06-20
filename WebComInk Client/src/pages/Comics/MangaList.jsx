@@ -3,10 +3,10 @@ import ButtonAnimated from "../../components/ButtonAnimated";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { getMangas } from "../../services/mangaService";
+import { enrichMangas } from "../../utils/mangaUtils";
 
 const BATCH_SIZE = 18;
 const LIMIT_STEP = 300;
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const containerVariants = {
   hidden: { opacity: 1 },
@@ -17,47 +17,6 @@ const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
 };
-
-export function enrichMangas(mangas) {
-  return mangas.map((manga) => {
-    const title =
-      manga.attributes.title?.fr ||
-      manga.attributes.title?.en ||
-      manga.attributes.title?.ja ||
-      manga.attributes.title?.["ja-ro"] ||
-      Object.values(manga.attributes.title || {})[0] ||
-      "Titre non disponible";
-
-    const relationships = manga.relationships || [];
-
-    const coverRel = relationships.find((rel) => rel.type === "cover_art");
-    const coverFileName = coverRel?.attributes?.fileName;
-
-    const coverUrl = coverFileName
-      ? `${API_BASE_URL}/covers/${manga.id}/${coverFileName}.256.jpg`
-      : "/default-cover.png";
-
-    const authors = relationships
-      .filter((rel) => rel.type === "author")
-      .map((rel) => rel.attributes?.name)
-      .filter(Boolean);
-
-    const artists = relationships
-      .filter((rel) => rel.type === "artist")
-      .map((rel) => rel.attributes?.name)
-      .filter(Boolean);
-
-    return {
-      id: manga.id,
-      title,
-      coverUrl,
-      authorName:
-        authors.length > 0 ? [...new Set(authors)].join(", ") : "Inconnu",
-      artistName:
-        artists.length > 0 ? [...new Set(artists)].join(", ") : "Inconnu",
-    };
-  });
-}
 
 export default function MangaList({
   sort,

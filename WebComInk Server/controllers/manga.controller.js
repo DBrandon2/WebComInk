@@ -9,9 +9,9 @@ const orderMapping = {
 };
 
 const getMangas = async (req, res) => {
-  console.log("sort:", req.query.sort);
+  console.log("Controller sort:", req.query.sort);
   try {
-    const limit = parseInt(req.query.limit) || 15;
+    const limit = parseInt(req.query.limit) || 20;
     const offset = parseInt(req.query.offset) || 0;
     const lang = req.query.lang || "fr";
     const includes = Array.isArray(req.query["includes[]"])

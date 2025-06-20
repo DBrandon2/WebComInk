@@ -39,7 +39,7 @@ export default function Discover() {
 
       <div className="lg:flex lg:justify-center lg:gap-8 xl:gap-24">
         {/* Image */}
-        <div className="flex justify-center lg:bg-red-300 lg:w-[583px] lg:h-[874px]">
+        <div className="flex justify-center lg:bg-red-300 lg:w-[500px] lg:h-[700px]">
           <img
             src={dailyComics.image}
             alt=""

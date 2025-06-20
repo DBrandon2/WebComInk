@@ -151,7 +151,7 @@ export default function Auth() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col justify-start items-center px-6 pb-8 w-full max-w-xl mx-auto">
         {/* Titre + texte */}
-        <div className="flex flex-col items-center mb-8 text-center">
+        <div className="flex-col items-center mb-8 text-center hidden lg:flex">
           <h1 className="text-2xl text-accent font-medium tracking-wider lg:text-4xl mb-2">
             {activeFilter === "Connexion"
               ? "Tu n'es pas connecté ?"
@@ -218,24 +218,24 @@ export default function Auth() {
                 )}
               </div>
 
-              {/* Bouton */}
-              <div className="pt-8">
-                <button
-                  type="submit"
-                  className="w-full border-2 border-accent text-accent py-4 px-6 hover:bg-accent hover:text-dark-bg transition-all duration-300 font-medium text-lg rounded-lg cursor-pointer"
-                >
-                  Se connecter
-                </button>
-              </div>
-
               {/* Mot de passe oublié */}
-              <div className="text-center pt-4">
+              <div className="">
                 <button
                   type="button"
                   onClick={() => navigate("/forgot-password")}
                   className="text-gray-400 text-sm hover:text-accent transition-colors cursor-pointer"
                 >
                   Mot de passe oublié ?
+                </button>
+              </div>
+
+              {/* Bouton */}
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  className="w-full border-2 border-accent text-accent py-4 px-6 hover:bg-accent hover:text-dark-bg transition-all duration-300 font-medium text-lg rounded-lg cursor-pointer"
+                >
+                  Se connecter
                 </button>
               </div>
             </form>

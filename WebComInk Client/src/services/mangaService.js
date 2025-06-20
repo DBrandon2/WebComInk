@@ -40,7 +40,7 @@ export async function getMangas({
     params[`order[${key}]`] = value;
   });
 
-  console.log("Order:", order);
+  console.log("MangaService Order:", order);
   console.log("Status:", status);
 
   try {

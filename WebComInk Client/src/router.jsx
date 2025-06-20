@@ -49,7 +49,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/library",
+        path: "/bibliothèque",
         element: <Library />,
       },
       {

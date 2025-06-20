@@ -4,36 +4,9 @@ import ButtonAnimated from "../../components/ButtonAnimated";
 import { IoIosArrowDown } from "react-icons/io";
 import { NavLink } from "react-router-dom";
 import { getMangas } from "../../services/mangaService";
+import { enrichMangas } from "../../utils/mangaUtils";
 
 const BATCH_SIZE = 20;
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
-
-export function enrichMangas(mangas) {
-  return mangas.map((manga) => {
-    const title =
-      manga.attributes.title?.fr ||
-      manga.attributes.title?.en ||
-      manga.attributes.title?.ja ||
-      manga.attributes.title?.["ja-ro"] ||
-      Object.values(manga.attributes.title || {})[0] ||
-      "Titre non disponible";
-
-    const relationships = manga.relationships || [];
-
-    const coverRel = relationships.find((rel) => rel.type === "cover_art");
-    const coverFileName = coverRel?.attributes?.fileName;
-
-    const coverUrl = coverFileName
-      ? `${API_BASE_URL}/covers/${manga.id}/${coverFileName}.256.jpg`
-      : "/default-cover.png";
-
-    return {
-      id: manga.id,
-      title,
-      coverUrl,
-    };
-  });
-}
 
 export default function LatestRelease() {
   const [mangas, setMangas] = useState([]);
@@ -52,8 +25,9 @@ export default function LatestRelease() {
         lang: "fr",
         offset: offsetRef.current,
         includes: ["cover_art"],
-        sort: { updatedAt: "desc" },
       };
+
+      params.order = { updatedAt: "desc" };
 
       const data = await getMangas(params);
       const mangasWithDetails = enrichMangas(data.data);
@@ -80,7 +54,7 @@ export default function LatestRelease() {
   const [visibleCount, setVisibleCount] = useState(10);
 
   const handleShowMore = () => {
-    setVisibleCount((prevCount) => prevCount + 20);
+    setVisibleCount((prevCount) => prevCount + 10);
     loadLatestManga(); // Load more mangas when button is clicked
   };
 
@@ -110,6 +84,8 @@ export default function LatestRelease() {
   const itemWidth = 240;
   const itemSpacing = 16;
   const totalWidth = mangas.length * (itemWidth + itemSpacing) - itemSpacing;
+
+  console.log("MANGA : ", mangas);
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 mx-3 lg:my-8 lg:gap-y-12">

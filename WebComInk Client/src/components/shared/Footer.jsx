@@ -7,7 +7,7 @@ import { NavLink } from "react-router-dom";
 export default function Footer() {
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="flex flex-col justify-center items-center gap-4 mt-10">
+      <div className="flex flex-col justify-center items-center gap-4 mt-10 lg:flex-row lg:w-full lg:items-start">
         <div className="w-full h-full flex-1 flex flex-col justify-center items-center">
           <p className="w-full text-center py-8 text-accent text-2xl font-medium tracking-widest">
             WebComInk
