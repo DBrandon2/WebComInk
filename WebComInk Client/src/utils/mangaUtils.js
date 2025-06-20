@@ -47,6 +47,11 @@ export function enrichMangas(mangas) {
       .map((rel) => rel.attributes?.name)
       .filter(Boolean);
 
+    // Extraction des informations sur les chapitres
+    const latestUploadedChapter =
+      manga.attributes?.latestUploadedChapter || "N/A";
+    const lastChapter = manga.attributes?.lastChapter || "N/A";
+
     return {
       id: manga.id,
       title,
@@ -55,6 +60,10 @@ export function enrichMangas(mangas) {
         authors.length > 0 ? [...new Set(authors)].join(", ") : "Inconnu",
       artistName:
         artists.length > 0 ? [...new Set(artists)].join(", ") : "Inconnu",
+      latestUploadedChapter,
+      lastChapter,
+      // Alias pour compatibilité avec l'ancien code
+      chapter: latestUploadedChapter,
       // Conserver les données originales pour une utilisation future si nécessaire
       originalData: manga,
     };
@@ -117,4 +126,79 @@ export function getMangaArtists(manga) {
     .filter((rel) => rel.type === "artist")
     .map((rel) => rel.attributes?.name)
     .filter(Boolean);
+}
+
+/**
+ * Récupère les détails d'un chapitre par son UUID
+ * @param {string} chapterId - UUID du chapitre
+ * @returns {Promise<Object>} Détails du chapitre
+ */
+export async function getChapterDetails(chapterId) {
+  if (!chapterId || chapterId === "N/A") {
+    return { chapter: "N/A", volume: "N/A" };
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/chapter/${chapterId}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return {
+      chapter: data.data?.attributes?.chapter || "N/A",
+      volume: data.data?.attributes?.volume || "N/A",
+      title: data.data?.attributes?.title || "",
+    };
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des détails du chapitre:",
+      error
+    );
+    return { chapter: "N/A", volume: "N/A" };
+  }
+}
+
+/**
+ * Enrichit les données manga avec les numéros de chapitres réels
+ * @param {Array} mangas - Tableau des mangas enrichis
+ * @returns {Promise<Array>} Tableau des mangas avec les numéros de chapitres
+ */
+export async function enrichMangasWithChapterNumbers(mangas) {
+  const enrichedMangas = await Promise.all(
+    mangas.map(async (manga) => {
+      if (
+        manga.latestUploadedChapter &&
+        manga.latestUploadedChapter !== "N/A"
+      ) {
+        const chapterDetails = await getChapterDetails(
+          manga.latestUploadedChapter
+        );
+        return {
+          ...manga,
+          chapter: chapterDetails.chapter,
+          chapterNumber: chapterDetails.chapter,
+          latestChapterNumber: chapterDetails.chapter,
+        };
+      }
+      return {
+        ...manga,
+        chapter: "N/A",
+        chapterNumber: "N/A",
+        latestChapterNumber: "N/A",
+      };
+    })
+  );
+  return enrichedMangas;
+}
+
+/**
+ * Extrait les informations sur les chapitres d'un manga
+ * @param {Object} manga - Objet manga
+ * @returns {Object} Objet contenant les informations sur les chapitres
+ */
+export function getMangaChapterInfo(manga) {
+  return {
+    latestUploadedChapter: manga.attributes?.latestUploadedChapter || "N/A",
+    lastChapter: manga.attributes?.lastChapter || "N/A",
+  };
 }

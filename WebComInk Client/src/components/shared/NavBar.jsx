@@ -11,10 +11,10 @@ import { motion } from "framer-motion";
 export default function NavBar() {
   const navItems = [
     { to: "/", icon: <FaHome /> },
-    { to: "/comics", icon: <HiOutlineMagnifyingGlass /> },
-    { to: "/library", icon: <ImBooks /> },
-    { to: "/auth", icon: <FaUser /> },
-    { to: "/settings", icon: <IoSettingsSharp /> },
+    { to: "/Comics", icon: <HiOutlineMagnifyingGlass /> },
+    { to: "/Bibliothèque", icon: <ImBooks /> },
+    { to: "/Auth", icon: <FaUser /> },
+    { to: "/Paramètres", icon: <IoSettingsSharp /> },
   ];
 
   return (
@@ -87,19 +87,19 @@ export default function NavBar() {
           </li>
           <li className="flex-2 xl:flex-1 flex justify-around tracking-[0.35rem] font-semibold">
             <NavLink to="/">Accueil</NavLink>
-            <NavLink to="/comics">Comics</NavLink>
-            <NavLink to="/bibliothèque">Bibliothèque</NavLink>
+            <NavLink to="/Comics">Comics</NavLink>
+            <NavLink to="/Bibliothèque">Bibliothèque</NavLink>
           </li>
           <li className="flex-1 flex justify-end gap-8">
             <a href="">
               <HiOutlineMagnifyingGlass className="text-[32px]" />
             </a>
-            <NavLink to="/auth">
+            <NavLink to="/Auth">
               <FaUser className="text-[32px]" />
             </NavLink>
-            <a href="">
+            <NavLink to="/Paramètres">
               <IoSettingsSharp className="text-[32px]" />
-            </a>
+            </NavLink>
           </li>
         </ul>
       </nav>

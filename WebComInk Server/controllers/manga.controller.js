@@ -84,8 +84,27 @@ const getTags = async (req, res) => {
   }
 };
 
+const { fetchChapterById } = require("../api/MangaApi");
+
+const getChapterById = async (req, res) => {
+  try {
+    const chapterId = req.params.id;
+    const chapter = await fetchChapterById(chapterId);
+
+    if (!chapter || chapter.result !== "ok" || !chapter.data) {
+      return res.status(404).json({ message: "Chapitre non trouvé" });
+    }
+
+    res.json(chapter);
+  } catch (error) {
+    console.error("Erreur getChapterById:", error.message);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
 module.exports = {
   getMangas,
   getMangaById,
   getTags,
+  getChapterById,
 };

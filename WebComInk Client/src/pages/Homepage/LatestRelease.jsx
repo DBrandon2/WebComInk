@@ -4,7 +4,10 @@ import ButtonAnimated from "../../components/ButtonAnimated";
 import { IoIosArrowDown } from "react-icons/io";
 import { NavLink } from "react-router-dom";
 import { getMangas } from "../../services/mangaService";
-import { enrichMangas } from "../../utils/mangaUtils";
+import {
+  enrichMangas,
+  enrichMangasWithChapterNumbers,
+} from "../../utils/mangaUtils";
 
 const BATCH_SIZE = 20;
 
@@ -30,15 +33,20 @@ export default function LatestRelease() {
 
       const data = await getMangas(params);
       const mangasWithDetails = enrichMangas(data.data);
+      const mangasWithChapterNumbers = await enrichMangasWithChapterNumbers(
+        mangasWithDetails
+      );
 
-      if (mangasWithDetails.length === 0) {
+      if (mangasWithChapterNumbers.length === 0) {
         setAutoLoadFinished(true);
         return;
       }
 
       setMangas((prevMangas) => {
         const prevIds = new Set(prevMangas.map((m) => m.id));
-        const filteredNew = mangasWithDetails.filter((m) => !prevIds.has(m.id));
+        const filteredNew = mangasWithChapterNumbers.filter(
+          (m) => !prevIds.has(m.id)
+        );
         return [...prevMangas, ...filteredNew];
       });
 
@@ -127,7 +135,7 @@ export default function LatestRelease() {
               >
                 {manga.title}
               </h3>
-              <p className="font-light">Chapitre : {manga.chapter}</p>
+              <p className="">Chapitre n°{manga.chapterNumber}</p>
             </div>
           </div>
         ))}
@@ -167,7 +175,7 @@ export default function LatestRelease() {
                 <h3 className="font-medium text-accent text-center line-clamp-2 text-lg tracking-wide">
                   {manga.title}
                 </h3>
-                <p className="">Chapitre : {manga.chapter}</p>
+                <p className="">Chapitre n°{manga.chapterNumber}</p>
               </div>
             </motion.div>
           ))}

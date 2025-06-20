@@ -1,4 +1,9 @@
-const { getMangas, getMangaById, getTags } = require("../controllers/manga.controller");
+const {
+  getMangas,
+  getMangaById,
+  getTags,
+  getChapterById,
+} = require("../controllers/manga.controller");
 
 const router = require("express").Router();
 
@@ -8,8 +13,11 @@ router.get("/tags", getTags);
 // GET - liste des mangas (avec query params éventuels)
 router.get("/", getMangas);
 
+router.get("/chapter/:id", getChapterById);
+
 // GET - manga spécifique par id
 router.get("/:id", getMangaById);
+
 
 module.exports = router;
 

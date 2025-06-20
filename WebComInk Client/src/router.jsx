@@ -41,7 +41,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/comics",
+        path: "/Comics",
         element: (
           <UserNotConnected>
             <Comics />
@@ -49,11 +49,11 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "/bibliothèque",
+        path: "/Bibliothèque",
         element: <Library />,
       },
       {
-        path: "/auth",
+        path: "/Auth",
         element: (
           <UserNotConnected>
             <Auth />
@@ -69,7 +69,7 @@ export const router = createBrowserRouter([
       //   element: <ResetPass />,
       // },
       {
-        path: "/profile",
+        path: "/Profile",
         element: (
           <UserConnected>
             <Profile />
@@ -87,7 +87,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: "/settings",
+        path: "/Paramètres",
         element: <Settings />,
       },
       {

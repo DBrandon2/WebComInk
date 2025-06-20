@@ -54,4 +54,20 @@ router.get("/covers/:mangaId/:fileName", async (req, res) => {
   }
 });
 
+router.get("/chapter/:chapterId", async (req, res) => {
+  const { chapterId } = req.params;
+  const url = `https://api.mangadex.org/chapter/${chapterId}`;
+
+  try {
+    const response = await axios.get(url);
+    res.json(response.data);
+  } catch (err) {
+    if (err.response && err.response.status === 404) {
+      return res.status(404).send("Chapitre non trouvé");
+    }
+    console.error("Erreur proxy chapter:", err.message);
+    res.status(500).send("Erreur lors de la récupération du chapitre");
+  }
+});
+
 module.exports = router;

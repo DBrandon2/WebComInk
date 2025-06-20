@@ -188,9 +188,34 @@ async function fetchCoverUrlByMangaId(mangaId) {
   }
 }
 
+async function fetchChapterById(id) {
+  const key = `chapterById_${id}`;
+  const cached = cache.get(key);
+  if (cached && cached.expire > Date.now()) {
+    return cached.data;
+  }
+
+  try {
+    const response = await limit(() =>
+      axios.get(`https://api.mangadex.org/chapter/${id}`)
+    );
+    const chapterData = response.data;
+    cache.set(key, { data: chapterData, expire: Date.now() + CACHE_TTL });
+    return chapterData;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      // Chapitre non trouvé : retourne null pour que le contrôleur gère
+      return null;
+    }
+    // Pour d'autres erreurs, relance
+    throw error;
+  }
+}
+
 module.exports = {
   fetchMangas,
   fetchMangaById,
   fetchCoverUrlByMangaId,
   fetchTags,
+  fetchChapterById,
 };
