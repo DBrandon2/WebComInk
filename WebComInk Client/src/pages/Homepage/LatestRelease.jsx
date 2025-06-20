@@ -25,9 +25,8 @@ export default function LatestRelease() {
         lang: "fr",
         offset: offsetRef.current,
         includes: ["cover_art"],
+        sort: "Chapitres récents",
       };
-
-      params.order = { updatedAt: "desc" };
 
       const data = await getMangas(params);
       const mangasWithDetails = enrichMangas(data.data);
@@ -37,7 +36,12 @@ export default function LatestRelease() {
         return;
       }
 
-      setMangas((prevMangas) => [...prevMangas, ...mangasWithDetails]);
+      setMangas((prevMangas) => {
+        const prevIds = new Set(prevMangas.map((m) => m.id));
+        const filteredNew = mangasWithDetails.filter((m) => !prevIds.has(m.id));
+        return [...prevMangas, ...filteredNew];
+      });
+
       offsetRef.current += BATCH_SIZE;
     } catch (error) {
       console.error(error);

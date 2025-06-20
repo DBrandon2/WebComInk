@@ -60,6 +60,7 @@ async function fetchMangas({
   includedTags = [],
   excludedTags = [],
 }) {
+  console.log("MANGAAPI ORDER : ", order);
   const includedTagIds = includedTags
     .map((genre) => GENRE_TAG_MAPPING[genre])
     .filter(Boolean);

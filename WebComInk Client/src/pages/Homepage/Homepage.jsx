@@ -6,7 +6,7 @@ import Discover from "./Discover";
 
 export default function Homepage() {
   return (
-    <div className="w-full h-full flex flex-col gap-32 mb-32">
+    <div className="w-full h-full flex flex-col gap-18 lg:gap-32 mb-32">
       <Carousel />
       <LatestRelease />
       <MostPopular />
