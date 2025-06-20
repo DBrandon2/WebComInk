@@ -6,16 +6,20 @@ import FloatingFilterButton from "../../components/FloatingFilterButton";
 import FilterGenreBtn from "../../components/FilterGenreBtn";
 import { motion } from "framer-motion";
 import MangaList from "./MangaList";
+import { useLocation } from "react-router-dom";
 
 export default function Comics() {
+  const location = useLocation();
+  const initialSort = location.state?.sort || "Popularité"; // Utilise "Chapitres récents" si passé, sinon "Popularité"
+  const [sort, setSort] = useState(initialSort);
   const [activeFilter, setActiveFilter] = useState("enCours");
   const [previousFilter, setPreviousFilter] = useState(null);
-  const [sort, setSort] = useState("Popularité");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [excludedGenres, setExcludedGenres] = useState([]);
 
   const handleSwitchClick = (newFilter) => {
+     console.log("Switch clicked:", newFilter);
     setPreviousFilter(activeFilter);
     setActiveFilter(newFilter);
   };
@@ -61,7 +65,9 @@ export default function Comics() {
                     {selectedGenres.length} inclus
                   </span>
                 )}
-                {selectedGenres.length > 0 && excludedGenres.length > 0 && " • "}
+                {selectedGenres.length > 0 &&
+                  excludedGenres.length > 0 &&
+                  " • "}
                 {excludedGenres.length > 0 && (
                   <span className="text-red-400">
                     {excludedGenres.length} exclus
@@ -108,7 +114,9 @@ export default function Comics() {
       <FloatingFilterButton
         onClick={handleFilterToggle}
         isOpen={isFilterOpen}
-        hasActiveFilters={selectedGenres.length > 0 || excludedGenres.length > 0}
+        hasActiveFilters={
+          selectedGenres.length > 0 || excludedGenres.length > 0
+        }
       />
 
       {/* Interface de filtrage par genre */}

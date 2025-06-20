@@ -111,7 +111,11 @@ export default function LatestRelease() {
               Découvre les sorties des derniers chapitres
             </h2>
           </div>
-          <NavLink to="/comics" className="hidden lg:flex">
+          <NavLink
+            to="/comics"
+            state={{ sort: "Chapitres récents" }}
+            className="hidden lg:flex"
+          >
             <ButtonAnimated text="Voir les comics" />
           </NavLink>
         </div>

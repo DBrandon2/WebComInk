@@ -9,6 +9,8 @@ const orderMapping = {
 };
 
 const getMangas = async (req, res) => {
+  console.log("Received status:", req.query.status);
+
   console.log("Controller sort:", req.query.sort);
   try {
     const limit = parseInt(req.query.limit) || 20;
