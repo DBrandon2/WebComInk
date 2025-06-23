@@ -28,6 +28,7 @@ export default function MangaList({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [autoLoadFinished, setAutoLoadFinished] = useState(false);
+  const [lastLoadedIndex, setLastLoadedIndex] = useState(-1);
 
   const statusMap = {
     tous: null,
@@ -133,6 +134,7 @@ export default function MangaList({
     setMangas([]);
     setAutoLoadFinished(false);
     setError(null);
+    setLastLoadedIndex(-1);
   }, [sort, filter, includedGenres, excludedGenres]);
 
   if (error) return <p className="text-red-500">{error}</p>;
@@ -154,21 +156,29 @@ export default function MangaList({
         animate="visible"
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-6 w-full"
       >
-        {mangas.map((manga) => (
+        {mangas.map((manga, idx) => (
           <motion.div key={manga.id} variants={itemVariants}>
             <div className="flex flex-col items-center gap-2">
               <div className="w-[160px] h-[240px] lg:w-[240px] lg:h-[360px] bg-gray-200 relative overflow-hidden">
-                <img
-                  src={manga.coverUrl || "/default-cover.png"}
-                  alt={`${manga.title} cover`}
-                  className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
-                  loading="lazy"
-                  onLoad={(e) => e.target.classList.remove("opacity-0")}
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/default-cover.png";
-                  }}
-                />
+                {idx <= lastLoadedIndex + 1 ? (
+                  <img
+                    src={manga.coverUrl || "/default-cover.png"}
+                    alt={`${manga.title} cover`}
+                    className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
+                    loading="lazy"
+                    onLoad={(e) => {
+                      e.target.classList.remove("opacity-0");
+                      if (idx === lastLoadedIndex + 1) setLastLoadedIndex(idx);
+                    }}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/default-cover.png";
+                      if (idx === lastLoadedIndex + 1) setLastLoadedIndex(idx);
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-300 animate-pulse" />
+                )}
               </div>
               <div className="flex flex-col justify-center items-center text-center w-full">
                 <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg">
