@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import ButtonAnimated from "../../components/ButtonAnimated";
 import { IoIosArrowDown } from "react-icons/io";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { getMangas } from "../../services/mangaService";
 import {
   enrichMangas,
@@ -18,6 +18,7 @@ export default function LatestRelease() {
   const [error, setError] = useState(null);
   const [autoLoadFinished, setAutoLoadFinished] = useState(false);
   const offsetRef = useRef(0);
+  const navigate = useNavigate();
 
   const loadLatestManga = useCallback(async () => {
     if (loading || autoLoadFinished) return;
@@ -98,6 +99,9 @@ export default function LatestRelease() {
   const itemSpacing = 16;
   const totalWidth = mangas.length * (itemWidth + itemSpacing) - itemSpacing;
 
+  const dragRefs = useRef({});
+  const isDragging = useRef(false);
+
   return (
     <div className="flex flex-col items-center justify-center gap-8 mx-3 lg:my-8 lg:gap-y-12">
       <div className="flex w-full h-full">
@@ -152,9 +156,7 @@ export default function LatestRelease() {
       {/* Desktop */}
       <div className="hidden lg:block relative w-full overflow-hidden px-6 my-2">
         <div className="absolute top-0 left-0 h-full w-24 z-10 pointer-events-none bg-gradient-to-r from-dark-bg via-dark-bg/70 to-transparent" />
-
         <div className="absolute top-0 right-0 h-full w-24 z-10 pointer-events-none bg-gradient-to-l from-dark-bg via-dark-bg/70 to-transparent" />
-
         <motion.div
           ref={carouselRef}
           className="flex space-x-4"
@@ -164,19 +166,36 @@ export default function LatestRelease() {
             left: Math.min(0, -(totalWidth - containerWidth + 48 * 2)),
           }}
           whileTap={{ cursor: "grabbing" }}
+          onDragStart={() => {
+            isDragging.current = true;
+          }}
+          onDragEnd={() => {
+            isDragging.current = false;
+          }}
         >
-          {mangas.map((manga, index) => (
-            <NavLink
-              key={index}
-              to={`/Comics/${manga.id}/${slugify(manga.title)}`}
-            >
+          {mangas.map((manga, index) => {
+            if (!dragRefs.current[index]) {
+              dragRefs.current[index] = { dragStartX: null, dragMoved: false };
+            }
+            const ref = dragRefs.current[index];
+            return (
               <motion.div
+                key={index}
                 className="flex flex-col items-center gap-2"
                 style={{ minWidth: `${itemWidth}px` }}
               >
-                <div className="w-[240px] h-[360px] bg-gray-200 flex items-center justify-center">
+                <div
+                  className="w-[240px] h-[360px] bg-gray-200 flex items-center justify-center cursor-pointer"
+                  onClick={() => {
+                    if (!isDragging.current) {
+                      navigate(`/Comics/${manga.id}/${slugify(manga.title)}`);
+                    }
+                  }}
+                  tabIndex={0}
+                  aria-label={`Voir la fiche de ${manga.title}`}
+                >
                   <img
-                    className="w-full h-full object-cover cursor-pointer "
+                    className="w-full h-full object-cover"
                     src={manga.coverUrl}
                     alt="Manga Cover"
                     draggable={false}
@@ -189,8 +208,8 @@ export default function LatestRelease() {
                   <p className="">Chapitre n°{manga.chapterNumber}</p>
                 </div>
               </motion.div>
-            </NavLink>
-          ))}
+            );
+          })}
         </motion.div>
       </div>
 

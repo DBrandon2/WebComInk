@@ -141,7 +141,7 @@ export default function ProfileForm({ data, onCancel, onSubmit }) {
             } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150`}
           />
           <p className="mt-1 text-xs text-gray-500">
-            Une brêve description vous concernant. Maximum 200 caractères.
+            Une brève description vous concernant. Maximum 200 caractères.
           </p>
           {errors.bio && (
             <p className="mt-1 text-xs text-red-500">{errors.bio.message}</p>
