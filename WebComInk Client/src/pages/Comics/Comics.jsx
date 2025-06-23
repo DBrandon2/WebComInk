@@ -10,22 +10,25 @@ import { useLocation } from "react-router-dom";
 
 export default function Comics() {
   const location = useLocation();
-  const initialSort = location.state?.sort || "Popularité"; // Utilise "Chapitres récents" si passé, sinon "Popularité"
+  const initialSort = location.state?.sort || "Popularité";
   const [sort, setSort] = useState(initialSort);
   const [activeFilter, setActiveFilter] = useState("enCours");
-  const [previousFilter, setPreviousFilter] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [excludedGenres, setExcludedGenres] = useState([]);
 
   const handleSwitchClick = (newFilter) => {
-     console.log("Switch clicked:", newFilter);
-    setPreviousFilter(activeFilter);
-    setActiveFilter(newFilter);
+    // Convertir les valeurs d'affichage vers les valeurs backend
+    if (newFilter === "En cours") {
+      setActiveFilter("enCours");
+    } else if (newFilter === "Terminé") {
+      setActiveFilter("termine");
+    } else {
+      setActiveFilter(newFilter);
+    }
   };
 
   const handleAllClick = () => {
-    setPreviousFilter(activeFilter);
     setActiveFilter("tous");
   };
 
@@ -83,7 +86,6 @@ export default function Comics() {
           btnleft="En cours"
           btnright="Terminé"
           activeFilter={activeFilter}
-          previousFilter={previousFilter}
           onSwitchClick={handleSwitchClick}
         />
 

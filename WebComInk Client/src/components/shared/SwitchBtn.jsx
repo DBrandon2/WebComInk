@@ -5,70 +5,40 @@ export default function SwitchBtn({
   btnleft,
   btnright,
   activeFilter,
-  previousFilter,
   onSwitchClick,
 }) {
-  // Logique pour les différents contextes d'utilisation
-  const isComingFromTous = previousFilter === "tous";
-  const isEnCours = activeFilter === "enCours";
-  const isTermine = activeFilter === "termine";
-  const isConnexion = activeFilter === "Connexion";
-  const isInscription = activeFilter === "Inscription";
+  // Conversion des valeurs backend vers les valeurs d'affichage pour la comparaison
+  const getDisplayValue = (backendValue) => {
+    if (backendValue === "enCours") return "En cours";
+    if (backendValue === "termine") return "Terminé";
+    return backendValue;
+  };
 
-  let initialLeft = "0%";
-  let isLeftActive = false;
-  let isRightActive = false;
+  const displayActiveFilter = getDisplayValue(activeFilter);
 
-  // Logique pour le contexte manga (enCours/termine)
-  if (
-    activeFilter === "enCours" ||
-    activeFilter === "termine" ||
-    previousFilter === "enCours" ||
-    previousFilter === "termine" ||
-    previousFilter === "tous"
-  ) {
-    if (isComingFromTous) {
-      initialLeft = isEnCours ? "-50%" : "100%"; // slide depuis hors écran à gauche ou droite
-    } else if (previousFilter === "enCours" && activeFilter === "termine") {
-      initialLeft = "0%"; // barre part de gauche et glisse vers droite
-    } else if (previousFilter === "termine" && activeFilter === "enCours") {
-      initialLeft = "50%"; // barre part de droite et glisse vers gauche
-    } else {
-      initialLeft = isEnCours ? "0%" : "50%";
-    }
-    isLeftActive = isEnCours;
-    isRightActive = isTermine;
-  }
-  // Logique pour le contexte auth (Connexion/Inscription)
-  else {
-    if (previousFilter === "Connexion" && activeFilter === "Inscription") {
-      initialLeft = "0%"; // barre part de gauche et glisse vers droite
-    } else if (
-      previousFilter === "Inscription" &&
-      activeFilter === "Connexion"
-    ) {
-      initialLeft = "50%"; // barre part de droite et glisse vers gauche
-    } else {
-      initialLeft = isConnexion ? "0%" : "50%";
-    }
-    isLeftActive = isConnexion;
-    isRightActive = isInscription;
-  }
+  // Comparaison avec les valeurs d'affichage
+  const isLeftActive = displayActiveFilter === btnleft;
+  const isRightActive = displayActiveFilter === btnright;
+  const isTous = activeFilter === "tous";
+
+  // Barre animée uniquement si un des deux boutons est actif (pas "tous")
+  const showBar = isLeftActive || isRightActive;
+  const barLeft = isLeftActive ? "0%" : "50%";
 
   return (
     <div className="relative flex w-full h-[64px] overflow-hidden bg-accent-hover rounded-lg">
       {/* Fond animé */}
-      {activeFilter !== "tous" && (
+      {showBar && (
         <motion.div
           className="absolute top-0 bottom-0 w-1/2 bg-accent z-0 rounded-lg cursor-pointer"
           style={{
             borderTopRightRadius: isLeftActive ? "0.5rem" : "0",
             borderBottomRightRadius: isLeftActive ? "0.5rem" : "0",
-            borderTopLeftRadius: isLeftActive ? "0" : "0.5rem",
-            borderBottomLeftRadius: isLeftActive ? "0" : "0.5rem",
+            borderTopLeftRadius: isRightActive ? "0.5rem" : "0",
+            borderBottomLeftRadius: isRightActive ? "0.5rem" : "0",
           }}
-          initial={{ left: initialLeft, opacity: 0 }}
-          animate={{ left: isLeftActive ? "0%" : "50%", opacity: 1 }}
+          initial={{ left: barLeft, opacity: 0 }}
+          animate={{ left: barLeft, opacity: 1 }}
           transition={{ type: "spring", stiffness: 250, damping: 20 }}
         />
       )}
@@ -77,7 +47,7 @@ export default function SwitchBtn({
       <div className="flex-1 relative z-10 overflow-hidden">
         <button
           className={`w-full h-full transition-colors duration-300 font-semibold relative z-10 cursor-pointer ${
-            isLeftActive ? "text-dark-bg" : "text-gray-400"
+            isLeftActive && showBar ? "text-dark-bg" : "text-gray-400"
           }`}
           onClick={() => onSwitchClick(btnleft)}
         >
@@ -89,7 +59,7 @@ export default function SwitchBtn({
       <div className="flex-1 relative z-10 overflow-hidden">
         <button
           className={`w-full h-full transition-colors duration-300 font-semibold relative z-10 cursor-pointer ${
-            isRightActive ? "text-dark-bg" : "text-gray-400"
+            isRightActive && showBar ? "text-dark-bg" : "text-gray-400"
           }`}
           onClick={() => onSwitchClick(btnright)}
         >
