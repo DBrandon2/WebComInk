@@ -7,6 +7,7 @@ import { getMangas } from "../../services/mangaService";
 import {
   enrichMangas,
   enrichMangasWithChapterNumbers,
+  slugify,
 } from "../../utils/mangaUtils";
 
 const BATCH_SIZE = 20;
@@ -121,25 +122,30 @@ export default function LatestRelease() {
 
       <div className="lg:hidden grid grid-cols-2 md:grid-cols-4 gap-x-2 gap-y-4">
         {mangas.slice(0, visibleCount).map((manga, index) => (
-          <div key={index} className="flex flex-col items-center gap-2">
-            <div className="w-[160px] h-[240px] bg-gray-200 flex items-center justify-center">
-              <img
-                className="w-full h-full object-cover"
-                src={manga.coverUrl}
-                alt="Manga Cover"
-              />
+          <NavLink
+            key={index}
+            to={`/Comics/${manga.id}/${slugify(manga.title)}`}
+          >
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-[160px] h-[240px] bg-gray-200 flex items-center justify-center">
+                <img
+                  className="w-full h-full object-cover"
+                  src={manga.coverUrl}
+                  alt="Manga Cover"
+                />
+              </div>
+              <div className="flex flex-col justify-center items-center w-[180px]">
+                <h3
+                  className={`font-medium text-accent text-center line-clamp-2 ${getTitleFontSize(
+                    manga.title
+                  )}`}
+                >
+                  {manga.title}
+                </h3>
+                <p className="">Chapitre n°{manga.chapterNumber}</p>
+              </div>
             </div>
-            <div className="flex flex-col justify-center items-center w-[180px]">
-              <h3
-                className={`font-medium text-accent text-center line-clamp-2 ${getTitleFontSize(
-                  manga.title
-                )}`}
-              >
-                {manga.title}
-              </h3>
-              <p className="">Chapitre n°{manga.chapterNumber}</p>
-            </div>
-          </div>
+          </NavLink>
         ))}
       </div>
 
@@ -160,26 +166,30 @@ export default function LatestRelease() {
           whileTap={{ cursor: "grabbing" }}
         >
           {mangas.map((manga, index) => (
-            <motion.div
+            <NavLink
               key={index}
-              className="flex flex-col items-center gap-2"
-              style={{ minWidth: `${itemWidth}px` }}
+              to={`/Comics/${manga.id}/${slugify(manga.title)}`}
             >
-              <div className="w-[240px] h-[360px] bg-gray-200 flex items-center justify-center">
-                <img
-                  className="w-full h-full object-cover cursor-pointer "
-                  src={manga.coverUrl}
-                  alt="Manga Cover"
-                  draggable={false}
-                />
-              </div>
-              <div className="flex flex-col justify-center items-center w-[240px]">
-                <h3 className="font-medium text-accent text-center line-clamp-2 text-lg tracking-wide">
-                  {manga.title}
-                </h3>
-                <p className="">Chapitre n°{manga.chapterNumber}</p>
-              </div>
-            </motion.div>
+              <motion.div
+                className="flex flex-col items-center gap-2"
+                style={{ minWidth: `${itemWidth}px` }}
+              >
+                <div className="w-[240px] h-[360px] bg-gray-200 flex items-center justify-center">
+                  <img
+                    className="w-full h-full object-cover cursor-pointer "
+                    src={manga.coverUrl}
+                    alt="Manga Cover"
+                    draggable={false}
+                  />
+                </div>
+                <div className="flex flex-col justify-center items-center w-[240px]">
+                  <h3 className="font-medium text-accent text-center line-clamp-2 text-lg tracking-wide">
+                    {manga.title}
+                  </h3>
+                  <p className="">Chapitre n°{manga.chapterNumber}</p>
+                </div>
+              </motion.div>
+            </NavLink>
           ))}
         </motion.div>
       </div>

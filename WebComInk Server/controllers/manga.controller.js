@@ -37,6 +37,11 @@ const getMangas = async (req, res) => {
       ? [req.query["excludedTags[]"]]
       : [];
 
+    let ids = [];
+    if (req.query.ids) {
+      ids = req.query.ids.split(",");
+    }
+
     const mangas = await fetchMangas({
       limit,
       lang,
@@ -46,6 +51,7 @@ const getMangas = async (req, res) => {
       status,
       includedTags,
       excludedTags,
+      ids,
     });
     res.json(mangas);
   } catch (error) {

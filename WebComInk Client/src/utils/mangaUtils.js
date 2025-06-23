@@ -239,3 +239,18 @@ export function filterSynopsis(description) {
   synopsis = synopsis.replace(/\n{2,}/g, "\n").trim();
   return synopsis;
 }
+
+/**
+ * Transforme une chaîne en slug URL-friendly
+ * @param {string} str
+ * @returns {string}
+ */
+export function slugify(str) {
+  return str
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}

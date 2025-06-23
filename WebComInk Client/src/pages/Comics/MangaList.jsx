@@ -3,7 +3,12 @@ import ButtonAnimated from "../../components/ButtonAnimated";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { getMangas } from "../../services/mangaService";
-import { enrichMangas } from "../../utils/mangaUtils";
+import {
+  enrichMangas,
+  enrichMangasWithChapterNumbers,
+  slugify,
+} from "../../utils/mangaUtils";
+import { NavLink } from "react-router-dom";
 
 const BATCH_SIZE = 18;
 const LIMIT_STEP = 300;
@@ -92,7 +97,14 @@ export default function MangaList({
       }
 
       const data = await getMangas(params);
-      const mangasWithDetails = enrichMangas(data.data);
+      let mangasWithDetails = enrichMangas(data.data);
+
+      // Si le tri est "Chapitres récents", enrichir avec les numéros de chapitres
+      if (sort === "Chapitres récents") {
+        mangasWithDetails = await enrichMangasWithChapterNumbers(
+          mangasWithDetails
+        );
+      }
 
       if (mangasWithDetails.length === 0) {
         setAutoLoadFinished(true);
@@ -158,42 +170,55 @@ export default function MangaList({
       >
         {mangas.map((manga, idx) => (
           <motion.div key={manga.id} variants={itemVariants}>
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-[160px] h-[240px] lg:w-[240px] lg:h-[360px] bg-gray-200 relative overflow-hidden">
-                {idx <= lastLoadedIndex + 1 ? (
-                  <img
-                    src={manga.coverUrl || "/default-cover.png"}
-                    alt={`${manga.title} cover`}
-                    className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
-                    loading="lazy"
-                    onLoad={(e) => {
-                      e.target.classList.remove("opacity-0");
-                      if (idx === lastLoadedIndex + 1) setLastLoadedIndex(idx);
-                    }}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "/default-cover.png";
-                      if (idx === lastLoadedIndex + 1) setLastLoadedIndex(idx);
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-300 animate-pulse" />
-                )}
-              </div>
-              <div className="flex flex-col justify-center items-center text-center w-full">
-                <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg">
-                  {manga.title}
-                </h3>
-                <span className="text-xs text-gray-400 md:text-sm line-clamp-2">
-                  Auteur : {manga.authorName}
-                </span>
-                {manga.artistName !== manga.authorName && (
-                  <span className="text-xs text-gray-400 md:text-sm line-clamp-2">
-                    Artiste : {manga.artistName}
+            <NavLink to={`/Comics/${manga.id}/${slugify(manga.title)}`}>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-[160px] h-[240px] lg:w-[240px] lg:h-[360px] bg-gray-200 relative overflow-hidden">
+                  {idx <= lastLoadedIndex + 1 ? (
+                    <img
+                      src={manga.coverUrl || "/default-cover.png"}
+                      alt={`${manga.title} cover`}
+                      className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
+                      loading="lazy"
+                      onLoad={(e) => {
+                        e.target.classList.remove("opacity-0");
+                        if (idx === lastLoadedIndex + 1)
+                          setLastLoadedIndex(idx);
+                      }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/default-cover.png";
+                        if (idx === lastLoadedIndex + 1)
+                          setLastLoadedIndex(idx);
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-300 animate-pulse" />
+                  )}
+                </div>
+                <div className="flex flex-col justify-center items-center text-center w-full">
+                  <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg cursor-pointer">
+                    {manga.title}
+                  </h3>
+
+                  <span className="text-xs text-gray-400 md:text-sm line-clamp-1">
+                    Auteur : {manga.authorName}
                   </span>
-                )}
+                  {manga.artistName !== manga.authorName && (
+                    <span className="text-xs text-gray-400 md:text-sm line-clamp-1">
+                      Artiste : {manga.artistName}
+                    </span>
+                  )}
+                  {/* Afficher le dernier chapitre uniquement si le tri est "Chapitres récents" */}
+                  {sort === "Chapitres récents" &&
+                    manga.latestChapterNumber &&
+                    manga.latestChapterNumber !== "N/A" && (
+                      <span className="text-xs text-wh font-light underline md:text-sm mb-1 cursor-pointer">
+                        Chapitre {manga.latestChapterNumber}
+                      </span>
+                    )}
+                </div>
               </div>
-            </div>
+            </NavLink>
           </motion.div>
         ))}
 

@@ -6,6 +6,7 @@ import {
   enrichMangas,
   getChapterDetails,
   filterSynopsis,
+  slugify,
 } from "../../utils/mangaUtils";
 
 // Shuffle déterministe basé sur une seed (ici, la date du jour)
@@ -124,18 +125,25 @@ export default function Discover() {
       ) : mangaOfTheDay ? (
         <div className="flex flex-col items-center w-full lg:flex-row lg:justify-center lg:gap-8 xl:gap-24">
           {/* Image */}
-          <div className="flex justify-center w-full mb-4 lg:mb-0 lg:w-[500px] lg:h-[700px]">
+          <NavLink
+            to={`/Comics/${mangaOfTheDay.id}/${slugify(mangaOfTheDay.title)}`}
+            className="flex justify-center w-full mb-4 lg:mb-0 lg:w-[500px] lg:h-[700px] group"
+            aria-label={`Voir la fiche de ${mangaOfTheDay.title}`}
+          >
             <img
               src={getBestCoverUrl(mangaOfTheDay)}
               alt={mangaOfTheDay.title}
-              className="w-[380px] h-[570px] md:w-[520px] md:h-[750px] lg:w-full lg:h-full object-cover mx-auto"
+              className="w-[380px] h-[570px] md:w-[520px] md:h-[750px] lg:w-full lg:h-full object-cover mx-auto transition-transform group-hover:scale-105"
             />
-          </div>
+          </NavLink>
           {/* Infos */}
           <div className="flex flex-col justify-start items-center text-center lg:items-start lg:text-start w-full gap-3 lg:w-[40%] mt-2">
-            <h2 className="font-bold text-xl text-accent text-center lg:text-3xl lg:tracking-wider lg:w-full lg:text-start lg:mb-8">
+            <NavLink
+              to={`/Comics/${mangaOfTheDay.id}/${slugify(mangaOfTheDay.title)}`}
+              className="font-bold text-xl text-accent text-center lg:text-3xl lg:tracking-wider lg:w-full lg:text-start lg:mb-8 cursor-pointer hover:underline"
+            >
               {mangaOfTheDay.title}
-            </h2>
+            </NavLink>
             <div className="flex w-full justify-center lg:justify-start">
               <p>
                 <span className="font-semibold">Auteur :</span>{" "}
@@ -168,12 +176,21 @@ export default function Discover() {
               </p>
               <span className="w-[90%] h-[1px] mt-3 bg-accent"></span>
             </div>
+            <div className="lg:hidden w-full mt-4">
+              <NavLink
+                to={`/Comics/${mangaOfTheDay.id}/${slugify(
+                  mangaOfTheDay.title
+                )}`}
+              >
+                <ButtonAnimated
+                  text={["En savoir plus"]}
+                  justify="justify-end"
+                />
+              </NavLink>
+            </div>
           </div>
         </div>
       ) : null}
-      <div className="lg:hidden">
-        <ButtonAnimated text={["En savoir plus"]} justify="justify-end" />
-      </div>
     </div>
   );
 }

@@ -59,6 +59,7 @@ async function fetchMangas({
   status = {},
   includedTags = [],
   excludedTags = [],
+  ids = [],
 }) {
   console.log("MANGAAPI ORDER : ", order);
   const includedTagIds = includedTags
@@ -78,6 +79,7 @@ async function fetchMangas({
     ...(status ? { status: [status] } : {}),
     ...(includedTagIds.length > 0 && { includedTags: includedTagIds }),
     ...(excludedTagIds.length > 0 && { excludedTags: excludedTagIds }),
+    ...(ids && ids.length > 0 && { ids }),
   };
 
   const key = getCacheKey(params);

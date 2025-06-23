@@ -22,8 +22,9 @@ import API from "./pages/Legal/API";
 import Contact from "./pages/Legal/Contact";
 import FAQ from "./pages/Legal/FAQ";
 import Media from "./pages/Legal/Media";
-// import ForgotPass from "./pages/forms/Security/ForgotPass";
-// import ResetPass from "./pages/forms/Security/ResetPass";
+import ForgotPass from ".//pages/forms/Security/ForgotPass";
+import ResetPass from "./pages/forms/Security/ResetPass";
+import ComicsDetails from "./pages/Comics/ComicsDetails";
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ export const router = createBrowserRouter([
         element: <Comics />,
       },
       {
+        path: "/Comics/:id/:slug",
+        element: <ComicsDetails />,
+      },
+      {
         path: "/Bibliothèque",
         element: <Library />,
       },
@@ -52,14 +57,14 @@ export const router = createBrowserRouter([
           </UserNotConnected>
         ),
       },
-      // {
-      //   path: "forgotpassword",
-      //   element: <ForgotPass/>,
-      // },
-      // {
-      //   path: "resetpassword",
-      //   element: <ResetPass />,
-      // },
+      {
+        path: "forgot-password",
+        element: <ForgotPass />,
+      },
+      {
+        path: "resetpassword",
+        element: <ResetPass />,
+      },
       {
         path: "/Profile",
         element: (

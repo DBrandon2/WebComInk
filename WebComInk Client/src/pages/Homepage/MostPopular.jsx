@@ -4,10 +4,10 @@ import image2 from "../../assets/MangaCover/OP manga cover.jpg";
 import image3 from "../../assets/MangaCover/Vinland-Saga-28.webp";
 import image4 from "../../assets/MangaCover/Sakamoto Cover.webp";
 import ButtonAnimated from "../../components/ButtonAnimated";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import banner from "../../assets/MangaCover/614cfc33-1ba5-44df-9a85-c1cb2d7f1e00.webp";
 import { getMangas } from "../../services/mangaService";
-import { enrichMangas } from "../../utils/mangaUtils";
+import { enrichMangas, slugify } from "../../utils/mangaUtils";
 import { getMangaCoverUrl } from "../../utils/mangaUtils";
 
 // Composant utilitaire pour clamp dynamique du nom d'auteur
@@ -41,7 +41,15 @@ export default function MostPopular() {
   const [mangas, setMangas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [columns, setColumns] = useState(3);
+  const [columns, setColumns] = useState(null);
+  const [pendingScroll, setPendingScroll] = useState(false);
+  const location = useLocation();
+
+  // Reset mangas à chaque retour/navigation sur la page
+  useEffect(() => {
+    setMangas([]);
+    setLoading(true);
+  }, [location]);
 
   // Détermine dynamiquement le nombre de colonnes selon la largeur de l'écran
   function getColumns() {
@@ -51,17 +59,22 @@ export default function MostPopular() {
     return 3; // mobile/sm
   }
 
+  // Initialise columns au mount
+  useEffect(() => {
+    setColumns(getColumns());
+  }, []);
+
   // Met à jour le nombre de colonnes au resize
   useEffect(() => {
     function handleResize() {
       setColumns(getColumns());
     }
-    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
+    if (columns === null) return;
     async function fetchPopularMangas() {
       setLoading(true);
       setError(null);
@@ -77,6 +90,12 @@ export default function MostPopular() {
         const data = await getMangas(params);
         const enriched = enrichMangas(data.data);
         setMangas(enriched);
+        // Si scroll mémorisé, déclenche la restauration après le rendu
+        const saved = sessionStorage.getItem("mostPopularScroll");
+        if (saved) {
+          setPendingScroll(parseInt(saved, 10));
+          sessionStorage.removeItem("mostPopularScroll");
+        }
       } catch (err) {
         setError("Erreur lors du chargement des mangas populaires.");
       } finally {
@@ -85,6 +104,16 @@ export default function MostPopular() {
     }
     fetchPopularMangas();
   }, [columns]);
+
+  // Restaure le scroll après le rendu effectif
+  useLayoutEffect(() => {
+    if (pendingScroll !== false) {
+      setTimeout(() => {
+        window.scrollTo(0, pendingScroll);
+      }, 0);
+      setPendingScroll(false);
+    }
+  }, [pendingScroll, mangas.length]);
 
   // Déterminer le manga à afficher en bannière (le plus populaire)
   const bannerManga = mangas.length > 0 ? mangas[0] : null;
@@ -125,18 +154,22 @@ export default function MostPopular() {
       <div className="flex flex-col items-center gap-y-4 md:gap-y-12 w-full">
         {/* Banner panoramique immersive alignée au contenu */}
         {/* Version md et + uniquement */}
-        <div className="relative hidden md:flex flex-row items-center justify-center gap-8 mb-6 mt-6 w-full max-w-full mx-auto h-[260px] md:h-[300px] xl:h-[320px] px-4 md:px-8">
-          {/* Image de fond floutée */}
-          {bannerManga && (
+        {bannerManga && (
+          <NavLink
+            to={`/Comics/${bannerManga.id}/${slugify(bannerManga.title)}`}
+            className="relative hidden md:flex flex-row items-center justify-center gap-8 mb-6 mt-6 w-full max-w-full mx-auto h-[260px] md:h-[300px] xl:h-[320px] px-4 md:px-8"
+            onClick={() =>
+              sessionStorage.setItem("mostPopularScroll", window.scrollY)
+            }
+          >
+            {/* Image de fond floutée */}
             <img
               src={getBannerCoverOriginalUrl(bannerManga)}
               alt={bannerManga.title}
               className="w-full h-full object-cover absolute top-0 left-0 blur-sm scale-110 z-0 transition-all duration-500 object-center"
               style={{ height: "100%", objectPosition: "center" }}
             />
-          )}
-          {/* Couverture nette à gauche */}
-          {bannerManga && (
+            {/* Couverture nette à gauche */}
             <div className="z-20 flex-shrink-0 flex flex-col items-center justify-center">
               <div className="shadow-2xl overflow-hidden bg-dark-bg/80 rounded-lg">
                 <img
@@ -147,9 +180,7 @@ export default function MostPopular() {
                 />
               </div>
             </div>
-          )}
-          {/* Infos à droite */}
-          {bannerManga && (
+            {/* Infos à droite */}
             <div className="z-20 flex flex-col justify-center items-start gap-4 ml-4 md:ml-8 bg-dark-bg/60 p-4 md:p-6 rounded-lg shadow-xl min-w-[180px] md:min-w-[280px] max-w-[320px] md:max-w-[420px] text-left">
               <h2 className="text-xl md:text-3xl text-accent font-medium tracking-wider">
                 {bannerManga.title}
@@ -170,8 +201,8 @@ export default function MostPopular() {
                   )}
               </div>
             </div>
-          )}
-        </div>
+          </NavLink>
+        )}
         {/* Version mobile : bannière classique mais dynamique (cover du manga le plus populaire, sans effet) */}
         <div className="relative flex md:hidden flex-col gap-2 mb-0 mt-6 w-full max-w-full mx-auto h-[180px]">
           {bannerManga && (
@@ -204,33 +235,40 @@ export default function MostPopular() {
         ) : (
           <div className="grid grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-3 md:gap-x-4 gap-y-6 w-full max-w-full 2xl:w-[90%] xl:gap-x-12 justify-center ">
             {mangasToShow.map((item, index) => (
-              <div
+              <NavLink
                 key={item.id || index}
-                className={`flex flex-col items-center gap-2 w-full ${
-                  index === 10 ? "hidden md:flex" : ""
-                }`}
+                to={`/Comics/${item.id}/${slugify(item.title)}`}
+                onClick={() =>
+                  sessionStorage.setItem("mostPopularScroll", window.scrollY)
+                }
               >
-                <div className="w-[95px] h-[140px] sm:w-[110px] sm:h-[165px] md:w-[140px] md:h-[210px] lg:w-[180px] lg:h-[270px] xl:w-[220px] xl:h-[330px] bg-gray-200 relative overflow-hidden">
-                  <img
-                    className="w-full h-full object-cover cursor-pointer transition-opacity duration-500"
-                    src={item.coverUrl}
-                    alt="Manga Cover"
-                  />
-                </div>
-                <div className="flex flex-col justify-center items-center text-center w-full">
-                  <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg">
-                    {item.title}
-                  </h3>
-                  <span className="text-xs text-gray-400 md:text-sm line-clamp-2">
-                    Auteur : {item.authorName}
-                  </span>
-                  {item.artistName && item.artistName !== item.authorName && (
+                <div
+                  className={`flex flex-col items-center gap-2 w-full ${
+                    index === 10 ? "hidden md:flex" : ""
+                  }`}
+                >
+                  <div className="w-[95px] h-[140px] sm:w-[110px] sm:h-[165px] md:w-[140px] md:h-[210px] lg:w-[180px] lg:h-[270px] xl:w-[220px] xl:h-[330px] bg-gray-200 relative overflow-hidden">
+                    <img
+                      className="w-full h-full object-cover cursor-pointer transition-opacity duration-500"
+                      src={item.coverUrl}
+                      alt="Manga Cover"
+                    />
+                  </div>
+                  <div className="flex flex-col justify-center items-center text-center w-full">
+                    <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg">
+                      {item.title}
+                    </h3>
                     <span className="text-xs text-gray-400 md:text-sm line-clamp-2">
-                      Artiste : {item.artistName}
+                      Auteur : {item.authorName}
                     </span>
-                  )}
+                    {item.artistName && item.artistName !== item.authorName && (
+                      <span className="text-xs text-gray-400 md:text-sm line-clamp-2">
+                        Artiste : {item.artistName}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </NavLink>
             ))}
           </div>
         )}
