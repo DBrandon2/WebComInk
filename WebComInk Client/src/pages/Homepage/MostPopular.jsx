@@ -171,7 +171,7 @@ export default function MostPopular() {
             />
             {/* Couverture nette à gauche */}
             <div className="z-20 flex-shrink-0 flex flex-col items-center justify-center">
-              <div className="shadow-2xl overflow-hidden bg-dark-bg/80 rounded-lg">
+              <div className="shadow-2xl overflow-hidden bg-dark-bg/80 ">
                 <img
                   src={getBannerCoverOriginalUrl(bannerManga)}
                   alt={bannerManga.title}
