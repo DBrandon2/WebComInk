@@ -97,8 +97,6 @@ export default function LatestRelease() {
   const itemSpacing = 16;
   const totalWidth = mangas.length * (itemWidth + itemSpacing) - itemSpacing;
 
-  console.log("MANGA : ", mangas);
-
   return (
     <div className="flex flex-col items-center justify-center gap-8 mx-3 lg:my-8 lg:gap-y-12">
       <div className="flex w-full h-full">

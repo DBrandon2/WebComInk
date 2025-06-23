@@ -40,15 +40,10 @@ export async function getMangas({
     params[`order[${key}]`] = value;
   });
 
-  console.log("MangaService Order:", order);
-  console.log("Status:", status);
-
   try {
     const res = await axios.get(`${API_BASE_URL}/manga`, { params });
-    console.log("[GET MANGAS] URL:", res.config.url);
     return res.data;
   } catch (error) {
-    console.error("[GET MANGAS] Erreur:", error);
     throw new Error(
       error.response?.data?.message ||
         "Erreur lors de la récupération des mangas"

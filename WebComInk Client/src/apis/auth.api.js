@@ -13,7 +13,7 @@ export async function signin(values) {
     const userConnected = await response.json();
     return userConnected;
   } catch (error) {
-    console.log(error);
+    // Erreur silencieuse
   }
 }
 
@@ -27,11 +27,9 @@ export async function signup(values) {
       },
     });
     const message = await response.json();
-    console.log(message);
-
     return message;
   } catch (error) {
-    console.log(error);
+    // Erreur silencieuse
   }
 }
 
@@ -53,7 +51,7 @@ export async function update(values) {
 
     return updatedUser;
   } catch (error) {
-    console.log(error);
+    // Erreur silencieuse
   }
 }
 
@@ -70,7 +68,7 @@ export async function updateAvatar(values) {
 
     return updatedUserAvatar;
   } catch (error) {
-    console.log(error);
+    // Erreur silencieuse
   }
 }
 
@@ -86,7 +84,7 @@ export async function getCurrentUser() {
       return null;
     }
   } catch (error) {
-    console.log(error);
+    // Erreur silencieuse
   }
 }
 

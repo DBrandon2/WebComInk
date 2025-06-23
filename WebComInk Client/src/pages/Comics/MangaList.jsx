@@ -70,7 +70,6 @@ export default function MangaList({
       }
 
       params.sort = sort;
-      console.log("Trié par :", { sort });
       switch (sort) {
         case "Popularité":
           params.order = { followedCount: "desc" };

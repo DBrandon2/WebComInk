@@ -34,19 +34,11 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: (
-          <UserNotConnected>
-            <Homepage />
-          </UserNotConnected>
-        ),
+        element: <Homepage />,
       },
       {
         path: "/Comics",
-        element: (
-          <UserNotConnected>
-            <Comics />
-          </UserNotConnected>
-        ),
+        element: <Comics />,
       },
       {
         path: "/Bibliothèque",

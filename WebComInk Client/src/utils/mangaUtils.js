@@ -202,3 +202,40 @@ export function getMangaChapterInfo(manga) {
     lastChapter: manga.attributes?.lastChapter || "N/A",
   };
 }
+
+/**
+ * Filtre la description pour ne garder que le synopsis (enlève liens, Wikipedia, prix, etc.)
+ * @param {string} description
+ * @returns {string}
+ */
+export function filterSynopsis(description) {
+  if (!description || typeof description !== "string") return "";
+  // On coupe à la première URL ou mot-clé connu
+  const stopWords = [
+    "wikipedia.org",
+    "http://",
+    "https://",
+    "www.",
+    "Nomination",
+    "Prix",
+    "Récompense",
+    "Award",
+    "ANN",
+    "Lien externe",
+    "External link",
+    "\n\n", // double saut de ligne
+  ];
+  let minIdx = description.length;
+  for (const word of stopWords) {
+    const idx = description.indexOf(word);
+    if (idx !== -1 && idx < minIdx) minIdx = idx;
+  }
+  let synopsis = description.slice(0, minIdx).trim();
+  // On enlève les liens markdown [texte](url)
+  synopsis = synopsis.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1");
+  // On enlève les liens HTML <a href=...>...</a>
+  synopsis = synopsis.replace(/<a [^>]+>(.*?)<\/a>/gi, "$1");
+  // On enlève les éventuels espaces ou sauts de ligne en trop
+  synopsis = synopsis.replace(/\n{2,}/g, "\n").trim();
+  return synopsis;
+}

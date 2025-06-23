@@ -1,23 +1,103 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ButtonAnimated from "../../components/ButtonAnimated";
-import image from "../../assets/MangaCover/OMRWP Cover.jpg";
 import { NavLink } from "react-router-dom";
+import { getMangas } from "../../services/mangaService";
+import {
+  enrichMangas,
+  getChapterDetails,
+  filterSynopsis,
+} from "../../utils/mangaUtils";
+
+// Shuffle déterministe basé sur une seed (ici, la date du jour)
+function seededRandom(seed) {
+  let x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+function getSeedFromDate() {
+  const now = new Date();
+  // Format AAAAMMJJ
+  return parseInt(
+    `${now.getFullYear()}${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}`,
+    10
+  );
+}
+function shuffleArraySeeded(array, seed) {
+  const arr = [...array];
+  let m = arr.length,
+    t,
+    i;
+  while (m) {
+    i = Math.floor(seededRandom(seed + m) * m--);
+    t = arr[m];
+    arr[m] = arr[i];
+    arr[i] = t;
+  }
+  return arr;
+}
+
+// Fonction utilitaire pour obtenir la meilleure qualité de cover
+function getBestCoverUrl(manga) {
+  const relationships = manga.originalData?.relationships || [];
+  const coverRel = relationships.find((rel) => rel.type === "cover_art");
+  const coverFileName = coverRel?.attributes?.fileName;
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  return coverFileName
+    ? `${API_BASE_URL}/covers/${manga.id}/${coverFileName}`
+    : "/default-cover.png";
+}
 
 export default function Discover() {
-  const dailyComics = {
-    title: "Omniscient Reader Viewpoint",
-    author: "UMI",
-    illustrator: "Sleepy-C",
-    genre: ["Action", "Adventure", "Fantasy"],
-    description: `Back then, Dok-Ja had no idea. He had no idea his favorite web novel 'Three Ways to Survive the Apocalypse' was going to come to life,
-      and that he would become the only person to know how the world was going to end.
-       He also had no idea he would end up becoming the protagonist of this novel-turned-reality. Now, Dok-Ja will go on a journey to change the course
-        of the story and save humankind once and for all.`,
-    status: "En cours",
-    image: image,
-    chapter: "252",
-  };
-  
+  const [mangaOfTheDay, setMangaOfTheDay] = useState(null);
+  const [chapterNumber, setChapterNumber] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchDailyManga() {
+      setLoading(true);
+      setError(null);
+      try {
+        const params = {
+          limit: 30, // Pool large pour la découverte
+          lang: "fr",
+          includes: ["cover_art", "author", "artist"],
+          sort: "Popularité",
+        };
+        const data = await getMangas(params);
+        const enriched = enrichMangas(data.data);
+        const seed = getSeedFromDate();
+        const shuffled = shuffleArraySeeded(enriched, seed);
+        setMangaOfTheDay(shuffled[0]);
+      } catch (err) {
+        setError("Erreur lors du chargement du manga du jour.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDailyManga();
+  }, []);
+
+  // Récupérer le numéro réel du chapitre quand mangaOfTheDay change
+  useEffect(() => {
+    async function fetchChapterNumber() {
+      if (
+        mangaOfTheDay &&
+        mangaOfTheDay.latestUploadedChapter &&
+        mangaOfTheDay.latestUploadedChapter !== "N/A"
+      ) {
+        const details = await getChapterDetails(
+          mangaOfTheDay.latestUploadedChapter
+        );
+        setChapterNumber(details.chapter);
+      } else {
+        setChapterNumber(null);
+      }
+    }
+    fetchChapterNumber();
+  }, [mangaOfTheDay]);
+
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-6 mx-3 lg:gap-y-12">
       <div className="flex w-full h-full xl:justify-center ">
@@ -28,7 +108,7 @@ export default function Discover() {
               Découverte du jour
             </h1>
             <h2 className="text-center lg:text-start font-light">
-              Découvre tout les jours une nouvelle oeuvre !
+              Découvre chaque jour une nouvelle œuvre !
             </h2>
           </div>
           <NavLink to="/comics" className="hidden lg:flex">
@@ -37,61 +117,60 @@ export default function Discover() {
         </div>
       </div>
 
-      <div className="lg:flex lg:justify-center lg:gap-8 xl:gap-24">
-        {/* Image */}
-        <div className="flex justify-center lg:bg-red-300 lg:w-[500px] lg:h-[700px]">
-          <img
-            src={dailyComics.image}
-            alt=""
-            className="lg:w-full lg:h-full object-cover"
-          />
-        </div>
-        {/* Infos */}
-        <div className="flex justify-start items-center text-center lg:text-start w-full flex-col gap-3 lg:w-[40%] mt-4">
-          <h2 className="font-bold text-xl text-accent text-center lg:text-3xl lg:tracking-wider lg:w-full lg:text-start lg:mb-8">
-            {dailyComics.title}
-          </h2>
-          <div className="flex w-full justify-center lg:justify-start">
-            <p>
-              <span className="font-semibold">Auteur :</span>{" "}
-              {dailyComics.author}
-            </p>
+      {loading ? (
+        <div className="text-accent text-lg">Chargement...</div>
+      ) : error ? (
+        <div className="text-red-400">{error}</div>
+      ) : mangaOfTheDay ? (
+        <div className="flex flex-col items-center w-full lg:flex-row lg:justify-center lg:gap-8 xl:gap-24">
+          {/* Image */}
+          <div className="flex justify-center w-full mb-4 lg:mb-0 lg:w-[500px] lg:h-[700px]">
+            <img
+              src={getBestCoverUrl(mangaOfTheDay)}
+              alt={mangaOfTheDay.title}
+              className="w-[380px] h-[570px] md:w-[520px] md:h-[750px] lg:w-full lg:h-full object-cover mx-auto"
+            />
           </div>
-          <div className="flex w-full justify-center lg:justify-start">
-            <p>
-              <span className="font-semibold">Artiste :</span>{" "}
-              {dailyComics.illustrator}
-            </p>
-          </div>
-          <div className="flex w-full justify-center lg:justify-start gap-1">
-            <span className="font-semibold">Genre : </span>
-            <div className="flex gap-2">
-              {dailyComics.genre.map((genre) => (
-                <span key={genre}>{genre}</span>
-              ))}
+          {/* Infos */}
+          <div className="flex flex-col justify-start items-center text-center lg:items-start lg:text-start w-full gap-3 lg:w-[40%] mt-2">
+            <h2 className="font-bold text-xl text-accent text-center lg:text-3xl lg:tracking-wider lg:w-full lg:text-start lg:mb-8">
+              {mangaOfTheDay.title}
+            </h2>
+            <div className="flex w-full justify-center lg:justify-start">
+              <p>
+                <span className="font-semibold">Auteur :</span>{" "}
+                {mangaOfTheDay.authorName}
+              </p>
+            </div>
+            {mangaOfTheDay.artistName &&
+              mangaOfTheDay.artistName !== mangaOfTheDay.authorName && (
+                <div className="flex w-full justify-center lg:justify-start">
+                  <p>
+                    <span className="font-semibold">Artiste :</span>{" "}
+                    {mangaOfTheDay.artistName}
+                  </p>
+                </div>
+              )}
+            <div className="flex w-full justify-center lg:justify-start gap-1">
+              <p>
+                <span className="font-semibold">Chapitres : </span>{" "}
+                {chapterNumber || mangaOfTheDay.chapter}
+              </p>
+            </div>
+            <div className="flex flex-col justify-center items-center w-full gap-2 mt-4">
+              <span className="w-[90%] h-[1px] bg-accent"></span>
+              <p className="description text-gray-200 text-center lg:text-start">
+                {filterSynopsis(
+                  mangaOfTheDay.originalData?.attributes?.description?.fr ||
+                    mangaOfTheDay.originalData?.attributes?.description?.en ||
+                    "Pas de description disponible."
+                )}
+              </p>
+              <span className="w-[90%] h-[1px] mt-3 bg-accent"></span>
             </div>
           </div>
-          <div className="flex w-full justify-center lg:justify-start">
-            <p>
-              <span className="font-semibold">Status :</span>{" "}
-              {dailyComics.status}
-            </p>
-          </div>
-          <div className="flex w-full justify-center lg:justify-start">
-            <p>
-              <span className="font-semibold">Nombre de chapitre :</span>{" "}
-              {dailyComics.chapter}
-            </p>
-          </div>
-          <div className="flex flex-col justify-center items-center w-full gap-2 mt-4">
-            <span className="w-[90%] h-[1px] bg-accent"></span>
-            <p className="description text-gray-200 text-center lg:text-start">
-              {dailyComics.description}
-            </p>
-            <span className="w-[90%] h-[1px] mt-3 bg-accent"></span>
-          </div>
         </div>
-      </div>
+      ) : null}
       <div className="lg:hidden">
         <ButtonAnimated text={["En savoir plus"]} justify="justify-end" />
       </div>

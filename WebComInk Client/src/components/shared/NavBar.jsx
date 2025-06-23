@@ -1,25 +1,28 @@
-import React from "react";
+import React, { useContext } from "react";
 import { FaHome } from "react-icons/fa";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { ImBooks } from "react-icons/im";
 import { FaUser } from "react-icons/fa6";
 import { IoSettingsSharp } from "react-icons/io5";
 import logo from "../../assets/logo/chat-mignon-baillant-somnolent-cartoon-vector-icon-illustration-concept-icone-nature-animale-isole-vecteur-premium-style-dessin-anime-plat.png";
+import defaultAvatar from "../../assets/defaultAvatar.jpg";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function NavBar() {
+  const { user } = useContext(AuthContext);
   const navItems = [
     { to: "/", icon: <FaHome /> },
     { to: "/Comics", icon: <HiOutlineMagnifyingGlass /> },
     { to: "/Bibliothèque", icon: <ImBooks /> },
-    { to: "/Auth", icon: <FaUser /> },
+    { to: user ? "/Profile" : "/Auth", icon: <FaUser /> },
     { to: "/Paramètres", icon: <IoSettingsSharp /> },
   ];
 
   return (
     <div>
-        {/* NAV MOBILE */}
+      {/* NAV MOBILE */}
       <nav className="bg-light-bg w-screen h-[64px] fixed bottom-0 lg:hidden z-50">
         <ul className="flex justify-around items-center h-full w-full relative">
           {navItems.map((item, index) => (
@@ -38,7 +41,11 @@ export default function NavBar() {
                     animate={{
                       y: isActive ? -30 : 0,
                       scale: isActive ? 1.2 : 1,
-                      transition: { type: "spring", stiffness: 300, damping: 20 },
+                      transition: {
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 20,
+                      },
                     }}
                   />
                   <motion.div
@@ -48,12 +55,25 @@ export default function NavBar() {
                     animate={{
                       y: isActive ? -30 : 0,
                       scale: isActive ? 1.2 : 1,
-                      transition: { type: "spring", stiffness: 300, damping: 20 },
+                      transition: {
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 20,
+                      },
                     }}
                   >
-                    {React.cloneElement(item.icon, {
-                      className: "text-[32px]",
-                    })}
+                    {/* Affichage conditionnel de l'avatar pour l'icône user */}
+                    {item.to === "/Auth" && user ? (
+                      <img
+                        src={user.avatar || defaultAvatar}
+                        alt="avatar utilisateur"
+                        className="w-8 h-8 rounded-full object-cover border-2 border-accent"
+                      />
+                    ) : (
+                      React.cloneElement(item.icon, {
+                        className: "text-[32px]",
+                      })
+                    )}
                   </motion.div>
 
                   {/* Point sous l'icon actif  */}
@@ -90,12 +110,21 @@ export default function NavBar() {
             <NavLink to="/Comics">Comics</NavLink>
             <NavLink to="/Bibliothèque">Bibliothèque</NavLink>
           </li>
-          <li className="flex-1 flex justify-end gap-8">
+          <li className="flex-1 flex justify-end items-center gap-8">
             <a href="">
               <HiOutlineMagnifyingGlass className="text-[32px]" />
             </a>
-            <NavLink to="/Auth">
-              <FaUser className="text-[32px]" />
+            <NavLink to={user ? "/Profile" : "/Auth"}>
+              {/* Affichage conditionnel de l'avatar pour l'icône user */}
+              {user ? (
+                <img
+                  src={user.avatar || defaultAvatar}
+                  alt="avatar utilisateur"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-accent"
+                />
+              ) : (
+                <FaUser className="text-[32px]" />
+              )}
             </NavLink>
             <NavLink to="/Paramètres">
               <IoSettingsSharp className="text-[32px]" />
