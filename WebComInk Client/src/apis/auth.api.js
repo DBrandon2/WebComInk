@@ -13,7 +13,7 @@ export async function signin(values) {
     const userConnected = await response.json();
     return userConnected;
   } catch (error) {
-    // Erreur silencieuse
+    console.log(error);
   }
 }
 
@@ -29,7 +29,7 @@ export async function signup(values) {
     const message = await response.json();
     return message;
   } catch (error) {
-    // Erreur silencieuse
+    console.log(error);
   }
 }
 
@@ -51,7 +51,7 @@ export async function update(values) {
 
     return updatedUser;
   } catch (error) {
-    // Erreur silencieuse
+    console.log(error);
   }
 }
 
@@ -68,13 +68,13 @@ export async function updateAvatar(values) {
 
     return updatedUserAvatar;
   } catch (error) {
-    // Erreur silencieuse
+    console.log(error);
   }
 }
 
 export async function getCurrentUser() {
   try {
-    const response = await fetch(`${BASE_URL}/auth/currentUser`, {
+    const response = await fetch(`${BASE_URL}/user/currentUser`, {
       method: "GET",
       credentials: "include",
     });
@@ -84,12 +84,12 @@ export async function getCurrentUser() {
       return null;
     }
   } catch (error) {
-    // Erreur silencieuse
+    console.log(error);
   }
 }
 
 export async function signOut() {
-  await fetch(`${BASE_URL}/auth/deleteToken`, {
+  await fetch(`${BASE_URL}/user/deleteToken`, {
     method: "DELETE",
     credentials: "include",
   });

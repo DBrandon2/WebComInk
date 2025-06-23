@@ -7,15 +7,20 @@ import { getCurrentUser } from "../../apis/auth.api";
 export default function AuthProvider({ children }) {
   const initialUser = useLoaderData();
   const [user, setUser] = useState(initialUser);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Hydrate depuis localStorage si besoin
   useEffect(() => {
-    if (!initialUser) {
-      const stored = localStorage.getItem("user");
-      if (stored) {
-        setUser(JSON.parse(stored));
+    async function hydrate() {
+      if (!initialUser) {
+        const stored = localStorage.getItem("user");
+        if (stored) {
+          setUser(JSON.parse(stored));
+        }
       }
+      setIsLoading(false);
     }
+    hydrate();
   }, [initialUser]);
 
   const login = async (credentials) => {
@@ -35,7 +40,7 @@ export default function AuthProvider({ children }) {
     localStorage.removeItem("user");
   };
   return (
-    <AuthContext.Provider value={{ user, login, logout, setUser }}>
+    <AuthContext.Provider value={{ user, login, logout, setUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
