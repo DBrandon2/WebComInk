@@ -17,16 +17,23 @@ export default function ComicsDetails() {
   const [error, setError] = useState(null);
   const [meanRating, setMeanRating] = useState(null);
 
-  // D'abord, on extrait descFr et descEn AVANT toute utilisation
-  const descFr = filterSynopsis(
-    manga?.originalData?.attributes?.description?.fr
+  // Extraction et fallback automatique du synopsis (fr > en)
+  const rawDescFr = manga?.originalData?.attributes?.description?.fr || "";
+  const rawDescEn = manga?.originalData?.attributes?.description?.en || "";
+  const descFrFiltered = filterSynopsis(rawDescFr);
+  const descEnFiltered = filterSynopsis(rawDescEn);
+  const descFr =
+    descFrFiltered && descFrFiltered.length > 0 ? descFrFiltered : rawDescFr;
+  const descEn =
+    descEnFiltered && descEnFiltered.length > 0 ? descEnFiltered : rawDescEn;
+  // Déterminer la langue par défaut : fr si dispo, sinon en
+  const hasFr = !!descFr && descFr.trim().length > 0;
+  const hasEn = !!descEn && descEn.trim().length > 0;
+  const [synopsisLang, setSynopsisLang] = useState(
+    hasFr ? "fr" : hasEn ? "en" : "fr"
   );
-  const descEn = filterSynopsis(
-    manga?.originalData?.attributes?.description?.en
-  );
-  // Puis on déclare synopsis
-  const [synopsisLang, setSynopsisLang] = useState("fr");
-  const synopsis = synopsisLang === "fr" ? descFr : descEn;
+  const synopsis =
+    synopsisLang === "fr" && hasFr ? descFr : hasEn ? descEn : "";
   // Puis le reste des hooks
   const [isFav, setIsFav] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -263,10 +270,16 @@ export default function ComicsDetails() {
               </span>
             </div>
             {/* Synopsis visible uniquement sur desktop */}
-            <div className="hidden md:block mt-2 text-white/90 text-sm drop-shadow-md max-h-[180px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-accent rounded-md">
+            <div
+              className={`hidden md:block mt-2 text-white/90 text-sm drop-shadow-md max-h-[180px] ${
+                isClamped
+                  ? "overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-accent"
+                  : ""
+              } rounded-md`}
+            >
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-semibold">Synopsis :</span>
-                {descFr && descEn && (
+                {hasFr && hasEn && descFr !== descEn && (
                   <button
                     className="px-2 py-0.5 rounded bg-accent/20 text-accent text-xs font-medium hover:bg-accent/40 transition cursor-pointer"
                     onClick={() =>
@@ -309,7 +322,7 @@ export default function ComicsDetails() {
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-2 justify-center mb-3">
             <span className="font-semibold text-accent">Synopsis :</span>
-            {descFr && descEn && (
+            {hasFr && hasEn && descFr !== descEn && (
               <button
                 className="px-2 py-0.5 rounded bg-accent/20 text-accent text-xs font-medium hover:bg-accent/40 transition"
                 onClick={() =>
