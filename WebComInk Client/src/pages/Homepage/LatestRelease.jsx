@@ -131,13 +131,17 @@ export default function LatestRelease() {
             to={`/Comics/${manga.id}/${slugify(manga.title)}`}
           >
             <div className="flex flex-col items-center gap-2">
-              <div className="w-[160px] h-[240px] bg-gray-200 flex items-center justify-center">
+              <motion.div
+                className="w-[160px] h-[240px] bg-gray-200 flex items-center justify-center"
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+              >
                 <img
                   className="w-full h-full object-cover"
                   src={manga.coverUrl}
                   alt="Manga Cover"
                 />
-              </div>
+              </motion.div>
               <div className="flex flex-col justify-center items-center w-[180px]">
                 <h3
                   className={`font-medium text-accent text-center line-clamp-2 ${getTitleFontSize(
@@ -184,8 +188,10 @@ export default function LatestRelease() {
                 className="flex flex-col items-center gap-2"
                 style={{ minWidth: `${itemWidth}px` }}
               >
-                <div
+                <motion.div
                   className="w-[240px] h-[360px] bg-gray-200 flex items-center justify-center cursor-pointer"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
                   onClick={() => {
                     if (!isDragging.current) {
                       navigate(`/Comics/${manga.id}/${slugify(manga.title)}`);
@@ -200,7 +206,7 @@ export default function LatestRelease() {
                     alt="Manga Cover"
                     draggable={false}
                   />
-                </div>
+                </motion.div>
                 <div className="flex flex-col justify-center items-center w-[240px]">
                   <h3 className="font-medium text-accent text-center line-clamp-2 text-lg tracking-wide">
                     {manga.title}

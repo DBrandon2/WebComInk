@@ -26,8 +26,8 @@ const itemVariants = {
 export default function MangaList({
   sort,
   filter,
-  includedGenres = [],
-  excludedGenres = [],
+  includedTags = [],
+  excludedTags = [],
 }) {
   const [mangas, setMangas] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -65,14 +65,14 @@ export default function MangaList({
         params.status = status;
       }
 
-      // Ajouter les genres inclus
-      if (includedGenres && includedGenres.length > 0) {
-        params.includedTags = includedGenres;
+      // Ajouter les tags inclus
+      if (includedTags && includedTags.length > 0) {
+        params.includedTags = includedTags;
       }
 
-      // Ajouter les genres exclus
-      if (excludedGenres && excludedGenres.length > 0) {
-        params.excludedTags = excludedGenres;
+      // Ajouter les tags exclus
+      if (excludedTags && excludedTags.length > 0) {
+        params.excludedTags = excludedTags;
       }
 
       params.sort = sort;
@@ -131,7 +131,7 @@ export default function MangaList({
     } finally {
       setLoading(false);
     }
-  }, [loading, autoLoadFinished, sort, filter, includedGenres, excludedGenres]);
+  }, [loading, autoLoadFinished, sort, filter, includedTags, excludedTags]);
 
   // Chargement automatique quand la fin est visible
   useEffect(() => {
@@ -147,7 +147,7 @@ export default function MangaList({
     setAutoLoadFinished(false);
     setError(null);
     setLastLoadedIndex(-1);
-  }, [sort, filter, includedGenres, excludedGenres]);
+  }, [sort, filter, includedTags, excludedTags]);
 
   if (error) return <p className="text-red-500">{error}</p>;
 
@@ -172,7 +172,11 @@ export default function MangaList({
           <motion.div key={manga.id} variants={itemVariants}>
             <NavLink to={`/Comics/${manga.id}/${slugify(manga.title)}`}>
               <div className="flex flex-col items-center gap-2">
-                <div className="w-[160px] h-[240px] lg:w-[240px] lg:h-[360px] bg-gray-200 relative overflow-hidden">
+                <motion.div
+                  className="w-[160px] h-[240px] lg:w-[240px] lg:h-[360px] bg-gray-200 relative overflow-hidden"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                >
                   {idx <= lastLoadedIndex + 1 ? (
                     <img
                       src={manga.coverUrl || "/default-cover.png"}
@@ -194,7 +198,7 @@ export default function MangaList({
                   ) : (
                     <div className="w-full h-full bg-gray-300 animate-pulse" />
                   )}
-                </div>
+                </motion.div>
                 <div className="flex flex-col justify-center items-center text-center w-full">
                   <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg cursor-pointer">
                     {manga.title}

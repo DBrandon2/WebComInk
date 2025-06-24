@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     screens: {
       ...defaultTheme.screens,
-      '3xl': '120rem', // Maintenant ça marche !
+      "3xl": "120rem", // Maintenant ça marche !
     },
     extend: {
       height: {
@@ -23,5 +23,5 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwind-scrollbar")],
 };

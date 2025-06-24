@@ -52,6 +52,13 @@ export function enrichMangas(mangas) {
       manga.attributes?.latestUploadedChapter || "N/A";
     const lastChapter = manga.attributes?.lastChapter || "N/A";
 
+    // Extraction et formatage des tags
+    const tags = (manga.attributes?.tags || []).map((tag) => ({
+      id: tag.id,
+      name: tag.attributes?.name || {},
+      group: tag.attributes?.group || null,
+    }));
+
     return {
       id: manga.id,
       title,
@@ -64,6 +71,7 @@ export function enrichMangas(mangas) {
       lastChapter,
       // Alias pour compatibilité avec l'ancien code
       chapter: latestUploadedChapter,
+      tags,
       // Conserver les données originales pour une utilisation future si nécessaire
       originalData: manga,
     };

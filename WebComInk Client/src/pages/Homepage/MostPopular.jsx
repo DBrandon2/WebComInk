@@ -9,6 +9,7 @@ import banner from "../../assets/MangaCover/614cfc33-1ba5-44df-9a85-c1cb2d7f1e00
 import { getMangas } from "../../services/mangaService";
 import { enrichMangas, slugify } from "../../utils/mangaUtils";
 import { getMangaCoverUrl } from "../../utils/mangaUtils";
+import { motion } from "framer-motion";
 
 // Composant utilitaire pour clamp dynamique du nom d'auteur
 function AuthorNameClamp({ name }) {
@@ -247,13 +248,17 @@ export default function MostPopular() {
                     index === 10 ? "hidden md:flex" : ""
                   }`}
                 >
-                  <div className="w-[95px] h-[140px] sm:w-[110px] sm:h-[165px] md:w-[140px] md:h-[210px] lg:w-[180px] lg:h-[270px] xl:w-[220px] xl:h-[330px] bg-gray-200 relative overflow-hidden">
+                  <motion.div
+                    className="w-[95px] h-[140px] sm:w-[110px] sm:h-[165px] md:w-[140px] md:h-[210px] lg:w-[180px] lg:h-[270px] xl:w-[220px] xl:h-[330px] bg-gray-200 relative overflow-hidden"
+                    whileHover={{ scale: 1.03 }}
+                    transition={{ duration: 0.18, ease: "easeOut" }}
+                  >
                     <img
                       className="w-full h-full object-cover cursor-pointer transition-opacity duration-500"
                       src={item.coverUrl}
                       alt="Manga Cover"
                     />
-                  </div>
+                  </motion.div>
                   <div className="flex flex-col justify-center items-center text-center w-full">
                     <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg">
                       {item.title}

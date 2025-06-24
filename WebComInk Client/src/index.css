@@ -86,19 +86,24 @@
   margin-right: 0.1rem;
 }
 
-/* Masquer la barre de défilement pour les navigateurs WebKit (Chrome, Safari) */
-.scrollBar::-webkit-scrollbar {
-  display: none;
+/* Scrollbar custom globale pour tout le site */
+html, body, * {
+  scrollbar-width: thin;
+  scrollbar-color: #edf060 #171219;
 }
 
-/* Masquer la barre de défilement pour Firefox */
-.scrollBar {
-  scrollbar-width: none; /* Masque la barre de défilement */
+/* Pour Webkit (Chrome, Edge, Safari) */
+html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-
-/* Masquer la barre de défilement pour Internet Explorer et Edge */
-.scrollBar {
-  -ms-overflow-style: none; /* Masque la barre de défilement */
+html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb, *::-webkit-scrollbar-thumb {
+  background: #edf060;
+  border-radius: 6px;
+}
+html::-webkit-scrollbar-track, body::-webkit-scrollbar-track, *::-webkit-scrollbar-track {
+  background: rgba(23, 18, 25, 0.6);
+  border-radius: 6px;
 }
 
 input:-webkit-autofill,
@@ -107,3 +112,19 @@ input:-webkit-autofill:focus {
   transition: background-color 5000s ease-in-out 0s;
   -webkit-text-fill-color: #fff !important;
 }
+
+/* Scrollbar custom pour le synopsis (compatible tailwind-scrollbar) */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+.scrollbar-thumb-accent {
+  scrollbar-color: #edf060 #171219;
+}
+.scrollbar-track-dark-bg\/60 {
+  background: rgba(23, 18, 25, 0.6);
+}
+
+/* SUPPRESSION des anciennes règles qui masquaient la scrollbar */
+/* .scrollBar::-webkit-scrollbar { display: none; } */
+/* .scrollBar { scrollbar-width: none; } */
+/* .scrollBar { -ms-overflow-style: none; } */

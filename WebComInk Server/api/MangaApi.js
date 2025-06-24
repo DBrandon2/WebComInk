@@ -62,12 +62,6 @@ async function fetchMangas({
   ids = [],
 }) {
   console.log("MANGAAPI ORDER : ", order);
-  const includedTagIds = includedTags
-    .map((genre) => GENRE_TAG_MAPPING[genre])
-    .filter(Boolean);
-  const excludedTagIds = excludedTags
-    .map((genre) => GENRE_TAG_MAPPING[genre])
-    .filter(Boolean);
 
   const params = {
     limit: limitVal,
@@ -77,8 +71,8 @@ async function fetchMangas({
     ...(includes.length > 0 && { includes }),
     ...(Object.keys(order).length > 0 && { order }),
     ...(status ? { status: [status] } : {}),
-    ...(includedTagIds.length > 0 && { includedTags: includedTagIds }),
-    ...(excludedTagIds.length > 0 && { excludedTags: excludedTagIds }),
+    ...(includedTags.length > 0 && { includedTags }),
+    ...(excludedTags.length > 0 && { excludedTags }),
     ...(ids && ids.length > 0 && { ids }),
   };
 

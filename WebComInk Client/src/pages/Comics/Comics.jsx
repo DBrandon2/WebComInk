@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TopBarMobile from "./TopBarMobile";
 import SwitchBtn from "../../components/shared/SwitchBtn";
 import SortComics from "./SortComics";
@@ -10,12 +10,40 @@ import { useLocation } from "react-router-dom";
 
 export default function Comics() {
   const location = useLocation();
-  const initialSort = location.state?.sort || "Popularité";
-  const [sort, setSort] = useState(initialSort);
-  const [activeFilter, setActiveFilter] = useState("enCours");
+  // Récupération des filtres depuis le sessionStorage si dispo
+  const getInitialFilters = () => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("comicsFilters"));
+      if (saved) {
+        return saved;
+      }
+    } catch {}
+    return {
+      sort: location.state?.sort || "Popularité",
+      activeFilter: "enCours",
+      selectedTags: [],
+      excludedTags: [],
+    };
+  };
+  const [sort, setSort] = useState(getInitialFilters().sort);
+  const [activeFilter, setActiveFilter] = useState(
+    getInitialFilters().activeFilter
+  );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [selectedGenres, setSelectedGenres] = useState([]);
-  const [excludedGenres, setExcludedGenres] = useState([]);
+  const [selectedTags, setSelectedTags] = useState(
+    getInitialFilters().selectedTags
+  );
+  const [excludedTags, setExcludedTags] = useState(
+    getInitialFilters().excludedTags
+  );
+
+  // Sauvegarde dans le sessionStorage à chaque changement de filtre
+  useEffect(() => {
+    sessionStorage.setItem(
+      "comicsFilters",
+      JSON.stringify({ sort, activeFilter, selectedTags, excludedTags })
+    );
+  }, [sort, activeFilter, selectedTags, excludedTags]);
 
   const handleSwitchClick = (newFilter) => {
     // Convertir les valeurs d'affichage vers les valeurs backend
@@ -44,9 +72,9 @@ export default function Comics() {
     setIsFilterOpen(false);
   };
 
-  const handleGenreChange = (genres) => {
-    setSelectedGenres(genres.included || []);
-    setExcludedGenres(genres.excluded || []);
+  const handleGenreChange = (tags) => {
+    setSelectedTags(tags.included || []);
+    setExcludedTags(tags.excluded || []);
   };
 
   return (
@@ -61,19 +89,17 @@ export default function Comics() {
             <h2 className="text-center lg:text-start font-light w-[90%]">
               Le catalogue complet de WebComInk à ta disposition!
             </h2>
-            {(selectedGenres.length > 0 || excludedGenres.length > 0) && (
+            {(selectedTags.length > 0 || excludedTags.length > 0) && (
               <div className="mt-2 text-sm text-accent">
-                {selectedGenres.length > 0 && (
+                {selectedTags.length > 0 && (
                   <span className="text-green-400">
-                    {selectedGenres.length} inclus
+                    {selectedTags.length} inclus
                   </span>
                 )}
-                {selectedGenres.length > 0 &&
-                  excludedGenres.length > 0 &&
-                  " • "}
-                {excludedGenres.length > 0 && (
+                {selectedTags.length > 0 && excludedTags.length > 0 && " • "}
+                {excludedTags.length > 0 && (
                   <span className="text-red-400">
-                    {excludedGenres.length} exclus
+                    {excludedTags.length} exclus
                   </span>
                 )}
               </div>
@@ -108,25 +134,23 @@ export default function Comics() {
       <MangaList
         sort={sort}
         filter={activeFilter}
-        includedGenres={selectedGenres}
-        excludedGenres={excludedGenres}
+        includedTags={selectedTags}
+        excludedTags={excludedTags}
       />
 
       {/* Bouton flottant pour mobile */}
       <FloatingFilterButton
         onClick={handleFilterToggle}
         isOpen={isFilterOpen}
-        hasActiveFilters={
-          selectedGenres.length > 0 || excludedGenres.length > 0
-        }
+        hasActiveFilters={selectedTags.length > 0 || excludedTags.length > 0}
       />
 
       {/* Interface de filtrage par genre */}
       <FilterGenreBtn
         isOpen={isFilterOpen}
         onClose={handleFilterClose}
-        selectedGenres={selectedGenres}
-        excludedGenres={excludedGenres}
+        selectedGenres={selectedTags}
+        excludedGenres={excludedTags}
         onGenreChange={handleGenreChange}
       />
     </div>
