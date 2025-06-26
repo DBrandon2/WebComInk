@@ -76,24 +76,26 @@ export default function MangaList({
       }
 
       params.sort = sort;
-      switch (sort) {
-        case "Popularité":
-          params.order = { followedCount: "desc" };
-          break;
-        case "Nouveaux mangas":
-          params.order = { createdAt: "desc" };
-          break;
-        case "A à Z":
-          params.order = { title: "asc" };
-          break;
-        case "Z à A":
-          params.order = { title: "desc" };
-          break;
-        case "Chapitres récents":
-          params.order = { updatedAt: "desc" };
-          break;
-        default:
-          break;
+      // Tri par date de parution si demandé dans le filtre
+      if (sort === "Chapitres récents") {
+        params.order = { updatedAt: "desc" };
+      } else {
+        switch (sort) {
+          case "Popularité":
+            params.order = { followedCount: "desc" };
+            break;
+          case "Nouveaux mangas":
+            params.order = { createdAt: "desc" };
+            break;
+          case "A à Z":
+            params.order = { title: "asc" };
+            break;
+          case "Z à A":
+            params.order = { title: "desc" };
+            break;
+          default:
+            break;
+        }
       }
 
       const data = await getMangas(params);

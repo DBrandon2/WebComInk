@@ -7,7 +7,9 @@ import { LuBookPlus } from "react-icons/lu";
 import { LuBookmarkX } from "react-icons/lu";
 import { FaEye } from "react-icons/fa";
 import { FaCalendarAlt } from "react-icons/fa";
+import { FiPlus } from "react-icons/fi";
 import axios from "axios";
+import TopBarMobile from "./TopBarMobile";
 
 export default function ComicsDetails() {
   const { id, slug } = useParams();
@@ -51,6 +53,46 @@ export default function ComicsDetails() {
   const authorRels = relationships.filter((rel) => rel.type === "author");
   const artistRels = relationships.filter((rel) => rel.type === "artist");
 
+  // Ajout du modal pour le titre complet
+  const [modalTitleOpen, setModalTitleOpen] = useState(false);
+  function TitleModal({ open, onClose, title }) {
+    if (!open) return null;
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="bg-dark-bg rounded-xl shadow-2xl p-6 w-full max-w-xs md:max-w-md relative mx-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-2 right-2 text-accent text-xl font-bold hover:text-white transition cursor-pointer"
+              onClick={onClose}
+              aria-label="Fermer"
+            >
+              ×
+            </button>
+            <h2 className="text-xl font-bold text-accent mb-4 text-center">
+              Titre complet
+            </h2>
+            <div className="text-white text-lg text-center break-words">
+              {title}
+            </div>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+
   // Fonction pour ouvrir le modal avec les infos
   function handleOpenModal(type, rel) {
     setModalData({ type, data: rel });
@@ -79,7 +121,7 @@ export default function ComicsDetails() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="bg-dark-bg rounded-xl shadow-2xl p-6 w-full max-w-md relative"
+            className="bg-dark-bg rounded-xl shadow-2xl p-6 w-full max-w-xs md:max-w-md relative mx-2"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -99,16 +141,30 @@ export default function ComicsDetails() {
             <div className="mb-2">
               <span className="font-semibold">ID :</span> {data?.id}
             </div>
-            {data?.attributes?.biography && (
-              <div className="mb-2">
-                <span className="font-semibold">Biographie :</span>
-                <div className="text-sm mt-1 whitespace-pre-line max-h-40 overflow-y-auto">
-                  {typeof data.attributes.biography === "string"
-                    ? data.attributes.biography
-                    : Object.values(data.attributes.biography)[0]}
-                </div>
+            <div className="mb-2">
+              <span className="font-semibold">Biographie :</span>
+              <div className="text-sm mt-1 whitespace-pre-line max-h-40 overflow-y-auto">
+                {(() => {
+                  const bio = data?.attributes?.biography;
+                  if (
+                    !bio ||
+                    (typeof bio === "string" && bio.trim() === "") ||
+                    (typeof bio === "object" &&
+                      Object.values(bio).every(
+                        (val) => !val || val.trim() === ""
+                      ))
+                  ) {
+                    return (
+                      <span className="italic text-gray-400">
+                        Biographie non disponible pour le moment.
+                      </span>
+                    );
+                  }
+                  if (typeof bio === "string") return bio;
+                  return Object.values(bio)[0];
+                })()}
               </div>
-            )}
+            </div>
             {data?.attributes?.twitter && (
               <div className="mb-2">
                 <span className="font-semibold">Twitter :</span>{" "}
@@ -127,6 +183,65 @@ export default function ComicsDetails() {
                 {data.attributes.website}
               </div>
             )}
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+
+  // Ajout de l'état pour le modal des tags
+  const [modalTagsOpen, setModalTagsOpen] = useState(false);
+  function TagsModal({ open, onClose, tags }) {
+    if (!open) return null;
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="bg-dark-bg rounded-xl shadow-2xl p-6 w-full max-w-xs md:max-w-md relative mx-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-2 right-2 text-accent text-xl font-bold hover:text-white transition cursor-pointer"
+              onClick={onClose}
+              aria-label="Fermer"
+            >
+              ×
+            </button>
+            <h2 className="text-xl font-bold text-accent mb-4 text-center">
+              Tous les tags
+            </h2>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {tags.map((tag, i) => (
+                <span
+                  key={tag.id || i}
+                  className="bg-accent/20 text-accent px-2 py-1 rounded text-xs font-medium shadow-sm drop-shadow-md whitespace-nowrap"
+                  style={{
+                    fontSize: "0.75rem",
+                    maxWidth: "120px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "inline-block",
+                  }}
+                >
+                  {tag.name?.fr ||
+                    tag.name?.en ||
+                    tag.name?.ja ||
+                    tag.name?.["ja-ro"] ||
+                    Object.values(tag.name || {})[0] ||
+                    "Tag"}
+                </span>
+              ))}
+            </div>
           </motion.div>
         </motion.div>
       </AnimatePresence>
@@ -250,8 +365,24 @@ export default function ComicsDetails() {
         onClose={handleCloseModal}
         info={modalData}
       />
+      {/* Modal titre complet */}
+      <TitleModal
+        open={modalTitleOpen}
+        onClose={() => setModalTitleOpen(false)}
+        title={manga.title}
+      />
+      {/* Modal tags complet */}
+      <TagsModal
+        open={modalTagsOpen}
+        onClose={() => setModalTagsOpen(false)}
+        tags={tags}
+      />
       {/* Section avec image de fond et bannière - hauteur fixe sur mobile */}
       <div className="relative w-full min-h-[400px] md:min-h-[500px] flex flex-col items-center justify-center">
+        {/* TopBarMobile au-dessus de l'image de fond */}
+        <div className="absolute top-0 left-0 w-full z-20 block md:hidden">
+          <TopBarMobile />
+        </div>
         {/* Fond flou en cover */}
         <div className="absolute inset-0 w-full h-full overflow-hidden -z-10">
           <img
@@ -276,7 +407,7 @@ export default function ComicsDetails() {
               />
             </motion.div>
             <motion.button
-              className={`w-full mt-3 px-3 py-4 rounded-md border transition-colors drop-shadow-md cursor-pointer text-center text-sm font-medium flex items-center justify-center gap-2
+              className={`w-full mt-3 px-3 py-2 rounded-md border transition-colors drop-shadow-md cursor-pointer text-center text-sm font-medium flex items-center justify-center gap-2
                 ${
                   isFav
                     ? "bg-accent text-dark-bg border-accent"
@@ -293,13 +424,35 @@ export default function ComicsDetails() {
             </motion.button>
           </div>
           {/* Infos */}
-          <div className="flex flex-col gap-3 items-center md:items-start w-full max-w-2xl h-[240px] md:h-[330px] justify-start">
-            <h1 className="text-3xl md:text-4xl font-bold text-accent drop-shadow-lg text-center md:text-left">
+          <div className="flex flex-col gap-2 md:gap-3 items-center md:items-start w-full max-w-3xl md:h-[330px] justify-start">
+            {/* Titre cliquable, réduit sur mobile, 2 lignes max */}
+            <h1
+              className="text-xl md:text-4xl font-bold text-accent drop-shadow-lg text-center md:text-left w-full cursor-pointer select-none line-clamp-2  md:whitespace-normal"
+              title={manga.title}
+              onClick={() => setModalTitleOpen(true)}
+              style={{
+                WebkitLineClamp: 2,
+                display: "-webkit-box",
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                paddingBottom: "0.3em",
+                ...(window.innerWidth >= 768
+                  ? {
+                      WebkitLineClamp: "unset",
+                      display: "block",
+                      WebkitBoxOrient: "unset",
+                      overflow: "visible",
+                      textOverflow: "unset",
+                    }
+                  : {}),
+              }}
+            >
               {manga.title}
             </h1>
-            <div className="flex flex-col md:flex-row gap-2 md:gap-6 mt-2 text-white/90 text-sm md:text-base drop-shadow-md">
-              <span>
-                Auteur :{" "}
+            <div className="flex flex-col gap-1 mt-2 text-white/90 text-sm md:text-base drop-shadow-md">
+              <span className="flex flex-row items-center gap-1">
+                <span>Auteur :</span>{" "}
                 {authorRels.length > 0 ? (
                   <span
                     className="font-semibold cursor-pointer line-clamp-1 md:line-clamp-2 hover:text-accent transition-all"
@@ -317,8 +470,8 @@ export default function ComicsDetails() {
               {artistRels.length > 0 &&
                 artistRels[0].attributes?.name !==
                   authorRels[0]?.attributes?.name && (
-                  <span>
-                    Artiste :{" "}
+                  <span className="flex flex-row items-center gap-1">
+                    <span>Artiste :</span>{" "}
                     <span
                       className="font-semibold cursor-pointer line-clamp-1 md:line-clamp-2 hover:text-accent transition-all"
                       title={artistRels[0].attributes?.name}
@@ -329,21 +482,67 @@ export default function ComicsDetails() {
                   </span>
                 )}
             </div>
+            {/* Affichage limité des tags sur mobile, complet sur desktop */}
             <div className="flex flex-wrap gap-2 mt-1">
               {tags.length > 0 ? (
-                tags.map((tag, i) => (
-                  <span
-                    key={tag.id || i}
-                    className="bg-accent/20 text-accent px-2 py-1 rounded text-xs font-medium shadow-sm drop-shadow-md"
-                  >
-                    {tag.name?.fr ||
-                      tag.name?.en ||
-                      tag.name?.ja ||
-                      tag.name?.["ja-ro"] ||
-                      Object.values(tag.name || {})[0] ||
-                      "Tag"}
+                <>
+                  {/* Mobile : seulement les 8 premiers tags, puis bouton */}
+                  <span className="md:hidden w-full flex flex-wrap justify-start text-left relative pr-8 max-h-[52px] overflow-hidden">
+                    {tags.slice(0, 8).map((tag, i) => (
+                      <span
+                        key={tag.id || i}
+                        className="bg-accent/20 text-accent px-2 py-1 rounded text-xs font-medium whitespace-nowrap mr-1 mb-1"
+                        style={{
+                          fontSize: "0.75rem",
+                          maxWidth: "120px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "inline-block",
+                        }}
+                      >
+                        {tag.name?.fr ||
+                          tag.name?.en ||
+                          tag.name?.ja ||
+                          tag.name?.["ja-ro"] ||
+                          Object.values(tag.name || {})[0] ||
+                          "Tag"}
+                      </span>
+                    ))}
+                    {tags.length > 8 && (
+                      <button
+                        className="absolute right-0 top-1/2 -translate-y-1/2 p-1 rounded-full bg-accent text-dark-bg hover:bg-accent/80 transition"
+                        style={{ lineHeight: 0 }}
+                        onClick={() => setModalTagsOpen(true)}
+                        aria-label="Voir tous les tags"
+                      >
+                        <FiPlus size={18} />
+                      </button>
+                    )}
                   </span>
-                ))
+                  {/* Desktop : tous les tags */}
+                  <span className="hidden md:flex flex-wrap gap-2">
+                    {tags.map((tag, i) => (
+                      <span
+                        key={tag.id || i}
+                        className="bg-accent/20 text-accent px-2 py-1 rounded text-xs font-medium shadow-sm drop-shadow-md whitespace-nowrap"
+                        style={{
+                          fontSize: "0.75rem",
+                          maxWidth: "120px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "inline-block",
+                        }}
+                      >
+                        {tag.name?.fr ||
+                          tag.name?.en ||
+                          tag.name?.ja ||
+                          tag.name?.["ja-ro"] ||
+                          Object.values(tag.name || {})[0] ||
+                          "Tag"}
+                      </span>
+                    ))}
+                  </span>
+                </>
               ) : (
                 <span className="text-gray-400 text-xs drop-shadow-md">
                   Aucun tag
@@ -378,7 +577,7 @@ export default function ComicsDetails() {
                   >
                     <polygon points="8,1 10.09,5.26 15,6.18 11.5,9.97 12.36,15 8,12.77 3.64,15 4.5,9.97 1,6.18 5.91,5.26" />
                   </svg>{" "}
-                  {rating}/5
+                  {rating}/10
                 </span>
                 <span className="flex items-center gap-1">
                   <FaEye size={15} className="text-accent" /> {views}
@@ -434,7 +633,7 @@ export default function ComicsDetails() {
       </div>
 
       {/* Synopsis mobile - en dehors de la section avec image de fond */}
-      <div className="block md:hidden w-full px-4 mb-8 bg-dark-bg">
+      <div className="block md:hidden w-full px-4 mb-8 bg-dark-bg mt-8">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-2 justify-center mb-3">
             <span className="font-semibold text-accent">Synopsis :</span>

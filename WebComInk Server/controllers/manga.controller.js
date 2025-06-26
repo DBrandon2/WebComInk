@@ -6,6 +6,8 @@ const orderMapping = {
   "A à Z": { title: "asc" },
   "Z à A": { title: "desc" },
   "Chapitres récents": { latestUploadedChapter: "desc" },
+  "Date de parution (récent)": { year: "desc" },
+  "Date de parution (ancien)": { year: "asc" },
 };
 
 const getMangas = async (req, res) => {

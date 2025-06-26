@@ -14,6 +14,7 @@ export async function getMangas({
   excludedTags = [],
   ids = null,
   title = null,
+  year = null,
 }) {
   const params = {
     limit,
@@ -33,6 +34,10 @@ export async function getMangas({
 
   if (title) {
     params.title = title;
+  }
+
+  if (year) {
+    params.year = Number(year);
   }
 
   // Ajouter les genres inclus

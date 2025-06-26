@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, Minus } from "lucide-react";
 
-import { getAllTags } from "../services/mangaService";
+import { getAllTags, getMangas } from "../services/mangaService";
 
 export default function FilterGenreBtn({
   isOpen,
@@ -10,6 +10,10 @@ export default function FilterGenreBtn({
   selectedGenres,
   excludedGenres,
   onGenreChange,
+  selectedYear,
+  onYearChange,
+  sortDate,
+  onSortDateChange,
 }) {
   const [allTags, setAllTags] = useState([]);
   const [loadingTags, setLoadingTags] = useState(false);
@@ -61,6 +65,7 @@ export default function FilterGenreBtn({
     onGenreChange({
       included: tempSelectedGenres,
       excluded: tempExcludedGenres,
+      year: selectedYear,
     });
     onClose();
   };

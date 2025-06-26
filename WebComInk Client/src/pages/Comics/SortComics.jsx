@@ -1,12 +1,28 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Flame, PlusCircle, ArrowDownAz, ArrowUpZa, Clock } from "lucide-react";
+import {
+  Flame,
+  PlusCircle,
+  ArrowDownAz,
+  ArrowUpZa,
+  Clock,
+  Calendar,
+  CalendarDays,
+} from "lucide-react";
 
 export default function SortComics({ activeSort, onSortChange }) {
   const sorts = [
     { label: "Popularité", icon: <Flame className="w-6 h-6 " /> },
     { label: "Chapitres récents", icon: <Clock className="w-6 h-6 " /> },
     { label: "Nouveaux mangas", icon: <PlusCircle className="w-6 h-6" /> },
+    {
+      label: "Date de parution (récent)",
+      icon: <Calendar className="w-6 h-6" />,
+    },
+    {
+      label: "Date de parution (ancien)",
+      icon: <CalendarDays className="w-6 h-6" />,
+    },
     { label: "A à Z", icon: <ArrowDownAz className="w-6 h-6 " /> },
     { label: "Z à A", icon: <ArrowUpZa className="w-6 h-6 " /> },
   ];
