@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMangas } from "../../services/mangaService";
 import { enrichMangas, slugify, filterSynopsis } from "../../utils/mangaUtils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { LuBookPlus } from "react-icons/lu";
 import { LuBookmarkX } from "react-icons/lu";
 import { FaEye } from "react-icons/fa";
@@ -41,6 +41,97 @@ export default function ComicsDetails() {
   const synopsisRefMobile = useRef(null); // Pour mobile
   const [isClamped, setIsClamped] = useState(false);
   const [isClampedMobile, setIsClampedMobile] = useState(false);
+
+  // Ajout pour le modal auteur/artiste
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(null); // { type: 'author'|'artist', data: {...} }
+
+  // Extraction détaillée des auteurs/artistes (objets complets)
+  const relationships = manga?.originalData?.relationships || [];
+  const authorRels = relationships.filter((rel) => rel.type === "author");
+  const artistRels = relationships.filter((rel) => rel.type === "artist");
+
+  // Fonction pour ouvrir le modal avec les infos
+  function handleOpenModal(type, rel) {
+    setModalData({ type, data: rel });
+    setModalOpen(true);
+  }
+  function handleCloseModal() {
+    setModalOpen(false);
+    setModalData(null);
+  }
+
+  // Composant modal
+  function AuthorArtistModal({ open, onClose, info }) {
+    if (!open || !info) return null;
+    const { type, data } = info;
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="bg-dark-bg rounded-xl shadow-2xl p-6 max-w-[90vw] w-full max-w-md relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-2 right-2 text-accent text-xl font-bold hover:text-white transition cursor-pointer"
+              onClick={onClose}
+              aria-label="Fermer"
+            >
+              ×
+            </button>
+            <h2 className="text-2xl font-bold text-accent mb-2">
+              {type === "author" ? "Auteur" : "Artiste"}
+            </h2>
+            <div className="mb-2">
+              <span className="font-semibold">Nom :</span>{" "}
+              {data?.attributes?.name || "Inconnu"}
+            </div>
+            <div className="mb-2">
+              <span className="font-semibold">ID :</span> {data?.id}
+            </div>
+            {data?.attributes?.biography && (
+              <div className="mb-2">
+                <span className="font-semibold">Biographie :</span>
+                <div className="text-sm mt-1 whitespace-pre-line max-h-40 overflow-y-auto">
+                  {typeof data.attributes.biography === "string"
+                    ? data.attributes.biography
+                    : Object.values(data.attributes.biography)[0]}
+                </div>
+              </div>
+            )}
+            {data?.attributes?.twitter && (
+              <div className="mb-2">
+                <span className="font-semibold">Twitter :</span>{" "}
+                {data.attributes.twitter}
+              </div>
+            )}
+            {data?.attributes?.pixiv && (
+              <div className="mb-2">
+                <span className="font-semibold">Pixiv :</span>{" "}
+                {data.attributes.pixiv}
+              </div>
+            )}
+            {data?.attributes?.website && (
+              <div className="mb-2">
+                <span className="font-semibold">Site web :</span>{" "}
+                {data.attributes.website}
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
 
   useEffect(() => {
     async function fetchManga() {
@@ -134,11 +225,11 @@ export default function ComicsDetails() {
   switch (statusRaw) {
     case "ongoing":
       status = "En cours";
-      statusColor = "bg-yellow-400";
+      statusColor = "bg-blue-400";
       break;
     case "completed":
       status = "Terminé";
-      statusColor = "bg-green-500";
+      statusColor = "bg-green-400";
       break;
     case "hiatus":
       status = "Hiatus";
@@ -154,6 +245,11 @@ export default function ComicsDetails() {
 
   return (
     <>
+      <AuthorArtistModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        info={modalData}
+      />
       {/* Section avec image de fond et bannière - hauteur fixe sur mobile */}
       <div className="relative w-full min-h-[400px] md:min-h-[500px] flex flex-col items-center justify-center">
         {/* Fond flou en cover */}
@@ -204,14 +300,34 @@ export default function ComicsDetails() {
             <div className="flex flex-col md:flex-row gap-2 md:gap-6 mt-2 text-white/90 text-sm md:text-base drop-shadow-md">
               <span>
                 Auteur :{" "}
-                <span className="font-semibold">{manga.authorName}</span>
+                {authorRels.length > 0 ? (
+                  <span
+                    className="font-semibold cursor-pointer line-clamp-1 md:line-clamp-2 hover:text-accent transition-all"
+                    title={authorRels[0].attributes?.name}
+                    onClick={() => handleOpenModal("author", authorRels[0])}
+                  >
+                    {authorRels[0].attributes?.name}
+                  </span>
+                ) : (
+                  <span className="font-semibold line-clamp-1 md:line-clamp-2">
+                    Inconnu
+                  </span>
+                )}
               </span>
-              {manga.artistName !== manga.authorName && (
-                <span>
-                  Artiste :{" "}
-                  <span className="font-semibold">{manga.artistName}</span>
-                </span>
-              )}
+              {artistRels.length > 0 &&
+                artistRels[0].attributes?.name !==
+                  authorRels[0]?.attributes?.name && (
+                  <span>
+                    Artiste :{" "}
+                    <span
+                      className="font-semibold cursor-pointer line-clamp-1 md:line-clamp-2 hover:text-accent transition-all"
+                      title={artistRels[0].attributes?.name}
+                      onClick={() => handleOpenModal("artist", artistRels[0])}
+                    >
+                      {artistRels[0].attributes?.name}
+                    </span>
+                  </span>
+                )}
             </div>
             <div className="flex flex-wrap gap-2 mt-1">
               {tags.length > 0 ? (
