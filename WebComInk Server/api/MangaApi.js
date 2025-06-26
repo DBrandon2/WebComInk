@@ -214,4 +214,5 @@ module.exports = {
   fetchCoverUrlByMangaId,
   fetchTags,
   fetchChapterById,
+  limit,
 };

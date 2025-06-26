@@ -1,6 +1,11 @@
 const express = require("express");
 const axios = require("axios");
+const { limit } = require("./MangaApi"); // Import de la limitation pLimit
 const router = express.Router();
+
+// Cache en mémoire pour les réponses at-home/server (clé = chapterId)
+const chapterImageCache = new Map();
+const CHAPTER_IMAGE_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
 async function tryFetch(url, headers) {
   try {
@@ -67,6 +72,68 @@ router.get("/chapter/:chapterId", async (req, res) => {
     }
     console.error("Erreur proxy chapter:", err.message);
     res.status(500).send("Erreur lors de la récupération du chapitre");
+  }
+});
+
+// Fonction utilitaire pour attendre un certain temps (en ms)
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Nouvelle route proxy pour les images de chapitre (at-home/server)
+router.get("/chapter-image/:chapterId", async (req, res) => {
+  const { chapterId } = req.params;
+  const url = `https://api.mangadex.org/at-home/server/${chapterId}`;
+  console.log(`[PROXY] Requête pour chapitre : ${chapterId}`);
+
+  // Vérifie le cache
+  const cached = chapterImageCache.get(chapterId);
+  if (cached && cached.expire > Date.now()) {
+    console.log(`[PROXY] Cache hit pour chapitre ${chapterId}`);
+    return res.json(cached.data);
+  }
+
+  try {
+    await delay(300); // Ajoute un délai de 300ms entre chaque requête
+    const response = await limit(() =>
+      axios.get(url, {
+        headers: {
+          "User-Agent": "WebComInk/1.0 (contact.webcomink@gmail.com)",
+          Origin: "https://web-com-ink.vercel.app",
+          Referer: "https://web-com-ink.vercel.app",
+        },
+      })
+    );
+    console.log(
+      `[PROXY] Succès chapitre ${chapterId} - Status: ${response.status}`
+    );
+    // Met en cache la réponse
+    chapterImageCache.set(chapterId, {
+      data: response.data,
+      expire: Date.now() + CHAPTER_IMAGE_CACHE_TTL,
+    });
+    res.json(response.data);
+  } catch (err) {
+    if (err.response) {
+      console.error(
+        `[PROXY] Erreur chapitre ${chapterId} - Status: ${err.response.status} - Data:`,
+        err.response.data
+      );
+      if (err.response.status === 404) {
+        return res.status(404).send("Données d'image non trouvées");
+      }
+      if (err.response.status === 429) {
+        return res.status(429).send("Trop de requêtes vers MangaDex (429)");
+      }
+    } else {
+      console.error(
+        `[PROXY] Erreur réseau ou inconnue pour chapitre ${chapterId}:`,
+        err.message
+      );
+    }
+    res
+      .status(500)
+      .send("Erreur lors de la récupération des données d'image de chapitre");
   }
 });
 

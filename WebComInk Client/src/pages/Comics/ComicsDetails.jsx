@@ -10,6 +10,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { FiPlus } from "react-icons/fi";
 import axios from "axios";
 import TopBarMobile from "./TopBarMobile";
+import ChaptersList from "./ChaptersList";
 
 export default function ComicsDetails() {
   const { id, slug } = useParams();
@@ -628,6 +629,10 @@ export default function ComicsDetails() {
                 {synopsis}
               </motion.div>
             </div>
+            {/* Liste des chapitres sous la bannière/info en desktop */}
+            <div className="hidden md:block w-full max-w-5xl mx-auto">
+              <ChaptersList mangaId={manga.id} />
+            </div>
           </div>
         </div>
       </div>
@@ -704,6 +709,8 @@ export default function ComicsDetails() {
               </motion.div>
             )}
           </div>
+          {/* Liste des chapitres sous le synopsis en mobile */}
+          <ChaptersList mangaId={manga.id} />
         </div>
       </div>
     </>

@@ -13,6 +13,21 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      "/chapter-image": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/covers": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/chapter": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   test: {
