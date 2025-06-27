@@ -36,7 +36,7 @@ export default function TopBarMobile() {
   return (
     <div
       className={
-        "fixed top-0 left-0 w-full z-30 flex justify-between items-center px-3 py-2 bg-dark-bg/10 backdrop-blur-sm lg:hidden transition-transform duration-200"
+        "fixed top-0 left-0 w-full z-30 flex justify-between items-center px-3 py-2  lg:hidden transition-transform duration-200"
       }
       style={{
         minHeight: `${BAR_HEIGHT}px`,

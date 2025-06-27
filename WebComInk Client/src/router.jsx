@@ -1,30 +1,36 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
-import Auth from "./pages/forms/Auth";
-import ErrorPage from "./pages/ErrorPage";
-import Profile from "./pages/Profile/Profile";
-import Overview from "./pages/Profile/pages/Overview";
-import Data from "./pages/Profile/pages/Data";
-import UserConnected from "./components/ProtectedRoutes/UserConnected";
-import UserNotConnected from "./components/ProtectedRoutes/UserNotConnected";
+import React, { lazy } from "react";
 import { rootLoader } from "./loaders/rootLoader";
-import Homepage from "./pages/Homepage/Homepage";
-import Comics from "./pages/Comics/Comics";
-import Library from "./pages/Library/Library";
-import Settings from "./pages/Settings/Settings";
-import LegalMentions from "./pages/Legal/LegalMentions";
-import TermsOfUse from "./pages/Legal/TermsOfUse";
-import PrivacyPolicy from "./pages/Legal/PrivacyPolicy";
-import CookiesPolicy from "./pages/Legal/CookiesPolicy";
-import Support from "./pages/Legal/Support";
-import BugReport from "./pages/Legal/BugReport";
-import API from "./pages/Legal/API";
-import Contact from "./pages/Legal/Contact";
-import FAQ from "./pages/Legal/FAQ";
-import Media from "./pages/Legal/Media";
-import ForgotPass from ".//pages/forms/Security/ForgotPass";
-import ResetPass from "./pages/forms/Security/ResetPass";
-import ComicsDetails from "./pages/Comics/ComicsDetails";
+const Auth = lazy(() => import("./pages/forms/Auth"));
+const ErrorPage = lazy(() => import("./pages/ErrorPage"));
+const Profile = lazy(() => import("./pages/Profile/Profile"));
+const Overview = lazy(() => import("./pages/Profile/pages/Overview"));
+const Data = lazy(() => import("./pages/Profile/pages/Data"));
+const UserConnected = lazy(() =>
+  import("./components/ProtectedRoutes/UserConnected")
+);
+const UserNotConnected = lazy(() =>
+  import("./components/ProtectedRoutes/UserNotConnected")
+);
+const Homepage = lazy(() => import("./pages/Homepage/Homepage"));
+const Comics = lazy(() => import("./pages/Comics/Comics"));
+const Library = lazy(() => import("./pages/Library/Library"));
+const Settings = lazy(() => import("./pages/Settings/Settings"));
+const LegalMentions = lazy(() => import("./pages/Legal/LegalMentions"));
+const TermsOfUse = lazy(() => import("./pages/Legal/TermsOfUse"));
+const PrivacyPolicy = lazy(() => import("./pages/Legal/PrivacyPolicy"));
+const CookiesPolicy = lazy(() => import("./pages/Legal/CookiesPolicy"));
+const Support = lazy(() => import("./pages/Legal/Support"));
+const BugReport = lazy(() => import("./pages/Legal/BugReport"));
+const API = lazy(() => import("./pages/Legal/API"));
+const Contact = lazy(() => import("./pages/Legal/Contact"));
+const FAQ = lazy(() => import("./pages/Legal/FAQ"));
+const Media = lazy(() => import("./pages/Legal/Media"));
+const ForgotPass = lazy(() => import("./pages/forms/Security/ForgotPass"));
+const ResetPass = lazy(() => import("./pages/forms/Security/ResetPass"));
+const ComicsDetails = lazy(() => import("./pages/Comics/ComicsDetails"));
+const ChapterReader = lazy(() => import("./pages/Comics/ChapterReader"));
 
 export const router = createBrowserRouter([
   {
@@ -44,6 +50,10 @@ export const router = createBrowserRouter([
       {
         path: "/Comics/:id/:slug",
         element: <ComicsDetails />,
+      },
+      {
+        path: "/Comics/:mangaId/:slug/chapter/:chapterId",
+        element: <ChapterReader />,
       },
       {
         path: "/Bibliothèque",

@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import frFlag from "../../assets/flags/fr.svg";
 import enFlag from "../../assets/flags/en.svg";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { FaArrowDown91 } from "react-icons/fa6";
+import { FaArrowDown19 } from "react-icons/fa6";
 
 export default function ChaptersList({ mangaId }) {
+  const { slug } = useParams();
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,14 +16,29 @@ export default function ChaptersList({ mangaId }) {
   const pageSize = 5; // Nombre de chapitres par page
   const [cooldown, setCooldown] = useState(false); // Cooldown pagination
   const [selectedLang, setSelectedLang] = useState("fr");
+  const [detectedLangs, setDetectedLangs] = useState([]);
 
-  // Détecte les langues disponibles dans les chapitres
-  const availableLangs = React.useMemo(() => {
-    const langs = new Set(
-      chapters.map((ch) => ch.attributes.translatedLanguage)
-    );
-    return Array.from(langs);
-  }, [chapters]);
+  // Détection initiale des langues disponibles (fr/en uniquement)
+  useEffect(() => {
+    async function detectLangs() {
+      try {
+        const res = await fetch(
+          `https://api.mangadex.org/chapter?manga=${mangaId}&limit=100&translatedLanguage[]=fr&translatedLanguage[]=en&order[chapter]=desc`
+        );
+        const data = await res.json();
+        const langs = new Set(
+          (data.data || [])
+            .map((ch) => ch.attributes.translatedLanguage)
+            .filter((lang) => lang === "fr" || lang === "en")
+        );
+        setDetectedLangs(Array.from(langs));
+      } catch {}
+    }
+    if (mangaId) detectLangs();
+  }, [mangaId]);
+
+  // Les boutons de langue ne s'affichent que si la langue est détectée
+  const availableLangs = detectedLangs;
 
   // Sélectionne la langue par défaut (fr si dispo, sinon en)
   useEffect(() => {
@@ -35,7 +53,7 @@ export default function ChaptersList({ mangaId }) {
       setError(null);
       try {
         const res = await fetch(
-          `https://api.mangadex.org/chapter?manga=${mangaId}&limit=100&translatedLanguage[]=${selectedLang}&order[chapter]=desc`
+          `https://api.mangadex.org/chapter?manga=${mangaId}&limit=100&translatedLanguage[]=${selectedLang}&order[chapter]=desc&includes[]=scanlation_group`
         );
         const data = await res.json();
         setChapters(data.data || []);
@@ -90,14 +108,30 @@ export default function ChaptersList({ mangaId }) {
     let active = 0;
     let idx = 0;
     const maxSimultaneous = 3;
+    let cancelled = false;
+    const abortControllers = [];
 
     function fetchNext() {
+      if (cancelled) return;
       if (idx >= toFetch.length) return;
       if (active >= maxSimultaneous) return;
       const ch = toFetch[idx++];
       active++;
-      fetch(`/chapter-image/${ch.id}`)
-        .then((res) => res.json())
+      const controller = new AbortController();
+      abortControllers.push(controller);
+      fetch(`/chapter-image/${ch.id}`, { signal: controller.signal })
+        .then((res) => {
+          if (res.status === 429) {
+            // Trop de requêtes, on attend 1 seconde et on réessaie
+            setTimeout(() => {
+              active--;
+              idx--; // On remet l'index pour réessayer ce chapitre
+              fetchNext();
+            }, 1000);
+            return Promise.reject("429");
+          }
+          return res.json();
+        })
         .then((data) => {
           if (
             data.chapter &&
@@ -106,65 +140,95 @@ export default function ChaptersList({ mangaId }) {
             data.chapter.hash &&
             data.baseUrl
           ) {
-            // Prendre la 5ème image ou la dernière si moins de 5
             const files = data.chapter.data;
             const file = files[4] || files[files.length - 1];
             const url = `${data.baseUrl}/data/${data.chapter.hash}/${file}`;
             setChapterImages((prev) => {
               const updated = { ...prev, [ch.id]: url };
-              // sessionStorage est mis à jour automatiquement par l'autre useEffect
               return updated;
             });
           }
         })
-        .catch(() => {})
+        .catch((e) => {
+          // Si c'est une annulation, on ne fait rien
+        })
         .finally(() => {
           active--;
-          fetchNext();
+          setTimeout(fetchNext, 200); // Ajoute un délai de 200ms entre chaque fetch
         });
       if (active < maxSimultaneous) fetchNext();
     }
     for (let i = 0; i < maxSimultaneous; i++) fetchNext();
+
+    // Annule les requêtes en cours si on démonte ou change de page/langue
+    return () => {
+      cancelled = true;
+      abortControllers.forEach((ctrl) => ctrl.abort());
+    };
     // eslint-disable-next-line
   }, [chapters, reverse, page]);
 
+  // Composant placeholder pour le squelette de chapitre
+  function ChapterPlaceholder() {
+    return (
+      <div className="flex items-center gap-3 p-2 rounded bg-dark-bg/70 border border-accent/30 animate-pulse">
+        <div className="w-12 h-16 bg-gray-700 rounded flex-shrink-0" />
+        <div className="flex flex-col flex-1 min-w-0 gap-2">
+          <div className="h-4 bg-gray-600 rounded w-1/3" />
+          <div className="h-4 bg-gray-600 rounded w-2/3" />
+          <div className="h-3 bg-gray-700 rounded w-1/4" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full flex flex-col gap-2 mt-4">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-bold text-accent">Chapitres disponibles</h3>
-        <div className="flex items-center gap-2">
+    <div className="w-full flex flex-col gap-2 mt-4 mb-24 md:items-center">
+      <div className="flex items-center justify-between mb-2 md:mb-6 w-full md:max-w-3xl">
+        <h3 className="text-md font-medium text-accent md:text-2xl md:font-bold">
+          Chapitres disponibles
+        </h3>
+        <div className="flex items-center gap-2 md:gap-4">
           {availableLangs.length > 1 && (
             <div className="flex gap-1">
               {availableLangs.includes("fr") && (
                 <button
-                  className={`px-2 py-1 rounded text-xs font-semibold border ${
+                  className={`rounded text-xs font-semibold border transition-all duration-150 cursor-pointer ${
                     selectedLang === "fr"
-                      ? "bg-accent text-dark-bg border-accent"
-                      : "bg-dark-bg text-accent border-accent/50"
+                      ? "bg-accent text-dark-bg border-accent px-1.5 "
+                      : "bg-dark-bg text-accent border-transparent px-2 "
                   }`}
                   onClick={() => setSelectedLang("fr")}
                   disabled={selectedLang === "fr"}
                 >
-                  FR
+                  <img
+                    src={frFlag}
+                    alt="FR"
+                    className="w-7 h-6 inline-block align-middle rounded-sm cursor-pointer"
+                  />
                 </button>
               )}
               {availableLangs.includes("en") && (
                 <button
-                  className={`px-2 py-1 rounded text-xs font-semibold border ${
+                  className={`rounded text-xs font-semibold border transition-all duration-150 cursor-pointer ${
                     selectedLang === "en"
-                      ? "bg-accent text-dark-bg border-accent"
-                      : "bg-dark-bg text-accent border-accent/50"
+                      ? "bg-accent text-dark-bg border-accent px-1.5 py-0.5"
+                      : "bg-dark-bg text-accent border-transparent px-2 py-1"
                   }`}
                   onClick={() => setSelectedLang("en")}
                   disabled={selectedLang === "en"}
                 >
-                  EN
+                  <img
+                    src={enFlag}
+                    alt="EN"
+                    className="w-7 h-6 inline-block align-middle rounded-sm cursor-pointer"
+                  />
                 </button>
               )}
             </div>
           )}
           <button
-            className="px-3 py-1 rounded bg-accent text-dark-bg text-xs font-semibold hover:bg-accent/80 transition flex items-center justify-center"
+            className="px-3 py-1 rounded bg-accent text-dark-bg text-xs font-semibold hover:bg-accent/80 transition flex items-center justify-center cursor-pointer"
             onClick={() => setReverse((v) => !v)}
             aria-label={reverse ? "Ordre : plus récent" : "Ordre : plus ancien"}
           >
@@ -173,24 +237,38 @@ export default function ChaptersList({ mangaId }) {
                 reverse ? "scale-110" : "scale-100"
               }`}
             >
-              {reverse ? <FaArrowUp size={18} /> : <FaArrowDown size={18} />}
+              {reverse ? (
+                <FaArrowDown19 size={18} />
+              ) : (
+                <FaArrowDown91 size={18} />
+              )}
             </span>
           </button>
         </div>
       </div>
-      {loading && <div>Chargement des chapitres...</div>}
-      {error && <div className="text-red-500">{error}</div>}
+      {/* Liste des chapitres */}
+      {loading && (
+        <div className="flex flex-col gap-2 md:gap-4 w-full md:max-w-3xl">
+          {Array.from({ length: chaptersToShow.length || pageSize }).map(
+            (_, i) => (
+              <ChapterPlaceholder key={i} />
+            )
+          )}
+        </div>
+      )}
+      {!loading && error && <div className="text-red-500">{error}</div>}
       {!loading && !error && displayedChapters.length === 0 && (
         <div className="text-gray-400">Aucun chapitre disponible.</div>
       )}
       {!loading && !error && chaptersToShow.length > 0 && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 md:gap-4 w-full md:max-w-3xl">
           {chaptersToShow.map((ch, idx) => (
-            <div
+            <Link
               key={ch.id}
-              className="flex items-center gap-3 p-2 rounded bg-dark-bg/70 border border-accent/30"
+              to={`/Comics/${mangaId}/${slug}/chapter/${ch.id}`}
+              className="flex items-center gap-3 p-2 md:p-4 rounded bg-dark-bg/70  md:gap-6 md:min-h-[96px] hover:bg-dark-bg/90 hover:border-accent/50 transition-all duration-200 cursor-pointer"
             >
-              <div className="w-12 h-16 bg-gray-700 rounded flex-shrink-0 flex items-center justify-center overflow-hidden">
+              <div className="w-12 h-16 bg-gray-700 rounded flex-shrink-0 flex items-center justify-center overflow-hidden md:w-16 md:h-24">
                 {chapterImages[ch.id] ? (
                   <img
                     src={chapterImages[ch.id]}
@@ -207,7 +285,7 @@ export default function ChaptersList({ mangaId }) {
                     N° : {ch.attributes.chapter || "?"}
                   </span>
                   <span
-                    className="text-accent text-xs sm:text-sm flex items-center gap-2 flex-[3_1_0%] text-center break-words"
+                    className="text-accent text-xs sm:text-sm md:text-base flex items-center gap-2 flex-[3_1_0%] text-center break-words"
                     style={{
                       display: "-webkit-box",
                       WebkitLineClamp: 2,
@@ -235,11 +313,28 @@ export default function ChaptersList({ mangaId }) {
                           })()
                         : "Date inconnue"}
                     </span>
-                    <span className="hidden sm:inline">
+                    <span className="hidden sm:inline md:text-base">
                       {ch.attributes.publishAt
                         ? new Date(ch.attributes.publishAt).toLocaleDateString()
                         : "Date inconnue"}
                     </span>
+                    {/* Groupe de traduction (team) */}
+                    {ch.relationships &&
+                      ch.relationships.find(
+                        (rel) =>
+                          rel.type === "scanlation_group" &&
+                          rel.attributes?.name
+                      ) && (
+                        <span className="block text-[0.72rem] text-accent/80 mt-0.5 font-semibold truncate max-w-[120px]">
+                          {
+                            ch.relationships.find(
+                              (rel) =>
+                                rel.type === "scanlation_group" &&
+                                rel.attributes?.name
+                            ).attributes.name
+                          }
+                        </span>
+                      )}
                   </span>
                   {/* Drapeau langue */}
                   {ch.attributes.translatedLanguage === "fr" ? (
@@ -261,131 +356,185 @@ export default function ChaptersList({ mangaId }) {
                   )}
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
-          {/* Pagination intelligente */}
-          <div className="flex justify-center items-center gap-2 mt-2">
-            <button
-              className="px-2 py-1 bg-accent text-dark-bg rounded disabled:opacity-50"
-              onClick={() => {
-                if (!cooldown && page > 1) {
-                  setPage((p) => Math.max(1, p - 1));
-                  setCooldown(true);
-                  setTimeout(() => setCooldown(false), 500);
-                }
-              }}
-              disabled={page === 1 || cooldown}
+        </div>
+      )}
+      {!loading && !error && chaptersToShow.length > 0 && (
+        <div className="flex justify-center items-center gap-2 mt-2 md:mt-6 md:gap-4">
+          {/* Flèche gauche */}
+          <button
+            className="px-3 py-2 flex items-center justify-center rounded-md bg-accent text-dark-bg shadow-md transition hover:bg-accent/80 focus:outline-none focus:ring-2 focus:ring-accent/70 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            onClick={() => {
+              if (!cooldown && page > 1) {
+                setPage((p) => Math.max(1, p - 1));
+                setCooldown(true);
+                setTimeout(() => setCooldown(false), 500);
+              }
+            }}
+            disabled={page === 1 || cooldown}
+            aria-label="Page précédente"
+            type="button"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              &lt;
-            </button>
-            <div
-              className="flex overflow-x-auto flex-nowrap gap-1 max-w-full scrollbar-thin scrollbar-thumb-accent/60 scrollbar-track-transparent"
-              style={{ WebkitOverflowScrolling: "touch" }}
-            >
-              {(() => {
-                const items = [];
-                if (totalPages > 0) {
-                  items.push(
-                    <button
-                      key={1}
-                      className={`px-2 py-1 rounded font-semibold text-xs sm:text-sm mx-0.5 min-w-[32px] sm:min-w-[36px] ${
+              <path
+                d="M12 15L6 9L12 3"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          {/* Pages numérotées */}
+          <div
+            className="flex overflow-x-auto flex-nowrap gap-1 md:gap-2 max-w-full scrollbar-thin scrollbar-thumb-accent/60 scrollbar-track-transparent"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
+            {(() => {
+              const items = [];
+              if (totalPages > 0) {
+                items.push(
+                  <button
+                    key={1}
+                    className={`px-3 py-2 rounded-md border-2 font-semibold text-sm mx-0.5 transition focus:outline-none focus:ring-2 focus:ring-accent/70 cursor-pointer
+                      ${
                         page === 1
-                          ? "bg-accent text-dark-bg"
-                          : "bg-dark-bg text-accent border border-accent/50"
-                      }`}
-                      onClick={() => {
-                        if (!cooldown) {
-                          setPage(1);
-                          setCooldown(true);
-                          setTimeout(() => setCooldown(false), 500);
-                        }
-                      }}
-                      disabled={cooldown}
-                    >
-                      1
-                    </button>
-                  );
-                }
-                if (page > 3) {
-                  items.push(
-                    <span key="start-ellipsis" className="px-1 text-accent">
-                      ...
-                    </span>
-                  );
-                }
-                for (
-                  let i = Math.max(2, page - 1);
-                  i <= Math.min(totalPages - 1, page + 1);
-                  i++
-                ) {
-                  if (i === 1 || i === totalPages) continue;
-                  items.push(
-                    <button
-                      key={i}
-                      className={`px-2 py-1 rounded font-semibold text-xs sm:text-sm mx-0.5 min-w-[32px] sm:min-w-[36px] ${
+                          ? "bg-accent text-dark-bg border-accent shadow"
+                          : "bg-transparent text-accent border-accent hover:bg-accent/10"
+                      }
+                    `}
+                    onClick={() => {
+                      if (!cooldown) {
+                        setPage(1);
+                        setCooldown(true);
+                        setTimeout(() => setCooldown(false), 500);
+                      }
+                    }}
+                    disabled={cooldown}
+                    aria-label={`Page 1`}
+                    type="button"
+                  >
+                    1
+                  </button>
+                );
+              }
+              if (page > 3) {
+                items.push(
+                  <span
+                    key="start-ellipsis"
+                    className="px-1 text-accent select-none"
+                  >
+                    …
+                  </span>
+                );
+              }
+              for (
+                let i = Math.max(2, page - 1);
+                i <= Math.min(totalPages - 1, page + 1);
+                i++
+              ) {
+                if (i === 1 || i === totalPages) continue;
+                items.push(
+                  <button
+                    key={i}
+                    className={`px-3 py-2 rounded-md border-2 font-semibold text-sm mx-0.5 transition focus:outline-none focus:ring-2 focus:ring-accent/70 cursor-pointer
+                      ${
                         page === i
-                          ? "bg-accent text-dark-bg"
-                          : "bg-dark-bg text-accent border border-accent/50"
-                      }`}
-                      onClick={() => {
-                        if (!cooldown) {
-                          setPage(i);
-                          setCooldown(true);
-                          setTimeout(() => setCooldown(false), 500);
-                        }
-                      }}
-                      disabled={cooldown}
-                    >
-                      {i}
-                    </button>
-                  );
-                }
-                if (page < totalPages - 2) {
-                  items.push(
-                    <span key="end-ellipsis" className="px-1 text-accent">
-                      ...
-                    </span>
-                  );
-                }
-                if (totalPages > 1) {
-                  items.push(
-                    <button
-                      key={totalPages}
-                      className={`px-2 py-1 rounded font-semibold text-xs sm:text-sm mx-0.5 min-w-[32px] sm:min-w-[36px] ${
+                          ? "bg-accent text-dark-bg border-accent shadow"
+                          : "bg-transparent text-accent border-accent hover:bg-accent/10"
+                      }
+                    `}
+                    onClick={() => {
+                      if (!cooldown) {
+                        setPage(i);
+                        setCooldown(true);
+                        setTimeout(() => setCooldown(false), 500);
+                      }
+                    }}
+                    disabled={cooldown}
+                    aria-label={`Page ${i}`}
+                    type="button"
+                  >
+                    {i}
+                  </button>
+                );
+              }
+              if (page < totalPages - 2) {
+                items.push(
+                  <span
+                    key="end-ellipsis"
+                    className="px-1 text-accent select-none"
+                  >
+                    …
+                  </span>
+                );
+              }
+              if (totalPages > 1) {
+                items.push(
+                  <button
+                    key={totalPages}
+                    className={`px-3 py-2 rounded-md border-2 font-semibold text-sm mx-0.5 transition focus:outline-none focus:ring-2 focus:ring-accent/70 cursor-pointer
+                      ${
                         page === totalPages
-                          ? "bg-accent text-dark-bg"
-                          : "bg-dark-bg text-accent border border-accent/50"
-                      }`}
-                      onClick={() => {
-                        if (!cooldown) {
-                          setPage(totalPages);
-                          setCooldown(true);
-                          setTimeout(() => setCooldown(false), 500);
-                        }
-                      }}
-                      disabled={cooldown}
-                    >
-                      {totalPages}
-                    </button>
-                  );
-                }
-                return items;
-              })()}
-            </div>
-            <button
-              className="px-2 py-1 bg-accent text-dark-bg rounded disabled:opacity-50"
-              onClick={() => {
-                if (!cooldown && page < totalPages) {
-                  setPage((p) => Math.min(totalPages, p + 1));
-                  setCooldown(true);
-                  setTimeout(() => setCooldown(false), 500);
-                }
-              }}
-              disabled={page === totalPages || cooldown}
-            >
-              &gt;
-            </button>
+                          ? "bg-accent text-dark-bg border-accent shadow"
+                          : "bg-transparent text-accent border-accent hover:bg-accent/10"
+                      }
+                    `}
+                    onClick={() => {
+                      if (!cooldown) {
+                        setPage(totalPages);
+                        setCooldown(true);
+                        setTimeout(() => setCooldown(false), 500);
+                      }
+                    }}
+                    disabled={cooldown}
+                    aria-label={`Page ${totalPages}`}
+                    type="button"
+                  >
+                    {totalPages}
+                  </button>
+                );
+              }
+              return items;
+            })()}
           </div>
+          {/* Flèche droite */}
+          <button
+            className="px-3 py-2 flex items-center justify-center rounded-md bg-accent text-dark-bg shadow-md transition hover:bg-accent/80 focus:outline-none focus:ring-2 focus:ring-accent/70 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            onClick={() => {
+              if (!cooldown && page < totalPages) {
+                setPage((p) => Math.min(totalPages, p + 1));
+                setCooldown(true);
+                setTimeout(() => setCooldown(false), 500);
+              }
+            }}
+            disabled={page === totalPages || cooldown}
+            aria-label="Page suivante"
+            type="button"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M6 3L12 9L6 15"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
         </div>
       )}
     </div>

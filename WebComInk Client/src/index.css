@@ -128,3 +128,26 @@ input:-webkit-autofill:focus {
 /* .scrollBar::-webkit-scrollbar { display: none; } */
 /* .scrollBar { scrollbar-width: none; } */
 /* .scrollBar { -ms-overflow-style: none; } */
+
+/* Masquer la navbar mobile en mode lecture immersive (synchronisée avec showHeader) */
+body.immersive-reader-ui nav.bg-light-bg {
+  display: none !important;
+}
+
+/* Masquer la navbar desktop en mode lecture immersive (toujours masquée sur ChapterReader) */
+body.immersive-reader-desktop nav.bg-dark-bg\/25 {
+  display: none !important;
+}
+
+/* Empêcher la sélection d'images sur ChapterReader */
+body.immersive-reader-desktop img {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-select: none;
+}

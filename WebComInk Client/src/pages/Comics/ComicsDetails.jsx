@@ -5,8 +5,7 @@ import { enrichMangas, slugify, filterSynopsis } from "../../utils/mangaUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import { LuBookPlus } from "react-icons/lu";
 import { LuBookmarkX } from "react-icons/lu";
-import { FaEye } from "react-icons/fa";
-import { FaCalendarAlt } from "react-icons/fa";
+import { FaEye, FaCalendarAlt, FaInfoCircle } from "react-icons/fa";
 import { FiPlus } from "react-icons/fi";
 import axios from "axios";
 import TopBarMobile from "./TopBarMobile";
@@ -19,6 +18,8 @@ export default function ComicsDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [meanRating, setMeanRating] = useState(null);
+  const [scanGroups, setScanGroups] = useState({ fr: [], en: [] });
+  const [modalTranslatorsOpen, setModalTranslatorsOpen] = useState(false);
 
   // Extraction et fallback automatique du synopsis (fr > en)
   const rawDescFr = manga?.originalData?.attributes?.description?.fr || "";
@@ -249,6 +250,34 @@ export default function ComicsDetails() {
     );
   }
 
+  // Extraction des groupes de scantrad FR/EN à partir des chapitres
+  useEffect(() => {
+    async function fetchScanGroups() {
+      if (!id) return;
+      const langs = ["fr", "en"];
+      const result = { fr: [], en: [] };
+      for (const lang of langs) {
+        try {
+          const res = await fetch(
+            `https://api.mangadex.org/chapter?manga=${id}&limit=100&translatedLanguage[]=${lang}&order[chapter]=desc&includes[]=scanlation_group`
+          );
+          const data = await res.json();
+          const groups = new Set();
+          (data.data || []).forEach((ch) => {
+            (ch.relationships || []).forEach((rel) => {
+              if (rel.type === "scanlation_group" && rel.attributes?.name) {
+                groups.add(rel.attributes.name);
+              }
+            });
+          });
+          result[lang] = Array.from(groups);
+        } catch {}
+      }
+      setScanGroups(result);
+    }
+    fetchScanGroups();
+  }, [id]);
+
   useEffect(() => {
     async function fetchManga() {
       setLoading(true);
@@ -428,7 +457,7 @@ export default function ComicsDetails() {
           <div className="flex flex-col gap-2 md:gap-3 items-center md:items-start w-full max-w-3xl md:h-[330px] justify-start">
             {/* Titre cliquable, réduit sur mobile, 2 lignes max */}
             <h1
-              className="text-xl md:text-4xl font-bold text-accent drop-shadow-lg text-center md:text-left w-full cursor-pointer select-none line-clamp-2  md:whitespace-normal"
+              className="text-xl md:text-4xl font-bold text-accent drop-shadow-lg text-center md:text-left w-full cursor-pointer select-none line-clamp-2  md:whitespace-normal flex items-center gap-2"
               title={manga.title}
               onClick={() => setModalTitleOpen(true)}
               style={{
@@ -441,7 +470,7 @@ export default function ComicsDetails() {
                 ...(window.innerWidth >= 768
                   ? {
                       WebkitLineClamp: "unset",
-                      display: "block",
+                      display: "flex",
                       WebkitBoxOrient: "unset",
                       overflow: "visible",
                       textOverflow: "unset",
@@ -450,6 +479,20 @@ export default function ComicsDetails() {
               }}
             >
               {manga.title}
+              {/* Icône info traducteurs à droite du titre */}
+              {(scanGroups.fr.length > 0 || scanGroups.en.length > 0) && (
+                <button
+                  className="text-accent hover:text-accent/80 text-sm focus:outline-none flex-shrink-0 ml-2 cursor-pointer"
+                  title="Voir les groupes de traduction"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setModalTranslatorsOpen(true);
+                  }}
+                  style={{ opacity: 0.7 }}
+                >
+                  <FaInfoCircle size={20} />
+                </button>
+              )}
             </h1>
             <div className="flex flex-col gap-1 mt-2 text-white/90 text-sm md:text-base drop-shadow-md">
               <span className="flex flex-row items-center gap-1">
@@ -629,10 +672,6 @@ export default function ComicsDetails() {
                 {synopsis}
               </motion.div>
             </div>
-            {/* Liste des chapitres sous la bannière/info en desktop */}
-            <div className="hidden md:block w-full max-w-5xl mx-auto">
-              <ChaptersList mangaId={manga.id} />
-            </div>
           </div>
         </div>
       </div>
@@ -709,10 +748,62 @@ export default function ComicsDetails() {
               </motion.div>
             )}
           </div>
-          {/* Liste des chapitres sous le synopsis en mobile */}
-          <ChaptersList mangaId={manga.id} />
         </div>
       </div>
+
+      {/* Liste des chapitres */}
+      <div className="w-full max-w-5xl mx-auto mb-24 px-4">
+        <ChaptersList mangaId={manga.id} />
+      </div>
+
+      {/* Modal traducteurs */}
+      {modalTranslatorsOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setModalTranslatorsOpen(false)}
+        >
+          <div
+            className="bg-dark-bg rounded-xl shadow-2xl p-6 w-full max-w-xs md:max-w-md relative mx-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-2 right-2 text-accent text-xl font-bold hover:text-white transition cursor-pointer"
+              onClick={() => setModalTranslatorsOpen(false)}
+              aria-label="Fermer"
+            >
+              ×
+            </button>
+            <h2 className="text-lg font-bold text-accent mb-4 text-center">
+              Groupes de traduction
+            </h2>
+            {scanGroups.fr.length > 0 && (
+              <div className="mb-2">
+                <span className="font-semibold text-accent">Français :</span>
+                <ul className="list-disc list-inside text-white text-sm mt-1">
+                  {scanGroups.fr.map((name, i) => (
+                    <li key={name + i}>{name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {scanGroups.en.length > 0 && (
+              <div className="mb-2">
+                <span className="font-semibold text-accent">Anglais :</span>
+                <ul className="list-disc list-inside text-white text-sm mt-1">
+                  {scanGroups.en.map((name, i) => (
+                    <li key={name + i}>{name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {scanGroups.fr.length === 0 && scanGroups.en.length === 0 && (
+              <div className="text-gray-400 text-sm text-center">
+                Aucun groupe de traduction trouvé.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }

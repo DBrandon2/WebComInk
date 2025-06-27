@@ -4,7 +4,7 @@ import image2 from "../../assets/MangaCover/OP manga cover.jpg";
 import image3 from "../../assets/MangaCover/Vinland-Saga-28.webp";
 import image4 from "../../assets/MangaCover/Sakamoto Cover.webp";
 import ButtonAnimated from "../../components/ButtonAnimated";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import banner from "../../assets/MangaCover/614cfc33-1ba5-44df-9a85-c1cb2d7f1e00.webp";
 import { getMangas } from "../../services/mangaService";
 import { enrichMangas, slugify } from "../../utils/mangaUtils";
@@ -45,6 +45,7 @@ export default function MostPopular() {
   const [columns, setColumns] = useState(null);
   const [pendingScroll, setPendingScroll] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Reset mangas à chaque retour/navigation sur la page
   useEffect(() => {
@@ -201,32 +202,47 @@ export default function MostPopular() {
                     </div>
                   )}
               </div>
+              {/* Bouton Découvrir, visible uniquement sur desktop, utilise ButtonAnimated et useNavigate */}
+              <div className="hidden md:inline-block mt-2">
+                <ButtonAnimated
+                  text="Découvrir"
+                  onClick={() =>
+                    navigate(
+                      `/Comics/${bannerManga.id}/${slugify(bannerManga.title)}`
+                    )
+                  }
+                />
+              </div>
             </div>
           </NavLink>
         )}
         {/* Version mobile : bannière classique mais dynamique (cover du manga le plus populaire, sans effet) */}
-        <div className="relative flex md:hidden flex-col gap-2 mb-0 mt-6 w-full max-w-full mx-auto h-[180px]">
-          {bannerManga && (
-            <>
-              <img
-                src={getBannerCoverOriginalUrl(bannerManga)}
-                alt={bannerManga.title}
-                className="w-full h-full object-cover object-center"
-                style={{ height: "100%", objectPosition: "center" }}
-              />
-              {/* Dégradé bas */}
-              <div className="pointer-events-none absolute bottom-0 left-0 w-full h-1/2 z-10">
-                <div className="w-full h-full bg-gradient-to-t from-dark-bg to-transparent" />
-              </div>
-              {/* Titre dans l'image, centré, sur le dégradé */}
-              <div className="absolute bottom-2 left-0 w-full flex justify-center z-20">
-                <h2 className="text-2xl text-accent text-center font-medium tracking-wider px-2 py-1 rounded">
-                  {bannerManga.title}
-                </h2>
-              </div>
-            </>
-          )}
-        </div>
+        {bannerManga && (
+          <NavLink
+            to={`/Comics/${bannerManga.id}/${slugify(bannerManga.title)}`}
+            className="relative flex md:hidden flex-col gap-2 mb-0 mt-6 w-full max-w-full mx-auto h-[180px]"
+            onClick={() =>
+              sessionStorage.setItem("mostPopularScroll", window.scrollY)
+            }
+          >
+            <img
+              src={getBannerCoverOriginalUrl(bannerManga)}
+              alt={bannerManga.title}
+              className="w-full h-full object-cover object-center"
+              style={{ height: "100%", objectPosition: "center" }}
+            />
+            {/* Dégradé bas */}
+            <div className="pointer-events-none absolute bottom-0 left-0 w-full h-1/2 z-10">
+              <div className="w-full h-full bg-gradient-to-t from-dark-bg to-transparent" />
+            </div>
+            {/* Titre dans l'image, centré, sur le dégradé */}
+            <div className="absolute bottom-2 left-0 w-full flex justify-center z-20">
+              <h2 className="text-2xl text-accent text-center font-medium tracking-wider px-2 py-1 rounded">
+                {bannerManga.title}
+              </h2>
+            </div>
+          </NavLink>
+        )}
 
         {/* Liste des mangas dynamiques */}
         {loading ? (
