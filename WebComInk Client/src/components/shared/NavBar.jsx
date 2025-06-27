@@ -16,7 +16,18 @@ export default function NavBar() {
     { to: "/", icon: <FaHome /> },
     { to: "/Comics", icon: <HiOutlineMagnifyingGlass /> },
     { to: "/Bibliothèque", icon: <ImBooks /> },
-    { to: user ? "/Profile" : "/Auth", icon: <FaUser /> },
+    {
+      to: user ? "/Profile" : "/Auth",
+      icon: user ? (
+        <img
+          src={user.avatar || defaultAvatar}
+          alt="avatar utilisateur"
+          className="w-8 h-8 rounded-full object-cover"
+        />
+      ) : (
+        <FaUser />
+      ),
+    },
     { to: "/Paramètres", icon: <IoSettingsSharp /> },
   ];
 
@@ -62,17 +73,19 @@ export default function NavBar() {
                       },
                     }}
                   >
-                    {/* Affichage conditionnel de l'avatar pour l'icône user */}
-                    {item.to === "/Auth" && user ? (
+                    {/* Affichage de l'icône ou de l'avatar selon le cas, avatar prend toute la div si connecté */}
+                    {user && item.to === "/Profile" ? (
                       <img
                         src={user.avatar || defaultAvatar}
                         alt="avatar utilisateur"
-                        className="w-8 h-8 rounded-full object-cover border-2 border-accent"
+                        className="w-full h-full rounded-full object-cover"
                       />
-                    ) : (
+                    ) : React.isValidElement(item.icon) ? (
                       React.cloneElement(item.icon, {
                         className: "text-[32px]",
                       })
+                    ) : (
+                      item.icon
                     )}
                   </motion.div>
 
