@@ -10,6 +10,10 @@ import PageLoader from "./components/shared/PageLoader";
 
 function App() {
   const location = useLocation();
+  // Détecte si on est sur la page de lecture de chapitre
+  const isChapterReader = /^\/Comics\/[^/]+\/[^/]+\/chapter\//.test(
+    location.pathname
+  );
   return (
     <div className=" w-full pb-[128px] lg:pb-0 lg:my-[80px]">
       <ThemeProvider>
@@ -20,7 +24,7 @@ function App() {
           <Suspense fallback={<PageLoader show={true} />}>
             <Outlet key={location.key} />
           </Suspense>
-          <Footer />
+          {!isChapterReader && <Footer />}
         </AuthProvider>
       </ThemeProvider>
       <Toaster />

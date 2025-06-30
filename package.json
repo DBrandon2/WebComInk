@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "tailwind-scrollbar": "^4.0.2"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.4"
   }
 }
