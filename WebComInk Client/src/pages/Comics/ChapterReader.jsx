@@ -17,8 +17,10 @@ import {
   FaSearch,
   FaCog,
 } from "react-icons/fa";
+import { Grip } from "lucide-react";
 import CustomChapterSelect from "../../components/shared/CustomChapterSelect";
 import { useDrag } from "@use-gesture/react";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Créer le contexte
 export const ChapterReaderContext = createContext();
@@ -55,6 +57,10 @@ export default function ChapterReader() {
   const overscrollActive = useRef(false);
   const maxPull = 120; // px
   const triggerPull = 100; // px
+  const SCROLL_TOLERANCE = 24; // px, plus permissif
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsBtnRef = useRef(null);
+  const [modalOrigin, setModalOrigin] = useState({ x: 0, y: 0 });
 
   // Hook useDrag (mobile only)
   const isMobile =
@@ -63,16 +69,25 @@ export default function ChapterReader() {
   const bind = useDrag(
     ({ down, movement: [, my], last, event }) => {
       if (!isMobile) return;
-      // Vérifie qu'on est en bas de page
       const scrollTop = window.scrollY;
       const docHeight =
         document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight - scrollTop > 2) return;
-      if (down && my < 0) {
-        setPullHeight(Math.min(maxPull, -my));
+      const isNearBottom = docHeight - scrollTop <= SCROLL_TOLERANCE;
+      if (!isNearBottom) {
+        if (pullHeight !== 0) setPullHeight(0); // reset si on n'est pas en bas
+        return;
       }
-      if (last) {
-        if (-my > triggerPull && allChapters && currentChapterIndex > 0) {
+      if (down && my < 0) {
+        // Augmentation de la résistance : division par 2 pour rendre le drag plus difficile
+        const resistance = -my / 2;
+        setPullHeight(Math.min(maxPull, resistance));
+      } else if (last) {
+        // Passage au chapitre suivant réactivé
+        if (
+          pullHeight >= triggerPull &&
+          allChapters &&
+          currentChapterIndex > 0
+        ) {
           const nextChapter = allChapters[currentChapterIndex - 1];
           if (nextChapter) {
             setPullHeight(0);
@@ -349,73 +364,6 @@ export default function ChapterReader() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentChapterIndex, allChapters.length]);
 
-  // Correction de la gestion de l'overscroll pour que l'effet apparaisse dès le début du tirage vers le haut en bas de page
-  useEffect(() => {
-    if (!window.matchMedia("(pointer: coarse)").matches) return;
-    function onTouchStart(e) {
-      if (e.touches.length !== 1) return;
-      const scrollTop = window.scrollY;
-      const docHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
-      // On active l'overscroll dès qu'on est en bas
-      if (docHeight - scrollTop < 2) {
-        startYRef.current = e.touches[0].clientY;
-        overscrollActive.current = true;
-      } else {
-        startYRef.current = null;
-        overscrollActive.current = false;
-      }
-    }
-    function onTouchMove(e) {
-      if (startYRef.current === null) return;
-      const delta = startYRef.current - e.touches[0].clientY;
-      if (delta < 0 && overscrollActive.current) {
-        // Résistance exponentielle
-        const resistance = Math.pow(-delta, 0.8);
-        const newHeight = Math.min(maxPull, resistance);
-        setPullHeight(newHeight);
-        pullHeightRef.current = newHeight;
-        setIsOverscrolling(true);
-        e.preventDefault();
-      } else {
-        setPullHeight(0);
-        pullHeightRef.current = 0;
-        setIsOverscrolling(false);
-      }
-    }
-    function onTouchEnd() {
-      if (
-        isOverscrolling &&
-        pullHeightRef.current >= triggerPull &&
-        allChapters &&
-        currentChapterIndex > 0
-      ) {
-        const nextChapter = allChapters[currentChapterIndex - 1];
-        if (nextChapter) {
-          setPullHeight(0);
-          pullHeightRef.current = 0;
-          setIsOverscrolling(false);
-          overscrollActive.current = false;
-          navigate(`/Comics/${mangaId}/${slug}/chapter/${nextChapter.id}`);
-          return;
-        }
-      }
-      setTimeout(() => setPullHeight(0), 200);
-      pullHeightRef.current = 0;
-      setIsOverscrolling(false);
-      overscrollActive.current = false;
-      startYRef.current = null;
-    }
-    window.addEventListener("touchstart", onTouchStart, { passive: false });
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("touchend", onTouchEnd);
-    return () => {
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("touchend", onTouchEnd);
-    };
-  }, [pullHeight, allChapters, currentChapterIndex, mangaId, slug, navigate]);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-dark-bg flex items-center justify-center">
@@ -455,7 +403,10 @@ export default function ChapterReader() {
         slug,
       }}
     >
-      <div className="min-h-screen bg-dark-bg mt-[-12px] overflow-x-hidden">
+      <div
+        className="min-h-screen bg-dark-bg mt-[-12px] overflow-x-hidden"
+        {...bind()}
+      >
         {/* Header de navigation, affiché seulement si showHeader */}
         <div
           className={`fixed top-0 left-0 w-full z-50 bg-dark-bg/95 backdrop-blur-sm border-b border-accent/30 transition-opacity duration-300 ${
@@ -464,21 +415,33 @@ export default function ChapterReader() {
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div className="max-w-6xl mx-auto px-2 md:px-6 py-2 md:py-3">
-            <div className="flex items-center justify-between gap-2 md:gap-6">
-              {/* Logo à gauche */}
-              <div className="flex items-center min-w-[40px]">
+          <div className="max-w-5xl mx-auto px-4 md:px-6 py-2 md:py-3">
+            <div className="flex items-center justify-between w-full gap-x-2 md:gap-x-6">
+              {/* Logo à gauche (desktop only) */}
+              <div className="hidden md:flex items-center min-w-[60px] mr-2">
                 <Link to="/" className="flex items-center" title="Accueil">
                   <img
                     src={logo}
                     alt="Logo"
-                    className="w-10 h-10 md:w-14 md:h-14 object-contain"
+                    className="w-10 h-10 md:w-14 md:h-14 object-contain transition-transform duration-300 ease-in-out transform hover:scale-120 hover:rotate-[-5deg] z-50"
                   />
                 </Link>
               </div>
-
-              {/* Navigation centrale */}
-              <div className="flex flex-wrap items-center justify-center gap-0.5 sm:gap-1 md:gap-2 min-w-0">
+              {/* Bouton grip toujours visible, à gauche */}
+              <div className="flex items-center min-w-[40px]">
+                <Link
+                  to={`/Comics/${mangaId}/${slug}`}
+                  className="flex items-center gap-2 px-3 py-2 rounded text-white hover:bg-accent hover:text-dark-bg transition text-sm font-semibold shadow"
+                  title="Retour au manga"
+                >
+                  <span className="text-[20px] md:text-[28px] flex items-center">
+                    <Grip />
+                  </span>
+                  <span className="hidden sm:inline">Retour au manga</span>
+                </Link>
+              </div>
+              {/* Navigation centrale, prend toute la place restante */}
+              <div className="flex flex-wrap items-center justify-center flex-1 gap-1 md:gap-3 min-w-0 overflow-x-auto">
                 {/* Bouton précédent : visible seulement sur desktop */}
                 <button
                   onClick={goToPreviousChapter}
@@ -501,13 +464,25 @@ export default function ChapterReader() {
                   <FaArrowRight size={18} />
                 </button>
               </div>
-
               {/* Settings à droite */}
               <div className="flex items-center min-w-[40px] justify-end">
                 <button
+                  ref={settingsBtnRef}
                   className="p-2 md:p-3 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition shadow"
                   title="Options / Paramètres"
-                  // onClick={() => ...} // à relier à un menu plus tard
+                  onClick={() => {
+                    if (settingsBtnRef.current) {
+                      const rect =
+                        settingsBtnRef.current.getBoundingClientRect();
+                      const centerX = window.innerWidth / 2;
+                      const centerY = window.innerHeight / 2;
+                      setModalOrigin({
+                        x: rect.left + rect.width / 2 - centerX,
+                        y: rect.top + rect.height / 2 - centerY,
+                      });
+                    }
+                    setSettingsOpen(true);
+                  }}
                 >
                   <FaCog size={22} />
                 </button>
@@ -533,7 +508,6 @@ export default function ChapterReader() {
             }
             setShowHeader(!showHeader);
           }}
-          {...bind()}
         >
           {chapterImages.length === 0 ? (
             <div className="text-center text-gray-400 py-12">
@@ -543,10 +517,9 @@ export default function ChapterReader() {
             <div
               className="px-0 lg:px-32 xl:px-56 2xl:px-80"
               style={{
-                transform:
-                  pullHeight > 0 ? `translateY(-${pullHeight}px)` : undefined,
-                transition: pullHeight > 0 ? "none" : "transform 0.3s",
-                willChange: "transform",
+                paddingBottom: pullHeight > 0 ? 64 + pullHeight : 64,
+                willChange: "padding-bottom",
+                transition: pullHeight > 0 ? "none" : "padding-bottom 0.3s",
               }}
             >
               {chapterImages.map((imageUrl, index) => (
@@ -577,79 +550,125 @@ export default function ChapterReader() {
               ))}
               {/* BOUTON CHAPITRE SUIVANT */}
               <NextChapterButton />
-              <div
-                style={{
-                  height: pullHeight > 0 ? pullHeight : 64,
-                  transition: pullHeight ? "height 0.15s" : "height 0.3s",
-                  width: "100%",
-                  overflow: "visible",
-                  display: "flex",
-                  alignItems: "flex-end",
-                  justifyContent: "center",
-                  marginTop: 48, // espace pour ne pas chevaucher le bouton
-                }}
-              >
+              {isMobile && (
                 <div
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
+                    height: 64,
                     width: "100%",
+                    overflow: "visible",
+                    display: "flex",
+                    alignItems: "flex-end",
+                    justifyContent: "center",
+                    marginTop: 48,
+                    pointerEvents: "auto",
                   }}
                 >
-                  <svg
-                    width="64"
-                    height="64"
-                    viewBox="0 0 64 64"
-                    className="drop-shadow-lg"
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      width: "100%",
+                    }}
                   >
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      fill="#18181b"
-                      stroke={pullHeight >= triggerPull ? "#38d46a" : "#edf060"}
-                      strokeWidth="4"
-                      opacity="0.7"
-                    />
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      fill="none"
-                      stroke={pullHeight >= triggerPull ? "#38d46a" : "#edf060"}
-                      strokeWidth="6"
-                      strokeDasharray={2 * Math.PI * 28}
-                      strokeDashoffset={
-                        2 *
-                        Math.PI *
-                        28 *
-                        Math.max(0, 1 - Math.min(1, pullHeight / triggerPull))
-                      }
-                      style={{
-                        transition: "stroke-dashoffset 0.2s",
-                        stroke:
-                          pullHeight >= triggerPull ? "#38d46a" : "#edf060",
-                      }}
-                    />
-                  </svg>
-                  <span
-                    className={`mt-1 text-xs font-semibold drop-shadow ${
-                      pullHeight >= triggerPull
-                        ? "text-green-400"
-                        : "text-accent"
-                    }`}
-                  >
-                    {pullHeight >= triggerPull
-                      ? "Relâcher pour passer au chapitre suivant !"
-                      : "Tirer pour chapitre suivant…"}
-                  </span>
+                    <svg
+                      width="64"
+                      height="64"
+                      viewBox="0 0 64 64"
+                      className="drop-shadow-lg"
+                    >
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        fill="#18181b"
+                        stroke={
+                          pullHeight >= triggerPull ? "#38d46a" : "#edf060"
+                        }
+                        strokeWidth="4"
+                        opacity="0.7"
+                      />
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        fill="none"
+                        stroke={
+                          pullHeight >= triggerPull ? "#38d46a" : "#edf060"
+                        }
+                        strokeWidth="6"
+                        strokeDasharray={2 * Math.PI * 28}
+                        strokeDashoffset={
+                          2 *
+                          Math.PI *
+                          28 *
+                          Math.max(0, 1 - Math.min(1, pullHeight / triggerPull))
+                        }
+                        style={{
+                          stroke:
+                            pullHeight >= triggerPull ? "#38d46a" : "#edf060",
+                        }}
+                      />
+                    </svg>
+                    <span
+                      className={`mt-1 text-xs font-semibold drop-shadow ${
+                        pullHeight >= triggerPull
+                          ? "text-green-400"
+                          : "text-accent"
+                      }`}
+                    >
+                      {pullHeight >= triggerPull
+                        ? "Relâcher pour passer au chapitre suivant !"
+                        : "Tirer pour chapitre suivant…"}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
       </div>
+      {/* Modal settings mobile animé (plus de bouton retour au manga) */}
+      <AnimatePresence>
+        {isMobile && settingsOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+            onClick={() => setSettingsOpen(false)}
+          >
+            <motion.div
+              initial={{
+                opacity: 0,
+                scale: 0.85,
+                x: modalOrigin.x,
+                y: modalOrigin.y,
+              }}
+              animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+              exit={{
+                opacity: 0,
+                scale: 0.85,
+                x: modalOrigin.x,
+                y: modalOrigin.y,
+              }}
+              transition={{ type: "spring", stiffness: 320, damping: 28 }}
+              className="bg-dark-bg rounded-xl shadow-2xl p-6 w-full max-w-xs relative mx-2 flex flex-col items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="absolute top-2 right-2 text-accent text-xl font-bold hover:text-white transition cursor-pointer"
+                onClick={() => setSettingsOpen(false)}
+                aria-label="Fermer"
+              >
+                ×
+              </button>
+              {/* Ajoute ici d'autres options du menu si besoin */}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </ChapterReaderContext.Provider>
   );
 }
@@ -716,33 +735,42 @@ function NextChapterButton() {
     );
 
   return (
-    <div className="flex justify-center mt-8 m-3">
+    <div className="flex justify-center mt-8 m-3 ">
       <button
         onClick={() =>
           navigate(`/Comics/${mangaId}/${slug}/chapter/${nextChapter.id}`)
         }
-        className="flex items-center gap-3 bg-gray-800 text-white rounded-md shadow px-3 py-2 hover:bg-gray-700 transition text-left max-w-md w-full"
-        style={{ minHeight: 80 }}
+        className="flex items-center gap-2 bg-gray-800 text-white rounded-md shadow px-3 py-2 md:px-3 md:py-3 hover:bg-gray-700 transition text-left max-w-md md:max-w-xl w-full cursor-pointer"
+        style={{
+          minHeight: 80,
+          ...(window.innerWidth >= 768 ? { minHeight: 90 } : {}),
+        }}
       >
         {coverImg ? (
           <img
             src={coverImg}
             alt="Prochain chapitre"
-            className="w-12 h-16 object-cover rounded shadow"
-            style={{ minWidth: 48 }}
+            className="w-12 h-16 md:w-16 md:h-20 object-cover rounded shadow"
+            style={{ minWidth: window.innerWidth >= 768 ? 64 : 48 }}
           />
         ) : (
-          <div className="w-12 h-16 bg-gray-700 rounded flex items-center justify-center text-gray-400 text-2xl">
+          <div className="w-12 h-16 md:w-16 md:h-20 bg-gray-700 rounded flex items-center justify-center text-gray-400 text-2xl">
             ?
           </div>
         )}
         <div className="flex-1">
-          <div className="font-bold text-base mb-0.5">Chapitre suivant :</div>
-          <div className="text-sm font-semibold truncate text-accent">
-            <div>N° {nextChapter.attributes.chapter || "?"}</div>
+          <div className="flex flex-col md:flex-row md:items-center gap-0 md:gap-2 mb-0.5">
+            <span className="font-bold text-base md:text-base">
+              Chapitre suivant :
+            </span>
+            <span className="text-accent text-sm md:text-base font-semibold">
+              N° {nextChapter.attributes.chapter || "?"}
+            </span>
+          </div>
+          <div className="text-sm md:text-base font-semibold truncate text-accent">
             {nextChapter.attributes.title && (
               <span
-                className=" text-gray-300 "
+                className=" text-gray-300 md:text-base "
                 style={{
                   display: "-webkit-box",
                   WebkitLineClamp: 1,
@@ -761,7 +789,7 @@ function NextChapterButton() {
               </span>
             )}
           </div>
-          <div className="text-xs text-gray-400 mt-1">
+          <div className="text-xs md:text-sm text-gray-400 mt-1">
             Clique pour continuer la lecture !
           </div>
         </div>

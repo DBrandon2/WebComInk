@@ -178,6 +178,100 @@ const logoutUser = async (req, res) => {
   res.status(200).json({ message: "Déconnexion réussie" });
 };
 
+const addFavorite = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).json({ message: "Non autorisé" });
+    }
+
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const userId = decodedToken.sub;
+
+    const { mangaId, title, coverImage } = req.body;
+
+    if (!mangaId || !title) {
+      return res.status(400).json({ message: "Données manquantes" });
+    }
+
+    const user = await User.findById(userId);
+
+    // Vérifier si le manga est déjà dans les favoris
+    const existingFavorite = user.favorites.find(
+      (fav) => fav.mangaId === mangaId
+    );
+    if (existingFavorite) {
+      return res
+        .status(400)
+        .json({ message: "Ce manga est déjà dans vos favoris" });
+    }
+
+    // Ajouter aux favoris
+    user.favorites.push({
+      mangaId,
+      title,
+      coverImage,
+      addedAt: new Date(),
+    });
+
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "Manga ajouté aux favoris", favorites: user.favorites });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+const removeFavorite = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).json({ message: "Non autorisé" });
+    }
+
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const userId = decodedToken.sub;
+
+    const { mangaId } = req.params;
+
+    const user = await User.findById(userId);
+
+    // Filtrer les favoris pour retirer celui avec l'ID spécifié
+    user.favorites = user.favorites.filter((fav) => fav.mangaId !== mangaId);
+
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "Manga retiré des favoris", favorites: user.favorites });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+const getFavorites = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).json({ message: "Non autorisé" });
+    }
+
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const userId = decodedToken.sub;
+
+    const user = await User.findById(userId);
+
+    res.status(200).json({ favorites: user.favorites });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
 module.exports = {
   signup,
   signin,
@@ -186,4 +280,7 @@ module.exports = {
   currentUser,
   logoutUser,
   verifyMail,
+  addFavorite,
+  removeFavorite,
+  getFavorites,
 };

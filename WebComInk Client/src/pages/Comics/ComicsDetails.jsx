@@ -3,13 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getMangas } from "../../services/mangaService";
 import { enrichMangas, slugify, filterSynopsis } from "../../utils/mangaUtils";
 import { motion, AnimatePresence } from "framer-motion";
-import { LuBookPlus } from "react-icons/lu";
-import { LuBookmarkX } from "react-icons/lu";
 import { FaEye, FaCalendarAlt, FaInfoCircle } from "react-icons/fa";
 import { FiPlus } from "react-icons/fi";
 import axios from "axios";
 import TopBarMobile from "./TopBarMobile";
 import ChaptersList from "./ChaptersList";
+import FavoriteButton from "../../components/FavoriteButton";
 
 export default function ComicsDetails() {
   const { id, slug } = useParams();
@@ -39,7 +38,6 @@ export default function ComicsDetails() {
   const synopsis =
     synopsisLang === "fr" && hasFr ? descFr : hasEn ? descEn : "";
   // Puis le reste des hooks
-  const [isFav, setIsFav] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const synopsisRef = useRef(null); // Pour desktop
   const synopsisRefMobile = useRef(null); // Pour mobile
@@ -436,22 +434,13 @@ export default function ComicsDetails() {
                 className="object-cover w-[160px] h-[240px] md:w-[220px] md:h-[330px]"
               />
             </motion.div>
-            <motion.button
-              className={`w-full mt-3 px-3 py-2 rounded-md border transition-colors drop-shadow-md cursor-pointer text-center text-sm font-medium flex items-center justify-center gap-2
-                ${
-                  isFav
-                    ? "bg-accent text-dark-bg border-accent"
-                    : "bg-white/10 text-accent border-accent"
-                }`}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              animate={{ scale: isFav ? 1.08 : 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              onClick={() => setIsFav((v) => !v)}
-            >
-              {isFav ? <LuBookmarkX size={20} /> : <LuBookPlus size={20} />}
-              {isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
-            </motion.button>
+            <div className="mt-4 flex justify-center w-full">
+              <FavoriteButton
+                mangaId={manga.id}
+                title={manga.title}
+                coverImage={manga.coverUrl}
+              />
+            </div>
           </div>
           {/* Infos */}
           <div className="flex flex-col gap-2 md:gap-3 items-center md:items-start w-full max-w-3xl md:h-[330px] justify-start">
