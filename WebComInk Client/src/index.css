@@ -124,10 +124,7 @@ input:-webkit-autofill:focus {
   background: rgba(23, 18, 25, 0.6);
 }
 
-/* SUPPRESSION des anciennes règles qui masquaient la scrollbar */
-/* .scrollBar::-webkit-scrollbar { display: none; } */
-/* .scrollBar { scrollbar-width: none; } */
-/* .scrollBar { -ms-overflow-style: none; } */
+
 
 /* Masquer la navbar mobile en mode lecture immersive (synchronisée avec showHeader) */
 body.immersive-reader-ui nav.bg-light-bg {
