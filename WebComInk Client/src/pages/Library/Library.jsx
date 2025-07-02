@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { getFavorites, removeFavorite } from "../../services/favoriteService";
 import { Link } from "react-router-dom";
-import { Trash2 } from "lucide-react";
+import { Trash2, Search, SortAsc, SortDesc, Calendar, BookOpen } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { slugify } from "../../utils/mangaUtils";
 
 export default function Library() {
   const [favorites, setFavorites] = useState([]);
+  const [filteredFavorites, setFilteredFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("addedAt"); // "addedAt", "title"
+  const [sortOrder, setSortOrder] = useState("desc"); // "asc", "desc"
 
   useEffect(() => {
     const loadFavorites = async () => {
@@ -28,6 +32,33 @@ export default function Library() {
     loadFavorites();
   }, []);
 
+  // Effet pour filtrer et trier les favoris
+  useEffect(() => {
+    let filtered = [...favorites];
+
+    // Filtrage par terme de recherche
+    if (searchTerm.trim()) {
+      filtered = filtered.filter((manga) =>
+        manga.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Tri
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      
+      if (sortBy === "title") {
+        comparison = a.title.localeCompare(b.title);
+      } else if (sortBy === "addedAt") {
+        comparison = new Date(a.addedAt) - new Date(b.addedAt);
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    setFilteredFavorites(filtered);
+  }, [favorites, searchTerm, sortBy, sortOrder]);
+
   const handleRemoveFavorite = async (mangaId) => {
     try {
       await removeFavorite(mangaId);
@@ -36,6 +67,15 @@ export default function Library() {
     } catch (err) {
       toast.error("Erreur lors de la suppression du favori");
       console.error(err);
+    }
+  };
+
+  const handleSortChange = (newSortBy) => {
+    if (sortBy === newSortBy) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(newSortBy);
+      setSortOrder("asc");
     }
   };
 
@@ -65,13 +105,16 @@ export default function Library() {
   if (favorites.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <BookOpen size={64} className="text-gray-400 mb-4" />
         <h1 className="text-2xl font-bold mb-4">Ma Bibliothèque</h1>
-        <p className="text-gray-700 mb-6">
+        <p className="text-gray-700 mb-6 text-center">
           Vous n'avez pas encore de mangas dans vos favoris.
+          <br />
+          Explorez notre catalogue et ajoutez vos mangas préférés !
         </p>
         <Link
-          to="/"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          to="/Comics"
+          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
         >
           Découvrir des mangas
         </Link>
@@ -81,16 +124,82 @@ export default function Library() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Ma Bibliothèque</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="text-2xl font-bold mb-4 sm:mb-0">
+          Ma Bibliothèque ({favorites.length} manga{favorites.length > 1 ? 's' : ''})
+        </h1>
+        
+        {/* Barre de recherche et tri */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Recherche */}
+          <div className="relative">
+            <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Rechercher un manga..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
+            />
+          </div>
+          
+          {/* Boutons de tri */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleSortChange("title")}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+                sortBy === "title"
+                  ? "bg-blue-500 text-white border-blue-500"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+              title="Trier par titre"
+            >
+              <BookOpen size={16} />
+              {sortBy === "title" && (sortOrder === "asc" ? <SortAsc size={16} /> : <SortDesc size={16} />)}
+            </button>
+            
+            <button
+              onClick={() => handleSortChange("addedAt")}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+                sortBy === "addedAt"
+                  ? "bg-blue-500 text-white border-blue-500"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+              title="Trier par date d'ajout"
+            >
+              <Calendar size={16} />
+              {sortBy === "addedAt" && (sortOrder === "asc" ? <SortAsc size={16} /> : <SortDesc size={16} />)}
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        {favorites.map((manga) => (
+      {/* Message si aucun résultat après recherche */}
+      {filteredFavorites.length === 0 && searchTerm.trim() && (
+        <div className="text-center py-12">
+          <Search size={48} className="text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600 text-lg">
+            Aucun manga trouvé pour "{searchTerm}"
+          </p>
+          <button
+            onClick={() => setSearchTerm("")}
+            className="mt-4 px-4 py-2 text-blue-500 hover:text-blue-600 transition-colors"
+          >
+            Effacer la recherche
+          </button>
+        </div>
+      )}
+
+      {/* Grille des mangas */}
+      {filteredFavorites.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {filteredFavorites.map((manga) => (
           <div
             key={manga.mangaId}
-            className="bg-white rounded-lg shadow-md overflow-hidden relative group"
+            className="bg-white rounded-lg shadow-md overflow-hidden relative group hover:shadow-lg transition-all duration-300"
           >
-            <Link to={`/Comics/${manga.id}/${slugify(manga.title)}`}>
-              <div className="h-64 overflow-hidden">
+            <Link to={`/Comics/${manga.mangaId}/${slugify(manga.title)}`}>
+              <div className="h-64 overflow-hidden relative">
                 <img
                   src={
                     manga.coverImage ||
@@ -99,13 +208,16 @@ export default function Library() {
                   alt={manga.title}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
+                {/* Overlay gradient pour améliorer la lisibilité */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
               <div className="p-3">
-                <h3 className="font-semibold text-sm line-clamp-2">
+                <h3 className="font-semibold text-sm line-clamp-2 text-gray-800 group-hover:text-blue-600 transition-colors">
                   {manga.title}
                 </h3>
-                <p className="text-xs text-gray-500 mt-1">
-                  Ajouté le {new Date(manga.addedAt).toLocaleDateString()}
+                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                  <Calendar size={12} />
+                  Ajouté le {new Date(manga.addedAt).toLocaleDateString('fr-FR')}
                 </p>
               </div>
             </Link>
@@ -116,14 +228,15 @@ export default function Library() {
                 e.stopPropagation();
                 handleRemoveFavorite(manga.mangaId);
               }}
-              className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
               title="Retirer des favoris"
             >
               <Trash2 size={16} />
             </button>
           </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
