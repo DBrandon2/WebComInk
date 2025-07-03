@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { getFavorites, removeFavorite } from "../../services/favoriteService";
 import { Link } from "react-router-dom";
-import { Trash2, Search, SortAsc, SortDesc, Calendar, BookOpen } from "lucide-react";
+import {
+  Trash2,
+  Search,
+  SortAsc,
+  SortDesc,
+  Calendar,
+  BookOpen,
+} from "lucide-react";
 import { toast } from "react-hot-toast";
 import { slugify } from "../../utils/mangaUtils";
+import MangaCard from "../../components/shared/MangaCard";
 
 export default function Library() {
   const [favorites, setFavorites] = useState([]);
@@ -46,7 +54,7 @@ export default function Library() {
     // Tri
     filtered.sort((a, b) => {
       let comparison = 0;
-      
+
       if (sortBy === "title") {
         comparison = a.title.localeCompare(b.title);
       } else if (sortBy === "addedAt") {
@@ -126,14 +134,18 @@ export default function Library() {
     <div className="container mx-auto p-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-bold mb-4 sm:mb-0">
-          Ma Bibliothèque ({favorites.length} manga{favorites.length > 1 ? 's' : ''})
+          Ma Bibliothèque ({favorites.length} manga
+          {favorites.length > 1 ? "s" : ""})
         </h1>
-        
+
         {/* Barre de recherche et tri */}
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Recherche */}
           <div className="relative">
-            <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Search
+              size={20}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
             <input
               type="text"
               placeholder="Rechercher un manga..."
@@ -142,7 +154,7 @@ export default function Library() {
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
             />
           </div>
-          
+
           {/* Boutons de tri */}
           <div className="flex gap-2">
             <button
@@ -155,9 +167,14 @@ export default function Library() {
               title="Trier par titre"
             >
               <BookOpen size={16} />
-              {sortBy === "title" && (sortOrder === "asc" ? <SortAsc size={16} /> : <SortDesc size={16} />)}
+              {sortBy === "title" &&
+                (sortOrder === "asc" ? (
+                  <SortAsc size={16} />
+                ) : (
+                  <SortDesc size={16} />
+                ))}
             </button>
-            
+
             <button
               onClick={() => handleSortChange("addedAt")}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
@@ -168,7 +185,12 @@ export default function Library() {
               title="Trier par date d'ajout"
             >
               <Calendar size={16} />
-              {sortBy === "addedAt" && (sortOrder === "asc" ? <SortAsc size={16} /> : <SortDesc size={16} />)}
+              {sortBy === "addedAt" &&
+                (sortOrder === "asc" ? (
+                  <SortAsc size={16} />
+                ) : (
+                  <SortDesc size={16} />
+                ))}
             </button>
           </div>
         </div>
@@ -192,48 +214,21 @@ export default function Library() {
 
       {/* Grille des mangas */}
       {filteredFavorites.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-6 w-full">
           {filteredFavorites.map((manga) => (
-          <div
-            key={manga.mangaId}
-            className="bg-white rounded-lg shadow-md overflow-hidden relative group hover:shadow-lg transition-all duration-300"
-          >
-            <Link to={`/Comics/${manga.mangaId}/${slugify(manga.title)}`}>
-              <div className="h-64 overflow-hidden relative">
-                <img
-                  src={
-                    manga.coverImage ||
-                    "https://via.placeholder.com/300x400?text=No+Image"
-                  }
-                  alt={manga.title}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                {/* Overlay gradient pour améliorer la lisibilité */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-              <div className="p-3">
-                <h3 className="font-semibold text-sm line-clamp-2 text-gray-800 group-hover:text-blue-600 transition-colors">
-                  {manga.title}
-                </h3>
-                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                  <Calendar size={12} />
-                  Ajouté le {new Date(manga.addedAt).toLocaleDateString('fr-FR')}
-                </p>
-              </div>
-            </Link>
-
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleRemoveFavorite(manga.mangaId);
-              }}
-              className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
-              title="Retirer des favoris"
+            <MangaCard
+              key={manga.mangaId}
+              id={manga.mangaId}
+              title={manga.title}
+              coverUrl={manga.coverImage}
+              authorName={manga.author}
+              artistName={manga.artist}
+              removable={true}
+              onRemove={handleRemoveFavorite}
+              to={`/Comics/${manga.mangaId}/${slugify(manga.title)}`}
             >
               <Trash2 size={16} />
-            </button>
-          </div>
+            </MangaCard>
           ))}
         </div>
       )}
