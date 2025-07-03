@@ -12,6 +12,7 @@ import {
 import { toast } from "react-hot-toast";
 import { slugify } from "../../utils/mangaUtils";
 import MangaCard from "../../components/shared/MangaCard";
+import { motion } from "framer-motion";
 
 export default function Library() {
   const [favorites, setFavorites] = useState([]);
@@ -21,6 +22,7 @@ export default function Library() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("addedAt"); // "addedAt", "title"
   const [sortOrder, setSortOrder] = useState("desc"); // "asc", "desc"
+  const [tab, setTab] = useState("en-cours");
 
   useEffect(() => {
     const loadFavorites = async () => {
@@ -66,6 +68,13 @@ export default function Library() {
 
     setFilteredFavorites(filtered);
   }, [favorites, searchTerm, sortBy, sortOrder]);
+
+  // Simuler une propriété "status" sur chaque manga favori pour la démo (à remplacer par une vraie propriété plus tard)
+  const getStatus = (manga) => manga.status || "en-cours";
+
+  const filteredByTab = filteredFavorites.filter(
+    (manga) => getStatus(manga) === tab
+  );
 
   const handleRemoveFavorite = async (mangaId) => {
     try {
@@ -132,6 +141,30 @@ export default function Library() {
 
   return (
     <div className="container mx-auto p-4">
+      {/* Onglets de tri */}
+      <div className="flex gap-2 mb-6 justify-center">
+        {[
+          ["en-cours", "En cours"],
+          ["en-pause", "En pause"],
+          ["a-lire", "À lire"],
+          ["lu", "Lu"],
+        ].map(([key, label]) => (
+          <motion.button
+            key={key}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
+            className={`px-5 py-2 rounded-md font-semibold border-2 shadow flex items-center transition-all duration-150 text-base focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 cursor-pointer
+              ${
+                tab === key
+                  ? "bg-accent text-dark-bg border-accent"
+                  : "bg-accent-hover text-accent border-accent "
+              }`}
+            onClick={() => setTab(key)}
+          >
+            {label}
+          </motion.button>
+        ))}
+      </div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-bold mb-4 sm:mb-0">
           Ma Bibliothèque ({favorites.length} manga
@@ -197,7 +230,7 @@ export default function Library() {
       </div>
 
       {/* Message si aucun résultat après recherche */}
-      {filteredFavorites.length === 0 && searchTerm.trim() && (
+      {filteredByTab.length === 0 && searchTerm.trim() && (
         <div className="text-center py-12">
           <Search size={48} className="text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 text-lg">
@@ -213,9 +246,9 @@ export default function Library() {
       )}
 
       {/* Grille des mangas */}
-      {filteredFavorites.length > 0 && (
+      {filteredByTab.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-6 w-full">
-          {filteredFavorites.map((manga) => (
+          {filteredByTab.map((manga) => (
             <MangaCard
               key={manga.mangaId}
               id={manga.mangaId}
@@ -230,6 +263,12 @@ export default function Library() {
               <Trash2 size={16} />
             </MangaCard>
           ))}
+        </div>
+      )}
+      {/* Message si aucun manga dans l'onglet */}
+      {filteredByTab.length === 0 && (
+        <div className="text-center py-12 text-gray-500">
+          Aucun manga dans cet onglet.
         </div>
       )}
     </div>
