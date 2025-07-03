@@ -19,11 +19,11 @@ export async function getFavorites() {
 }
 
 // Ajouter un manga aux favoris
-export async function addFavorite(mangaId, title, coverImage) {
+export async function addFavorite(mangaId, title, coverImage, status = "en-cours") {
   try {
     const res = await axios.post(
       `${API_BASE_URL}/user/favorites`,
-      { mangaId, title, coverImage },
+      { mangaId, title, coverImage, status },
       { withCredentials: true }
     );
     return res.data;
@@ -50,6 +50,23 @@ export async function removeFavorite(mangaId) {
     throw new Error(
       error.response?.data?.message ||
         "Erreur lors de la suppression des favoris"
+    );
+  }
+}
+
+// Mettre à jour le statut d'un favori
+export async function updateFavoriteStatus(mangaId, status) {
+  try {
+    const res = await axios.put(
+      `${API_BASE_URL}/user/favorites/${mangaId}`,
+      { status },
+      { withCredentials: true }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du statut:", error);
+    throw new Error(
+      error.response?.data?.message || "Erreur lors de la mise à jour du statut"
     );
   }
 }

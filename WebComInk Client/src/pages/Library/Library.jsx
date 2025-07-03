@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getFavorites, removeFavorite } from "../../services/favoriteService";
+import { getFavorites, removeFavorite, updateFavoriteStatus } from "../../services/favoriteService";
 import { Link } from "react-router-dom";
 import {
   Trash2,
@@ -8,11 +8,13 @@ import {
   SortDesc,
   Calendar,
   BookOpen,
+  Edit3,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { slugify } from "../../utils/mangaUtils";
-import MangaCard from "../../components/shared/MangaCard";
+import LibraryMangaCard from "../../components/shared/LibraryMangaCard";
 import { motion } from "framer-motion";
+import CategorySelectionModal from "../../components/modals/CategorySelectionModal";
 
 export default function Library() {
   const [favorites, setFavorites] = useState([]);
@@ -23,6 +25,8 @@ export default function Library() {
   const [sortBy, setSortBy] = useState("addedAt"); // "addedAt", "title"
   const [sortOrder, setSortOrder] = useState("desc"); // "asc", "desc"
   const [tab, setTab] = useState("en-cours");
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [selectedMangaForCategory, setSelectedMangaForCategory] = useState(null);
 
   useEffect(() => {
     const loadFavorites = async () => {
@@ -69,11 +73,8 @@ export default function Library() {
     setFilteredFavorites(filtered);
   }, [favorites, searchTerm, sortBy, sortOrder]);
 
-  // Simuler une propriété "status" sur chaque manga favori pour la démo (à remplacer par une vraie propriété plus tard)
-  const getStatus = (manga) => manga.status || "en-cours";
-
   const filteredByTab = filteredFavorites.filter(
-    (manga) => getStatus(manga) === tab
+    (manga) => (manga.status || "en-cours") === tab
   );
 
   const handleRemoveFavorite = async (mangaId) => {
@@ -93,6 +94,33 @@ export default function Library() {
     } else {
       setSortBy(newSortBy);
       setSortOrder("asc");
+    }
+  };
+
+  const handleChangeMangaCategory = (manga) => {
+    setSelectedMangaForCategory(manga);
+    setShowCategoryModal(true);
+  };
+
+  const handleCategoryUpdate = async (newCategory) => {
+    if (!selectedMangaForCategory) return;
+
+    try {
+      await updateFavoriteStatus(selectedMangaForCategory.mangaId, newCategory);
+      
+      // Mettre à jour l'état local
+      setFavorites(favorites.map(fav => 
+        fav.mangaId === selectedMangaForCategory.mangaId 
+          ? { ...fav, status: newCategory }
+          : fav
+      ));
+      
+      toast.success("Catégorie mise à jour");
+    } catch (err) {
+      toast.error("Erreur lors de la mise à jour de la catégorie");
+      console.error(err);
+    } finally {
+      setSelectedMangaForCategory(null);
     }
   };
 
@@ -249,19 +277,17 @@ export default function Library() {
       {filteredByTab.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-6 w-full">
           {filteredByTab.map((manga) => (
-            <MangaCard
+            <LibraryMangaCard
               key={manga.mangaId}
               id={manga.mangaId}
               title={manga.title}
               coverUrl={manga.coverImage}
               authorName={manga.author}
               artistName={manga.artist}
-              removable={true}
-              onRemove={handleRemoveFavorite}
               to={`/Comics/${manga.mangaId}/${slugify(manga.title)}`}
-            >
-              <Trash2 size={16} />
-            </MangaCard>
+              onRemove={handleRemoveFavorite}
+              onChangeCategory={() => handleChangeMangaCategory(manga)}
+            />
           ))}
         </div>
       )}
@@ -271,6 +297,17 @@ export default function Library() {
           Aucun manga dans cet onglet.
         </div>
       )}
+
+      {/* Modal de changement de catégorie */}
+      <CategorySelectionModal
+        isOpen={showCategoryModal}
+        onClose={() => {
+          setShowCategoryModal(false);
+          setSelectedMangaForCategory(null);
+        }}
+        onSelectCategory={handleCategoryUpdate}
+        mangaTitle={selectedMangaForCategory?.title || ""}
+      />
     </div>
   );
 }
