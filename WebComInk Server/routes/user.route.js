@@ -8,7 +8,8 @@ const {
   verifyMail,
   addFavorite,
   removeFavorite,
-  getFavorites
+  getFavorites,
+  saveFavoritesOrder
 } = require("../controllers/user.controller");
 
 const router = require("express").Router();
@@ -26,6 +27,7 @@ router.get("/favorites", getFavorites);
 // PUT
 router.put("/", updateUser);
 router.put("/avatar", updateAvatar);
+router.put("/favorites/order", saveFavoritesOrder);
 
 // DELETE
 router.delete("/deleteToken", logoutUser);

@@ -81,3 +81,20 @@ export async function checkIsFavorite(mangaId) {
     return false;
   }
 }
+
+// Nouvelle fonction pour sauvegarder l'ordre des favoris dans une catégorie
+export async function saveFavoritesOrder(category, mangaIds) {
+  try {
+    const res = await axios.put(
+      `${API_BASE_URL}/user/favorites/order`,
+      { category, mangaIds },
+      { withCredentials: true }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Erreur lors de la sauvegarde de l'ordre:", error);
+    throw new Error(
+      error.response?.data?.message || "Erreur lors de la sauvegarde de l'ordre"
+    );
+  }
+}

@@ -272,6 +272,34 @@ const getFavorites = async (req, res) => {
   }
 };
 
+// Sauvegarder l'ordre des favoris pour une catégorie
+const saveFavoritesOrder = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).json({ message: "Non autorisé" });
+    }
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const userId = decodedToken.sub;
+    const { category, mangaIds } = req.body;
+    if (!Array.isArray(mangaIds) || !category) {
+      return res.status(400).json({ message: "Paramètres invalides" });
+    }
+    const user = await User.findById(userId);
+    // On sépare les favoris de la catégorie concernée et les autres
+    const inCategory = user.favorites.filter(fav => (fav.status || "en-cours") === category);
+    const others = user.favorites.filter(fav => (fav.status || "en-cours") !== category);
+    // On réordonne les favoris de la catégorie selon mangaIds
+    const reordered = mangaIds.map(id => inCategory.find(fav => fav.mangaId === id)).filter(Boolean);
+    user.favorites = [...others, ...reordered];
+    await user.save();
+    res.status(200).json({ message: "Ordre sauvegardé", favorites: user.favorites });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
 module.exports = {
   signup,
   signin,
@@ -283,4 +311,5 @@ module.exports = {
   addFavorite,
   removeFavorite,
   getFavorites,
+  saveFavoritesOrder,
 };

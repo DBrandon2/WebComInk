@@ -11,6 +11,7 @@
     "test:unit": "vitest __tests__/units"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^5.0.1",
     "@supabase/supabase-js": "^2.49.4",
     "@testing-library/jest-dom": "^6.6.3",
