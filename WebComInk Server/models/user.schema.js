@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema(
         title: { type: String, required: true },
         coverImage: { type: String },
         addedAt: { type: Date, default: Date.now },
+        order: { type: Number, default: 0 }, // Ajout du champ d'ordre
       },
     ],
   },

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { getFavorites, removeFavorite, updateFavoriteStatus } from "../../services/favoriteService";
+import {
+  getFavorites,
+  removeFavorite,
+  updateFavoriteStatus,
+} from "../../services/favoriteService";
 import { Link } from "react-router-dom";
 import {
   Trash2,
@@ -14,7 +18,24 @@ import { slugify } from "../../utils/mangaUtils";
 import LibraryMangaCard from "../../components/shared/LibraryMangaCard";
 import { motion } from "framer-motion";
 import CategorySelectionModal from "../../components/modals/CategorySelectionModal";
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+// Suppression de l'import inutile de @hello-pangea/dnd
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import SortableMangaCard from "../../components/shared/SortableMangaCard";
+import { setLastDropTime } from "../../utils/dragDropState";
 
 export default function Library() {
   const [favorites, setFavorites] = useState([]);
@@ -26,7 +47,26 @@ export default function Library() {
   const [sortOrder, setSortOrder] = useState("desc"); // "asc", "desc"
   const [tab, setTab] = useState("en-cours");
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [selectedMangaForCategory, setSelectedMangaForCategory] = useState(null);
+  const [selectedMangaForCategory, setSelectedMangaForCategory] =
+    useState(null);
+  const [draggedOverIndex, setDraggedOverIndex] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Déclaration des sensors dnd-kit tout en haut du composant, hors de toute condition !
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        delay: 250, // délai en ms avant activation du drag
+        tolerance: 5, // distance minimale de mouvement avant activation (optionnel)
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 0, // délai réduit à 0ms pour le mobile
+        tolerance: 5,
+      },
+    })
+  );
 
   useEffect(() => {
     const loadFavorites = async () => {
@@ -58,17 +98,21 @@ export default function Library() {
     }
 
     // Tri
-    filtered.sort((a, b) => {
-      let comparison = 0;
+    // Tri par ordre si présent, sinon par le critère choisi
+    if (filtered.length > 0 && filtered[0].order !== undefined) {
+      filtered.sort((a, b) => a.order - b.order);
+    } else {
+      filtered.sort((a, b) => {
+        let comparison = 0;
+        if (sortBy === "title") {
+          comparison = a.title.localeCompare(b.title);
+        } else if (sortBy === "addedAt") {
+          comparison = new Date(a.addedAt) - new Date(b.addedAt);
+        }
 
-      if (sortBy === "title") {
-        comparison = a.title.localeCompare(b.title);
-      } else if (sortBy === "addedAt") {
-        comparison = new Date(a.addedAt) - new Date(b.addedAt);
-      }
-
-      return sortOrder === "asc" ? comparison : -comparison;
-    });
+        return sortOrder === "asc" ? comparison : -comparison;
+      });
+    }
 
     setFilteredFavorites(filtered);
   }, [favorites, searchTerm, sortBy, sortOrder]);
@@ -77,24 +121,60 @@ export default function Library() {
     (manga) => (manga.status || "en-cours") === tab
   );
 
+  // Fonction appelée au début du drag
+  const handleDragStart = (start) => {
+    setIsDragging(true);
+    setDraggedOverIndex(start.source.index);
+  };
+
+  // Fonction appelée pendant le drag pour un feedback en temps réel
+  const handleDragUpdate = (update) => {
+    if (update.destination) {
+      setDraggedOverIndex(update.destination.index);
+    }
+  };
+
   // Fonction de drag & drop qui met à jour l'ordre côté client ET côté serveur
-  const handleDragEnd = async (result) => {
-    if (!result.destination) return;
-    // On ne réordonne que la catégorie courante
-    const currentTabMangas = favorites.filter((fav) => (fav.status || "en-cours") === tab);
-    const others = favorites.filter((fav) => (fav.status || "en-cours") !== tab);
-    const reordered = Array.from(currentTabMangas);
-    const [removed] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, removed);
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    // Signale qu'un drop vient d'avoir lieu
+    setLastDropTime();
+
+    const currentTabMangas = favorites.filter(
+      (fav) => (fav.status || "en-cours") === tab
+    );
+    const others = favorites.filter(
+      (fav) => (fav.status || "en-cours") !== tab
+    );
+    const oldIndex = currentTabMangas.findIndex(
+      (fav) => fav.mangaId === active.id
+    );
+    const newIndex = currentTabMangas.findIndex(
+      (fav) => fav.mangaId === over.id
+    );
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(currentTabMangas, oldIndex, newIndex);
+    reordered.forEach((fav, idx) => {
+      fav.order = idx;
+    });
     setFavorites([...others, ...reordered]);
-    // Sauvegarde côté backend pour la persistance
+
     try {
-      // Appel API pour sauvegarder l'ordre
-      const { saveFavoritesOrder } = await import("../../services/favoriteService");
-      await saveFavoritesOrder(tab, reordered.map((fav) => fav.mangaId));
+      const { saveFavoritesOrder } = await import(
+        "../../services/favoriteService"
+      );
+      await saveFavoritesOrder(
+        tab,
+        reordered.map((fav) => fav.mangaId)
+      );
     } catch (err) {
-      // Silencieux, pas de toast
-      console.error(err);
+      // En cas d'erreur, on pourrait restaurer l'ordre précédent
+      console.error("Erreur lors de la sauvegarde de l'ordre:", err);
+      // Optionnel: restaurer l'ordre précédent
+      // setFavorites([...others, ...currentTabMangas]);
     }
   };
 
@@ -127,11 +207,13 @@ export default function Library() {
     if (!selectedMangaForCategory) return;
     try {
       await updateFavoriteStatus(selectedMangaForCategory.mangaId, newCategory);
-      setFavorites(favorites.map(fav => 
-        fav.mangaId === selectedMangaForCategory.mangaId 
-          ? { ...fav, status: newCategory }
-          : fav
-      ));
+      setFavorites(
+        favorites.map((fav) =>
+          fav.mangaId === selectedMangaForCategory.mangaId
+            ? { ...fav, status: newCategory }
+            : fav
+        )
+      );
       // Pas de toast
     } catch (err) {
       // Pas de toast
@@ -291,47 +373,32 @@ export default function Library() {
       )}
 
       {/* Grille des mangas avec drag & drop côté client */}
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="manga-list" direction="horizontal">
-          {(provided) => (
-            <div
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-6 w-full"
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              {favorites
-                .filter((fav) => (fav.status || "en-cours") === tab)
-                .map((manga, index) => (
-                <Draggable key={manga.mangaId} draggableId={manga.mangaId} index={index}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      style={{
-                        ...provided.draggableProps.style,
-                        zIndex: snapshot.isDragging ? 10 : 'auto',
-                      }}
-                    >
-                      <LibraryMangaCard
-                        id={manga.mangaId}
-                        title={manga.title}
-                        coverUrl={manga.coverImage}
-                        authorName={manga.author}
-                        artistName={manga.artist}
-                        to={`/Comics/${manga.mangaId}/${slugify(manga.title)}`}
-                        onRemove={handleRemoveFavorite}
-                        onChangeCategory={() => handleChangeMangaCategory(manga)}
-                      />
-                    </div>
-                  )}
-                </Draggable>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={favorites
+            .filter((fav) => (fav.status || "en-cours") === tab)
+            .map((fav) => fav.mangaId)}
+          strategy={rectSortingStrategy}
+        >
+          <div className="library-grid-container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-6 w-full">
+            {favorites
+              .filter((fav) => (fav.status || "en-cours") === tab)
+              .map((manga, index) => (
+                <SortableMangaCard
+                  key={manga.mangaId}
+                  manga={manga}
+                  index={index}
+                  onRemove={() => handleRemoveFavorite(manga.mangaId)}
+                  onChangeCategory={() => handleChangeMangaCategory(manga)}
+                />
               ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {/* Message si aucun manga dans l'onglet */}
       {filteredByTab.length === 0 && (
@@ -353,6 +420,3 @@ export default function Library() {
     </div>
   );
 }
-
-// Nouvelle fonction à ajouter dans favoriteService.js (à créer)
-// export async function saveFavoritesOrder(category, mangaIds) { ... }

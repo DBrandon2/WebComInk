@@ -287,13 +287,25 @@ const saveFavoritesOrder = async (req, res) => {
     }
     const user = await User.findById(userId);
     // On sépare les favoris de la catégorie concernée et les autres
-    const inCategory = user.favorites.filter(fav => (fav.status || "en-cours") === category);
-    const others = user.favorites.filter(fav => (fav.status || "en-cours") !== category);
+    const inCategory = user.favorites.filter(
+      (fav) => (fav.status || "en-cours") === category
+    );
+    const others = user.favorites.filter(
+      (fav) => (fav.status || "en-cours") !== category
+    );
     // On réordonne les favoris de la catégorie selon mangaIds
-    const reordered = mangaIds.map(id => inCategory.find(fav => fav.mangaId === id)).filter(Boolean);
+    const reordered = mangaIds
+      .map((id, idx) => {
+        const fav = inCategory.find((fav) => fav.mangaId === id);
+        if (fav) fav.order = idx; // Met à jour l'ordre
+        return fav;
+      })
+      .filter(Boolean);
     user.favorites = [...others, ...reordered];
     await user.save();
-    res.status(200).json({ message: "Ordre sauvegardé", favorites: user.favorites });
+    res
+      .status(200)
+      .json({ message: "Ordre sauvegardé", favorites: user.favorites });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Erreur serveur" });

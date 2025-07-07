@@ -148,3 +148,99 @@ body.immersive-reader-desktop img {
   -o-user-drag: none;
   user-select: none;
 }
+
+/* Styles pour le drag & drop de la bibliothèque */
+.library-drag-handle {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Améliorer l'expérience tactile sur mobile */
+@media (max-width: 768px) {
+  .library-drag-handle {
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Container de la grille avec transitions fluides */
+.library-grid-container {
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Éléments de la grille avec transitions fluides */
+.library-grid-item {
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform;
+}
+
+/* État pendant le drag */
+.library-grid-item.is-dragging {
+  transform: rotate(3deg) scale(1.08);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  opacity: 0.95;
+  transition: none; /* Pas de transition pendant le drag pour plus de fluidité */
+}
+
+/* Éléments qui se déplacent pour faire de la place */
+.library-grid-item.is-moving {
+  transform: scale(0.98);
+  opacity: 0.8;
+}
+
+/* Zone de drop active avec animation */
+.drop-zone-active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+  border: 2px dashed rgba(59, 130, 246, 0.4);
+  border-radius: 12px;
+  animation: pulse-drop-zone 2s infinite;
+}
+
+@keyframes pulse-drop-zone {
+  0%, 100% {
+    border-color: rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+  }
+  50% {
+    border-color: rgba(59, 130, 246, 0.6);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08));
+  }
+}
+
+/* Indicateur de position de drop */
+.drop-indicator {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, rgba(237, 240, 96, 0.6), transparent);
+  height: 3px;
+  border-radius: 2px;
+  animation: shimmer 1.5s infinite;
+  z-index: 100;
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0.4;
+    transform: scaleX(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scaleX(0.8);
+  }
+}
+
+/* Optimisations pour les performances */
+.library-grid-container * {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
