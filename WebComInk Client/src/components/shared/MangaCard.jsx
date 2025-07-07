@@ -7,8 +7,6 @@ export default function MangaCard({
   id,
   title,
   coverUrl,
-  authorName,
-  artistName,
   latestChapterNumber,
   showLatestChapter = false,
   onRemove,
@@ -19,7 +17,7 @@ export default function MangaCard({
   return (
     <motion.div variants={{}}>
       <NavLink to={to || `/Comics/${id}/${slugify(title)}`}>
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-2 ">
           <motion.div
             className="w-[160px] h-[240px] lg:w-[240px] lg:h-[360px] bg-gray-200 relative overflow-hidden"
             whileHover={{ scale: 1.03 }}
@@ -49,7 +47,7 @@ export default function MangaCard({
               </button>
             )}
           </motion.div>
-          <div className="flex flex-col justify-center items-center text-center w-full">
+          <div className="flex flex-col justify-center items-center text-center w-full ">
             <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg cursor-pointer">
               {title}
             </h3>

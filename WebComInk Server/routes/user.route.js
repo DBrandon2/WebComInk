@@ -9,12 +9,12 @@ const {
   addFavorite,
   removeFavorite,
   getFavorites,
-  saveFavoritesOrder
+  saveFavoritesOrder,
 } = require("../controllers/user.controller");
 
 const router = require("express").Router();
 
-// POST 
+// POST
 router.post("/register", signup);
 router.post("/login", signin);
 router.post("/favorites", addFavorite);

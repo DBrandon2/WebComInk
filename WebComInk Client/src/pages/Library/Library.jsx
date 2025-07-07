@@ -384,7 +384,7 @@ export default function Library() {
             .map((fav) => fav.mangaId)}
           strategy={rectSortingStrategy}
         >
-          <div className="library-grid-container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-6 w-full">
+          <div className="library-grid-container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-x-4 gap-y-6 w-full">
             {favorites
               .filter((fav) => (fav.status || "en-cours") === tab)
               .map((manga, index) => (
