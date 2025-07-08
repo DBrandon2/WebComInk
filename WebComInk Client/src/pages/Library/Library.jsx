@@ -3,6 +3,10 @@ import {
   getFavorites,
   removeFavorite,
   updateFavoriteStatus,
+  getCustomCategories,
+  addCustomCategory,
+  removeCustomCategory,
+  renameCustomCategory,
 } from "../../services/favoriteService";
 import { Link } from "react-router-dom";
 import {
@@ -45,12 +49,76 @@ export default function Library() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("addedAt"); // "addedAt", "title"
   const [sortOrder, setSortOrder] = useState("desc"); // "asc", "desc"
-  const [tab, setTab] = useState("en-cours");
+  const [tab, setTab] = useState("");
+  const [customCategories, setCustomCategories] = useState([]);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedMangaForCategory, setSelectedMangaForCategory] =
     useState(null);
   const [draggedOverIndex, setDraggedOverIndex] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [addCatLoading, setAddCatLoading] = useState(false);
+  const [addCatError, setAddCatError] = useState("");
+  // Pour le renommage
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState("");
+  const [renameLoading, setRenameLoading] = useState(false);
+  const [renameError, setRenameError] = useState("");
+  // Pour la suppression
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Catégorie sélectionnée est-elle personnalisée ?
+  const isCustomTab = customCategories.includes(tab);
+
+  // Handler suppression
+  const handleDeleteCategory = async () => {
+    setDeleteLoading(true);
+    try {
+      await removeCustomCategory(tab);
+      setCustomCategories((prev) => prev.filter((cat) => cat !== tab));
+      setTab("en-cours");
+      setShowDeleteConfirm(false);
+    } catch (err) {
+      // Optionnel : afficher une erreur
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Handler renommage
+  const handleStartRename = () => {
+    setIsRenaming(true);
+    setRenameValue(tab);
+    setRenameError("");
+  };
+  const handleCancelRename = () => {
+    setIsRenaming(false);
+    setRenameValue("");
+    setRenameError("");
+  };
+  const handleRenameCategory = async (e) => {
+    e.preventDefault();
+    if (!renameValue.trim()) {
+      setRenameError("Le nom ne peut pas être vide.");
+      return;
+    }
+    setRenameLoading(true);
+    setRenameError("");
+    try {
+      await renameCustomCategory(tab, renameValue.trim());
+      setCustomCategories((prev) =>
+        prev.map((cat) => (cat === tab ? renameValue.trim() : cat))
+      );
+      setTab(renameValue.trim());
+      setIsRenaming(false);
+    } catch (err) {
+      setRenameError(err.message || "Erreur lors du renommage.");
+    } finally {
+      setRenameLoading(false);
+    }
+  };
 
   // Déclaration des sensors dnd-kit tout en haut du composant, hors de toute condition !
   const sensors = useSensors(
@@ -68,6 +136,9 @@ export default function Library() {
     })
   );
 
+  // Désormais, toutes les catégories viennent du backend (customCategories)
+  const allCategories = customCategories.map((cat) => [cat, cat]);
+
   useEffect(() => {
     const loadFavorites = async () => {
       try {
@@ -82,8 +153,17 @@ export default function Library() {
         setLoading(false);
       }
     };
+    const loadCustomCategories = async () => {
+      try {
+        const cats = await getCustomCategories();
+        setCustomCategories(Array.isArray(cats) ? cats : []);
+      } catch (err) {
+        setCustomCategories([]);
+      }
+    };
 
     loadFavorites();
+    loadCustomCategories();
   }, []);
 
   // Effet pour filtrer et trier les favoris
@@ -120,6 +200,13 @@ export default function Library() {
   const filteredByTab = filteredFavorites.filter(
     (manga) => (manga.status || "en-cours") === tab
   );
+
+  // Quand customCategories change, sélectionne la première catégorie si tab n'est pas valide
+  useEffect(() => {
+    if (customCategories.length > 0 && !customCategories.includes(tab)) {
+      setTab(customCategories[0]);
+    }
+  }, [customCategories]);
 
   // Fonction appelée au début du drag
   const handleDragStart = (start) => {
@@ -223,6 +310,36 @@ export default function Library() {
     }
   };
 
+  // Ajout d'une catégorie personnalisée
+  const handleOpenAddCategory = () => {
+    setShowAddCategoryModal(true);
+    setNewCategoryName("");
+    setAddCatError("");
+  };
+  const handleCloseAddCategory = () => {
+    setShowAddCategoryModal(false);
+    setNewCategoryName("");
+    setAddCatError("");
+  };
+  const handleAddCategory = async (e) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) {
+      setAddCatError("Le nom ne peut pas être vide.");
+      return;
+    }
+    setAddCatLoading(true);
+    setAddCatError("");
+    try {
+      await addCustomCategory(newCategoryName.trim());
+      setCustomCategories((prev) => [...prev, newCategoryName.trim()]);
+      handleCloseAddCategory();
+    } catch (err) {
+      setAddCatError(err.message || "Erreur lors de l'ajout.");
+    } finally {
+      setAddCatLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -268,29 +385,34 @@ export default function Library() {
 
   return (
     <div className="container mx-auto p-4">
-      {/* Onglets de tri */}
-      <div className="flex gap-2 mb-6 justify-center">
-        {[
-          ["en-cours", "En cours"],
-          ["en-pause", "En pause"],
-          ["a-lire", "À lire"],
-          ["lu", "Lu"],
-        ].map(([key, label]) => (
-          <motion.button
-            key={key}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            className={`px-5 py-2 rounded-md font-semibold border-2 shadow flex items-center transition-all duration-150 text-base focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 cursor-pointer
+      {/* Onglets de tri dynamiques */}
+      <div className="mb-4">
+        <div className="flex gap-2 sm:gap-4 items-center overflow-x-auto whitespace-nowrap px-4 sm:px-8 pb-3 scrollbar-none w-full min-w-0">
+          {allCategories.map(([key, label]) => (
+            <motion.button
+              key={key}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              className={`px-3 py-1 text-sm sm:px-5 sm:py-2 sm:text-base rounded-md font-semibold border-2 shadow flex items-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 cursor-pointer
               ${
                 tab === key
                   ? "bg-accent text-dark-bg border-accent"
                   : "bg-accent-hover text-accent border-accent "
               }`}
-            onClick={() => setTab(key)}
+              onClick={() => setTab(key)}
+            >
+              {label}
+            </motion.button>
+          ))}
+          {/* Bouton + pour ajouter une catégorie */}
+          <button
+            onClick={handleOpenAddCategory}
+            className="w-8 h-8 text-xl sm:w-10 sm:h-10 sm:text-2xl rounded hover:bg-accent-hover text-accent leading-none flex items-center justify-center transition ml-1 sm:ml-2 p-0"
+            title="Ajouter une catégorie"
           >
-            {label}
-          </motion.button>
-        ))}
+            <span className="relative -top-0.5">+</span>
+          </button>
+        </div>
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-bold mb-4 sm:mb-0">
@@ -315,44 +437,61 @@ export default function Library() {
             />
           </div>
 
-          {/* Boutons de tri */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleSortChange("title")}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
-                sortBy === "title"
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
-              title="Trier par titre"
-            >
-              <BookOpen size={16} />
-              {sortBy === "title" &&
-                (sortOrder === "asc" ? (
-                  <SortAsc size={16} />
-                ) : (
-                  <SortDesc size={16} />
-                ))}
-            </button>
-
-            <button
-              onClick={() => handleSortChange("addedAt")}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
-                sortBy === "addedAt"
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
-              title="Trier par date d'ajout"
-            >
-              <Calendar size={16} />
-              {sortBy === "addedAt" &&
-                (sortOrder === "asc" ? (
-                  <SortAsc size={16} />
-                ) : (
-                  <SortDesc size={16} />
-                ))}
-            </button>
-          </div>
+          {/* Boutons de gestion de catégorie personnalisée */}
+          {isCustomTab && (
+            <div className="flex gap-1 sm:gap-2 items-center">
+              {/* Renommer */}
+              {isRenaming ? (
+                <form
+                  onSubmit={handleRenameCategory}
+                  className="flex gap-1 items-center"
+                >
+                  <input
+                    type="text"
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    className="px-2 py-1 rounded border-2 border-accent bg-accent-hover text-accent font-semibold focus:outline-none focus:ring-2 focus:ring-accent w-20 sm:w-28"
+                    maxLength={32}
+                    disabled={renameLoading}
+                    autoFocus
+                  />
+                  <button
+                    type="submit"
+                    className="px-2 py-1 rounded bg-accent text-dark-bg font-bold hover:bg-accent-hover transition disabled:opacity-60 text-xs sm:text-base"
+                    disabled={renameLoading}
+                  >
+                    OK
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelRename}
+                    className="px-2 py-1 rounded bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition disabled:opacity-60 text-xs sm:text-base"
+                    disabled={renameLoading}
+                  >
+                    Annuler
+                  </button>
+                </form>
+              ) : (
+                <button
+                  onClick={handleStartRename}
+                  className="p-1 sm:p-2 rounded hover:bg-accent-hover text-accent"
+                  title="Renommer la catégorie"
+                >
+                  <Edit3 size={16} className="sm:hidden" />
+                  <Edit3 size={18} className="hidden sm:inline" />
+                </button>
+              )}
+              {/* Supprimer */}
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="p-1 sm:p-2 rounded hover:bg-red-100 text-red-500"
+                title="Supprimer la catégorie"
+              >
+                <Trash2 size={16} className="sm:hidden" />
+                <Trash2 size={18} className="hidden sm:inline" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -417,6 +556,88 @@ export default function Library() {
         onSelectCategory={handleCategoryUpdate}
         mangaTitle={selectedMangaForCategory?.title || ""}
       />
+
+      {/* Modal d'ajout de catégorie personnalisée */}
+      {showAddCategoryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div className="bg-dark-bg rounded-2xl shadow-2xl p-6 w-full max-w-xs sm:max-w-sm relative animate-fade-in border-2 border-accent">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-center text-accent">
+              Nouvelle catégorie
+            </h2>
+            <form onSubmit={handleAddCategory}>
+              <input
+                type="text"
+                className="w-full border-2 border-accent rounded-lg px-3 py-2 mb-2 bg-accent-hover text-accent placeholder:text-accent/60 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent text-base font-semibold transition"
+                placeholder="Nom de la catégorie"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                autoFocus
+                maxLength={32}
+                disabled={addCatLoading}
+              />
+              {addCatError && (
+                <div className="text-red-500 text-center font-semibold mb-2">
+                  {addCatError}
+                </div>
+              )}
+              <div className="flex gap-3 mt-3 justify-center">
+                <button
+                  type="button"
+                  onClick={handleCloseAddCategory}
+                  className="px-4 py-2 rounded-lg bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition disabled:opacity-60"
+                  disabled={addCatLoading}
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-lg bg-accent text-dark-bg font-bold hover:bg-accent-hover transition disabled:opacity-60"
+                  disabled={addCatLoading}
+                >
+                  {addCatLoading ? "Ajout..." : "Ajouter"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Modal de confirmation suppression catégorie */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div className="bg-dark-bg rounded-2xl shadow-2xl p-6 w-full max-w-xs sm:max-w-sm relative border-2 border-accent">
+            <h2 className="text-lg font-bold mb-4 text-center text-accent">
+              Supprimer la catégorie ?
+            </h2>
+            <p className="text-center text-gray-200 mb-4">
+              Cette action est irréversible.
+              <br />
+              Les mangas de cette catégorie ne seront pas supprimés.
+            </p>
+            <div className="flex gap-3 justify-center mt-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 rounded-lg bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition"
+                disabled={deleteLoading}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleDeleteCategory}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white font-bold hover:bg-red-600 transition disabled:opacity-60"
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? "Suppression..." : "Supprimer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Message d'erreur renommage */}
+      {isRenaming && renameError && (
+        <div className="text-red-500 text-center font-semibold mb-2">
+          {renameError}
+        </div>
+      )}
     </div>
   );
 }

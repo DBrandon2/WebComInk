@@ -11,7 +11,12 @@ import { LuBookmarkX } from "react-icons/lu";
 import { motion } from "framer-motion";
 import CategorySelectionModal from "./modals/CategorySelectionModal";
 
-export default function FavoriteButton({ mangaId, title, coverImage }) {
+export default function FavoriteButton({
+  mangaId,
+  title,
+  coverImage,
+  customCategories = [],
+}) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -65,9 +70,13 @@ export default function FavoriteButton({ mangaId, title, coverImage }) {
   const handleCategorySelect = async (category) => {
     setIsLoading(true);
     try {
-      await addFavorite(mangaId, title, coverImage, category);
+      await addFavorite(
+        mangaId,
+        title,
+        coverImage,
+        category || customCategories[0] || "non-classé"
+      );
       setIsFavorite(true);
-      toast.success("Ajouté aux favoris");
     } catch (error) {
       toast.error(error.message || "Une erreur est survenue");
       console.error("Erreur lors de l'ajout aux favoris:", error);
@@ -93,7 +102,9 @@ export default function FavoriteButton({ mangaId, title, coverImage }) {
         transition={{ type: "spring", stiffness: 300, damping: 18 }}
       >
         {isFavorite ? <LuBookmarkX size={20} /> : <LuBookPlus size={20} />}
-        <span>{isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}</span>
+        <span>
+          {isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+        </span>
       </motion.button>
 
       <CategorySelectionModal
@@ -101,6 +112,7 @@ export default function FavoriteButton({ mangaId, title, coverImage }) {
         onClose={() => setShowCategoryModal(false)}
         onSelectCategory={handleCategorySelect}
         mangaTitle={title}
+        customCategories={customCategories}
       />
     </>
   );

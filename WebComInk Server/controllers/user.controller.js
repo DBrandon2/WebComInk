@@ -54,6 +54,7 @@ const verifyMail = async (req, res) => {
       username: tempUser.username,
       email: tempUser.email,
       password: tempUser.password,
+      customCategories: ["En cours", "En pause", "À lire", "Lu"],
     });
     await newUser.save();
     await TempUser.deleteOne({ email: tempUser.email });
@@ -188,7 +189,7 @@ const addFavorite = async (req, res) => {
     const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
     const userId = decodedToken.sub;
 
-    const { mangaId, title, coverImage } = req.body;
+    const { mangaId, title, coverImage, status } = req.body;
 
     if (!mangaId || !title) {
       return res.status(400).json({ message: "Données manquantes" });
@@ -206,12 +207,23 @@ const addFavorite = async (req, res) => {
         .json({ message: "Ce manga est déjà dans vos favoris" });
     }
 
+    // Déterminer la catégorie cible
+    let categoryToUse = status;
+    if (!categoryToUse || !user.customCategories.includes(categoryToUse)) {
+      // Utiliser la première catégorie disponible ou "En cours" par défaut
+      categoryToUse =
+        user.customCategories.length > 0
+          ? user.customCategories[0]
+          : "En cours";
+    }
+
     // Ajouter aux favoris
     user.favorites.push({
       mangaId,
       title,
       coverImage,
       addedAt: new Date(),
+      status: categoryToUse,
     });
 
     await user.save();
@@ -272,6 +284,51 @@ const getFavorites = async (req, res) => {
   }
 };
 
+const updateFavoriteStatus = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).json({ message: "Non autorisé" });
+    }
+
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const userId = decodedToken.sub;
+
+    const { mangaId, newStatus } = req.body;
+
+    if (!mangaId || !newStatus) {
+      return res.status(400).json({ message: "Données manquantes" });
+    }
+
+    const user = await User.findById(userId);
+
+    // Vérifier que la nouvelle catégorie existe
+    if (!user.customCategories.includes(newStatus)) {
+      return res.status(400).json({ message: "Catégorie inexistante" });
+    }
+
+    // Trouver et mettre à jour le favori
+    const favoriteIndex = user.favorites.findIndex(
+      (fav) => fav.mangaId === mangaId
+    );
+
+    if (favoriteIndex === -1) {
+      return res.status(404).json({ message: "Favori non trouvé" });
+    }
+
+    user.favorites[favoriteIndex].status = newStatus;
+    await user.save();
+
+    res.status(200).json({
+      message: "Statut mis à jour",
+      favorites: user.favorites,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
 // Sauvegarder l'ordre des favoris pour une catégorie
 const saveFavoritesOrder = async (req, res) => {
   try {
@@ -288,10 +345,10 @@ const saveFavoritesOrder = async (req, res) => {
     const user = await User.findById(userId);
     // On sépare les favoris de la catégorie concernée et les autres
     const inCategory = user.favorites.filter(
-      (fav) => (fav.status || "en-cours") === category
+      (fav) => (fav.status || "En cours") === category
     );
     const others = user.favorites.filter(
-      (fav) => (fav.status || "en-cours") !== category
+      (fav) => (fav.status || "En cours") !== category
     );
     // On réordonne les favoris de la catégorie selon mangaIds
     const reordered = mangaIds
@@ -312,6 +369,150 @@ const saveFavoritesOrder = async (req, res) => {
   }
 };
 
+// --- Catégories personnalisées ---
+const getCustomCategories = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) return res.status(401).json({ message: "Non autorisé" });
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const user = await User.findById(decodedToken.sub);
+    if (!user)
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    res.status(200).json(user.customCategories || []);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+const addCustomCategory = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) return res.status(401).json({ message: "Non autorisé" });
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const user = await User.findById(decodedToken.sub);
+    if (!user)
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    const { category } = req.body;
+    if (!category || typeof category !== "string" || !category.trim()) {
+      return res.status(400).json({ message: "Nom de catégorie invalide" });
+    }
+    if (user.customCategories.includes(category)) {
+      return res.status(400).json({ message: "Catégorie déjà existante" });
+    }
+    user.customCategories.push(category);
+    await user.save();
+    res.status(201).json(user.customCategories);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+const removeCustomCategory = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) return res.status(401).json({ message: "Non autorisé" });
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const user = await User.findById(decodedToken.sub);
+    if (!user)
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    const { category } = req.body;
+    if (!category || typeof category !== "string") {
+      return res.status(400).json({ message: "Nom de catégorie invalide" });
+    }
+    if ((user.customCategories || []).length <= 1) {
+      return res.status(400).json({
+        message:
+          "Vous devez conserver au moins une catégorie dans votre bibliothèque.",
+      });
+    }
+
+    // Suppression de la catégorie "non-classé"
+    if (category === "non-classé") {
+      // Supprimer tous les favoris qui ont ce statut
+      user.favorites = user.favorites.filter(
+        (fav) => fav.status !== "non-classé"
+      );
+      user.customCategories = user.customCategories.filter(
+        (cat) => cat !== "non-classé"
+      );
+      await user.save();
+      return res.status(200).json(user.customCategories);
+    }
+
+    // Sinon, déplacer les mangas dans "non-classé"
+    // Créer la catégorie si besoin
+    if (!user.customCategories.includes("non-classé")) {
+      user.customCategories.push("non-classé");
+    }
+    user.favorites = user.favorites.map((fav) =>
+      fav.status === category ? { ...fav, status: "non-classé" } : fav
+    );
+    user.customCategories = user.customCategories.filter(
+      (cat) => cat !== category
+    );
+
+    // Si "non-classé" ne contient plus aucun manga, la retirer
+    const hasUnclassified = user.favorites.some(
+      (fav) => fav.status === "non-classé"
+    );
+    if (!hasUnclassified) {
+      user.customCategories = user.customCategories.filter(
+        (cat) => cat !== "non-classé"
+      );
+    }
+
+    await user.save();
+    res.status(200).json(user.customCategories);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+const renameCustomCategory = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) return res.status(401).json({ message: "Non autorisé" });
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const user = await User.findById(decodedToken.sub);
+    if (!user)
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    const { oldCategory, newCategory } = req.body;
+    if (
+      !oldCategory ||
+      !newCategory ||
+      typeof oldCategory !== "string" ||
+      typeof newCategory !== "string" ||
+      !newCategory.trim()
+    ) {
+      return res.status(400).json({ message: "Nom de catégorie invalide" });
+    }
+    if (!user.customCategories.includes(oldCategory)) {
+      return res
+        .status(400)
+        .json({ message: "Catégorie à renommer introuvable" });
+    }
+    if (user.customCategories.includes(newCategory)) {
+      return res
+        .status(400)
+        .json({ message: "Une catégorie avec ce nom existe déjà" });
+    }
+    // Mettre à jour les catégories personnalisées
+    user.customCategories = user.customCategories.map((cat) =>
+      cat === oldCategory ? newCategory : cat
+    );
+
+    // Mettre à jour le statut des favoris qui utilisent l'ancienne catégorie
+    user.favorites = user.favorites.map((fav) =>
+      fav.status === oldCategory ? { ...fav, status: newCategory } : fav
+    );
+
+    await user.save();
+    res.status(200).json(user.customCategories);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
 module.exports = {
   signup,
   signin,
@@ -323,5 +524,10 @@ module.exports = {
   addFavorite,
   removeFavorite,
   getFavorites,
+  updateFavoriteStatus,
   saveFavoritesOrder,
+  getCustomCategories,
+  addCustomCategory,
+  removeCustomCategory,
+  renameCustomCategory,
 };

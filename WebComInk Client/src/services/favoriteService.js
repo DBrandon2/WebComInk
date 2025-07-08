@@ -19,7 +19,12 @@ export async function getFavorites() {
 }
 
 // Ajouter un manga aux favoris
-export async function addFavorite(mangaId, title, coverImage, status = "en-cours") {
+export async function addFavorite(
+  mangaId,
+  title,
+  coverImage,
+  status = "en-cours"
+) {
   try {
     const res = await axios.post(
       `${API_BASE_URL}/user/favorites`,
@@ -95,6 +100,84 @@ export async function saveFavoritesOrder(category, mangaIds) {
     console.error("Erreur lors de la sauvegarde de l'ordre:", error);
     throw new Error(
       error.response?.data?.message || "Erreur lors de la sauvegarde de l'ordre"
+    );
+  }
+}
+
+// --- Catégories personnalisées ---
+export async function getCustomCategories() {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/user/custom-categories`, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des catégories personnalisées:",
+      error
+    );
+    throw new Error(
+      error.response?.data?.message ||
+        "Erreur lors de la récupération des catégories personnalisées"
+    );
+  }
+}
+
+export async function addCustomCategory(category) {
+  try {
+    const res = await axios.post(
+      `${API_BASE_URL}/user/custom-categories`,
+      { category },
+      { withCredentials: true }
+    );
+    return res.data;
+  } catch (error) {
+    console.error(
+      "Erreur lors de l'ajout d'une catégorie personnalisée:",
+      error
+    );
+    throw new Error(
+      error.response?.data?.message ||
+        "Erreur lors de l'ajout d'une catégorie personnalisée"
+    );
+  }
+}
+
+export async function removeCustomCategory(category) {
+  try {
+    const res = await axios.delete(`${API_BASE_URL}/user/custom-categories`, {
+      data: { category },
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    console.error(
+      "Erreur lors de la suppression d'une catégorie personnalisée:",
+      error
+    );
+    throw new Error(
+      error.response?.data?.message ||
+        "Erreur lors de la suppression d'une catégorie personnalisée"
+    );
+  }
+}
+
+export async function renameCustomCategory(oldCategory, newCategory) {
+  try {
+    const res = await axios.put(
+      `${API_BASE_URL}/user/custom-categories`,
+      { oldCategory, newCategory },
+      { withCredentials: true }
+    );
+    return res.data;
+  } catch (error) {
+    console.error(
+      "Erreur lors du renommage d'une catégorie personnalisée:",
+      error
+    );
+    throw new Error(
+      error.response?.data?.message ||
+        "Erreur lors du renommage de la catégorie personnalisée"
     );
   }
 }

@@ -2,42 +2,12 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, BookOpen, Pause, Clock, CheckCircle } from "lucide-react";
 
-const categories = [
-  {
-    key: "en-cours",
-    label: "En cours",
-    description: "Manga que vous lisez actuellement",
-    icon: BookOpen,
-    color: "bg-blue-500",
-  },
-  {
-    key: "en-pause",
-    label: "En pause",
-    description: "Manga mis en pause temporairement",
-    icon: Pause,
-    color: "bg-orange-500",
-  },
-  {
-    key: "a-lire",
-    label: "À lire",
-    description: "Manga que vous voulez lire plus tard",
-    icon: Clock,
-    color: "bg-purple-500",
-  },
-  {
-    key: "lu",
-    label: "Lu",
-    description: "Manga que vous avez terminé",
-    icon: CheckCircle,
-    color: "bg-green-500",
-  },
-];
-
 export default function CategorySelectionModal({
   isOpen,
   onClose,
   onSelectCategory,
   mangaTitle,
+  customCategories = [],
 }) {
   if (!isOpen) return null;
 
@@ -86,34 +56,32 @@ export default function CategorySelectionModal({
 
             {/* Categories */}
             <div className="p-6 space-y-3">
-              {categories.map((category) => {
-                const IconComponent = category.icon;
-                return (
+              {customCategories.length === 0 ? (
+                <div className="text-center text-gray-500">
+                  Aucune catégorie disponible.
+                </div>
+              ) : (
+                customCategories.map((cat) => (
                   <motion.button
-                    key={category.key}
-                    onClick={() => handleCategorySelect(category.key)}
+                    key={cat}
+                    onClick={() => handleCategorySelect(cat)}
                     className="w-full p-4 rounded-lg border-2 border-gray-200 hover:border-accent hover:bg-accent/5 transition-all duration-200 text-left group"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className={`p-2 rounded-lg ${category.color} text-white group-hover:scale-110 transition-transform`}
-                      >
-                        <IconComponent size={20} />
+                      <div className="p-2 rounded-lg bg-accent text-white group-hover:scale-110 transition-transform">
+                        <BookOpen size={20} />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900 group-hover:text-accent transition-colors">
-                          {category.label}
+                          {cat}
                         </h3>
-                        <p className="text-sm text-gray-600">
-                          {category.description}
-                        </p>
                       </div>
                     </div>
                   </motion.button>
-                );
-              })}
+                ))
+              )}
             </div>
 
             {/* Footer */}

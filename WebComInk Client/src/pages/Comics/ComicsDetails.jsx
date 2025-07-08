@@ -9,6 +9,7 @@ import axios from "axios";
 import TopBarMobile from "./TopBarMobile";
 import ChaptersList from "./ChaptersList";
 import FavoriteButton from "../../components/FavoriteButton";
+import { getCustomCategories } from "../../services/favoriteService";
 
 export default function ComicsDetails() {
   const { id, slug } = useParams();
@@ -19,6 +20,7 @@ export default function ComicsDetails() {
   const [meanRating, setMeanRating] = useState(null);
   const [scanGroups, setScanGroups] = useState({ fr: [], en: [] });
   const [modalTranslatorsOpen, setModalTranslatorsOpen] = useState(false);
+  const [customCategories, setCustomCategories] = useState([]);
 
   // Extraction et fallback automatique du synopsis (fr > en)
   const rawDescFr = manga?.originalData?.attributes?.description?.fr || "";
@@ -320,6 +322,18 @@ export default function ComicsDetails() {
   }, [id, slug, navigate]);
 
   useEffect(() => {
+    const loadCustomCategories = async () => {
+      try {
+        const cats = await getCustomCategories();
+        setCustomCategories(Array.isArray(cats) ? cats : []);
+      } catch (err) {
+        setCustomCategories([]);
+      }
+    };
+    loadCustomCategories();
+  }, []);
+
+  useEffect(() => {
     // Logique pour desktop
     if (isExpanded) {
       setIsClamped(true); // Toujours afficher le bouton Réduire quand ouvert
@@ -439,6 +453,7 @@ export default function ComicsDetails() {
                 mangaId={manga.id}
                 title={manga.title}
                 coverImage={manga.coverUrl}
+                customCategories={customCategories}
               />
             </div>
           </div>
