@@ -26,7 +26,7 @@ export default function SwitchBtn({
   const barLeft = isLeftActive ? "0%" : "50%";
 
   return (
-    <div className="relative flex w-full h-[64px] overflow-hidden bg-accent-hover rounded-lg">
+    <div className="relative flex w-full h-[64px] overflow-hidden bg-accent-hover ">
       {/* Fond animé */}
       {showBar && (
         <motion.div

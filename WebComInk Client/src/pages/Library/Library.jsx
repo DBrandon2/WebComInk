@@ -9,12 +9,7 @@ import {
   renameCustomCategory,
 } from "../../services/favoriteService";
 import { Link } from "react-router-dom";
-import {
-  Trash2,
-  Search,
-  BookOpen,
-  Edit3,
-} from "lucide-react";
+import { Trash2, Search, BookOpen, Edit3 } from "lucide-react";
 import { slugify } from "../../utils/mangaUtils";
 import LibraryMangaCard from "../../components/shared/LibraryMangaCard";
 import { motion } from "framer-motion";
@@ -37,6 +32,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import SortableMangaCard from "../../components/shared/SortableMangaCard";
 import { setLastDropTime } from "../../utils/dragDropState";
+import TopBarMobile from "../Comics/TopBarMobile";
 
 export default function Library() {
   const [favorites, setFavorites] = useState([]);
@@ -381,16 +377,17 @@ export default function Library() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 mt-12">
+      <TopBarMobile />
       {/* Onglets de tri dynamiques */}
       <div className="flex items-center justify-center mb-4">
-        <div className="flex gap-2 sm:gap-4 items-center overflow-x-auto whitespace-nowrap px-4 sm:px-8 p-2 scrollbar-none w-full min-w-0 ">
+        <div className="flex gap-4 sm:gap-4 items-center overflow-x-auto whitespace-nowrap px-4 sm:px-8 pb-4 scrollbar-none w-full min-w-0 ">
           {allCategories.map(([key, label]) => (
             <motion.button
               key={key}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
-              className={`px-3 py-1 text-sm sm:px-5 sm:py-2 sm:text-base rounded-md font-semibold border-2 shadow flex items-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 cursor-pointer
+              className={`px-6 py-3 text-sm sm:px-5 sm:py-2 sm:text-base rounded-md font-semibold border-2 shadow flex items-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 cursor-pointer
               ${
                 tab === key
                   ? "bg-accent text-dark-bg border-accent"

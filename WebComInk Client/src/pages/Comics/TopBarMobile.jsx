@@ -30,7 +30,7 @@ export default function TopBarMobile() {
   }, [offset]);
 
   const handleBack = () => {
-    navigate(-1);
+    navigate("/Comics");
   };
 
   return (
