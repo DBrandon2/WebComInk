@@ -52,7 +52,7 @@ export default function Settings() {
         <p className="font-light text-gray-300 mb-4">
           Modifier la police d'écriture du site exclusivement. ( Cela se limite
           aux menus et interfaces du site et non des chapitres disponibles sur
-          WebComInk).
+          WebComInk ).
         </p>
         <div className="w-full flex justify-center md:justify-start">
           <button className="bg-white text-dark-bg w-full py-2 px-4 rounded-md text-start flex justify-between items-center md:w-[30%] cursor-pointer">
