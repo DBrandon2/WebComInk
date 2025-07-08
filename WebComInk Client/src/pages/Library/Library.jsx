@@ -12,9 +12,6 @@ import { Link } from "react-router-dom";
 import {
   Trash2,
   Search,
-  SortAsc,
-  SortDesc,
-  Calendar,
   BookOpen,
   Edit3,
 } from "lucide-react";
@@ -22,7 +19,7 @@ import { slugify } from "../../utils/mangaUtils";
 import LibraryMangaCard from "../../components/shared/LibraryMangaCard";
 import { motion } from "framer-motion";
 import CategorySelectionModal from "../../components/modals/CategorySelectionModal";
-// Suppression de l'import inutile de @hello-pangea/dnd
+
 import {
   DndContext,
   closestCenter,
@@ -386,8 +383,8 @@ export default function Library() {
   return (
     <div className="container mx-auto p-4">
       {/* Onglets de tri dynamiques */}
-      <div className="mb-4">
-        <div className="flex gap-2 sm:gap-4 items-center overflow-x-auto whitespace-nowrap px-4 sm:px-8 pb-3 scrollbar-none w-full min-w-0">
+      <div className="flex items-center justify-center mb-4">
+        <div className="flex gap-2 sm:gap-4 items-center overflow-x-auto whitespace-nowrap px-4 sm:px-8 p-2 scrollbar-none w-full min-w-0 ">
           {allCategories.map(([key, label]) => (
             <motion.button
               key={key}
@@ -407,7 +404,7 @@ export default function Library() {
           {/* Bouton + pour ajouter une catégorie */}
           <button
             onClick={handleOpenAddCategory}
-            className="w-8 h-8 text-xl sm:w-10 sm:h-10 sm:text-2xl rounded hover:bg-accent-hover text-accent leading-none flex items-center justify-center transition ml-1 sm:ml-2 p-0"
+            className="w-8 h-8 text-xl sm:w-10 sm:h-10 sm:text-2xl rounded hover:bg-accent-hover text-accent leading-none flex items-center justify-center transition ml-1 sm:ml-2 p-0 cursor-pointer"
             title="Ajouter une catégorie"
           >
             <span className="relative -top-0.5">+</span>
@@ -457,7 +454,7 @@ export default function Library() {
                   />
                   <button
                     type="submit"
-                    className="px-2 py-1 rounded bg-accent text-dark-bg font-bold hover:bg-accent-hover transition disabled:opacity-60 text-xs sm:text-base"
+                    className="px-2 py-1 rounded bg-accent text-dark-bg font-bold hover:bg-accent-hover transition disabled:opacity-60 text-xs sm:text-base "
                     disabled={renameLoading}
                   >
                     OK
@@ -474,7 +471,7 @@ export default function Library() {
               ) : (
                 <button
                   onClick={handleStartRename}
-                  className="p-1 sm:p-2 rounded hover:bg-accent-hover text-accent"
+                  className="p-1 sm:p-2 rounded hover:bg-accent-hover text-accent cursor-pointer"
                   title="Renommer la catégorie"
                 >
                   <Edit3 size={16} className="sm:hidden" />
@@ -484,7 +481,7 @@ export default function Library() {
               {/* Supprimer */}
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="p-1 sm:p-2 rounded hover:bg-red-100 text-red-500"
+                className="p-1 sm:p-2 rounded hover:bg-red-100 text-red-500 cursor-pointer"
                 title="Supprimer la catégorie"
               >
                 <Trash2 size={16} className="sm:hidden" />

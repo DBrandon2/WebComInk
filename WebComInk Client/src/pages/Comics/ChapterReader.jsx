@@ -431,7 +431,7 @@ export default function ChapterReader() {
               <div className="flex items-center min-w-[40px]">
                 <Link
                   to={`/Comics/${mangaId}/${slug}`}
-                  className="flex items-center gap-2 px-3 py-2 rounded text-white hover:bg-accent hover:text-dark-bg transition text-sm font-semibold shadow"
+                  className="flex items-center gap-2 px-3 py-2 rounded text-white hover:bg-accent hover:text-dark-bg transition text-sm font-semibold"
                   title="Retour au manga"
                 >
                   <span className="text-[20px] md:text-[28px] flex items-center">

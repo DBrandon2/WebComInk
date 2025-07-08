@@ -16,7 +16,7 @@ export default function LibraryMangaCard({
   return (
     <motion.div
       className="group relative select-none "
-      whileHover={{ scale: isDragging ? 1 : 1.03 }}
+      whileHover={{ scale: isDragging ? 1 : 1.05 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
@@ -37,37 +37,20 @@ export default function LibraryMangaCard({
             <img
               src={coverUrl || "/default-cover.png"}
               alt={`${title} cover`}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 select-none rounded-sm"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 select-none"
               loading="lazy"
               onError={(e) => {
                 e.target.src = "/placeholder-manga.jpg";
               }}
             />
 
-            {/* SUPPRIMÉ : Overlay avec boutons d'action (Edit3 et Trash2) */}
-
             {/* Dégradé + titre en bas de l'image */}
             <div className="absolute bottom-0 left-0 w-full p-2 pb-3 bg-gradient-to-t from-black/95 via-black/80 to-black/0 h-20 flex items-end">
-              <h3 className="font-normal text-white text-xs md:text-sm lg:text-base line-clamp-2 drop-shadow-md">
+              <h3 className="font-normal text-white text-xs md:text-sm lg:text-base line-clamp-2 ">
                 {title}
               </h3>
             </div>
           </motion.div>
-        </div>
-
-        {/* Content + lien */}
-        <div className="p-3 select-none">
-          {/* Titre supprimé ici */}
-          {authorName && (
-            <span className="text-xs text-gray-400 md:text-sm line-clamp-1">
-              {authorName}
-            </span>
-          )}
-          {artistName && (
-            <span className="text-xs text-gray-400 md:text-sm line-clamp-1">
-              {artistName}
-            </span>
-          )}
         </div>
       </Link>
     </motion.div>

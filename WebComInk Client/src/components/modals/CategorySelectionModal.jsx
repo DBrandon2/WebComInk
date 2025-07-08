@@ -34,16 +34,16 @@ export default function CategorySelectionModal({
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden"
+            className="relative bg-dark-bg rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold">
                   Ajouter aux favoris
                 </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  Choisissez une catégorie pour "{mangaTitle}"
+                <p className="text-sm mt-1 text-gray-400">
+                  Choisissez une catégorie pour <span className="text-accent font-bold">"{mangaTitle}"</span>
                 </p>
               </div>
               <button
@@ -65,7 +65,7 @@ export default function CategorySelectionModal({
                   <motion.button
                     key={cat}
                     onClick={() => handleCategorySelect(cat)}
-                    className="w-full p-4 rounded-lg border-2 border-gray-200 hover:border-accent hover:bg-accent/5 transition-all duration-200 text-left group"
+                    className="w-full p-4 rounded-lg border-2 border-white hover:border-accent hover:bg-accent/5 transition-all duration-200 text-left group cursor-pointer"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -74,7 +74,7 @@ export default function CategorySelectionModal({
                         <BookOpen size={20} />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-accent transition-colors">
+                        <h3 className="font-semibold group-hover:text-accent transition-colors">
                           {cat}
                         </h3>
                       </div>
@@ -85,13 +85,15 @@ export default function CategorySelectionModal({
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-gray-200 bg-gray-50">
-              <button
+            <div className="p-6 border-t border-gray-200 bg-dark-bg">
+              <motion.button
                 onClick={onClose}
-                className="w-full px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="w-full px-4 py-2 hover:bg-red-500/70 text-white hover:text-white border-2 rounded-lg border-white transition-colors cursor-pointer"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 Annuler
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         </div>

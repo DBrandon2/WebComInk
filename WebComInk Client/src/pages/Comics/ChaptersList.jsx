@@ -4,6 +4,7 @@ import frFlag from "../../assets/flags/fr.svg";
 import enFlag from "../../assets/flags/en.svg";
 import { FaArrowDown91 } from "react-icons/fa6";
 import { FaArrowDown19 } from "react-icons/fa6";
+import { motion } from "framer-motion";
 
 export default function ChaptersList({ mangaId }) {
   const { slug } = useParams();
@@ -227,8 +228,10 @@ export default function ChaptersList({ mangaId }) {
               )}
             </div>
           )}
-          <button
+          <motion.button
             className="px-3 py-1 rounded bg-accent text-dark-bg text-xs font-semibold hover:bg-accent/80 transition flex items-center justify-center cursor-pointer"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setReverse((v) => !v)}
             aria-label={reverse ? "Ordre : plus récent" : "Ordre : plus ancien"}
           >
@@ -243,7 +246,7 @@ export default function ChaptersList({ mangaId }) {
                 <FaArrowDown91 size={18} />
               )}
             </span>
-          </button>
+          </motion.button>
         </div>
       </div>
       {/* Liste des chapitres */}

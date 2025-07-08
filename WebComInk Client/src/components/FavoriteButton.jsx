@@ -98,6 +98,7 @@ export default function FavoriteButton({
           }
           ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
         title={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+        whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.93 }}
         transition={{ type: "spring", stiffness: 300, damping: 18 }}
       >
