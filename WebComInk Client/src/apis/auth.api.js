@@ -1,8 +1,10 @@
-import { BASE_URL } from "../utils/url";
+// import { BASE_URL } from "../utils/url";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export async function signin(values) {
   try {
-    const response = await fetch(`${BASE_URL}/user/login`, {
+    const response = await fetch(`${API_BASE_URL}/user/login`, {
       method: "POST",
       body: JSON.stringify(values),
       headers: {
@@ -19,7 +21,7 @@ export async function signin(values) {
 
 export async function signup(values) {
   try {
-    const response = await fetch(`${BASE_URL}/user/register`, {
+    const response = await fetch(`${API_BASE_URL}/user/register`, {
       method: "POST",
       body: JSON.stringify(values),
       headers: {
@@ -40,7 +42,7 @@ export async function update(values) {
     username: values.username,
   };
   try {
-    const response = await fetch(`${BASE_URL}/auth`, {
+    const response = await fetch(`${API_BASE_URL}/auth`, {
       method: "PUT",
       body: JSON.stringify(user),
       headers: {
@@ -57,7 +59,7 @@ export async function update(values) {
 
 export async function updateAvatar(values) {
   try {
-    const response = await fetch(`${BASE_URL}/auth/avatar`, {
+    const response = await fetch(`${API_BASE_URL}/auth/avatar`, {
       method: "PUT",
       body: JSON.stringify(values),
       headers: {
@@ -74,7 +76,7 @@ export async function updateAvatar(values) {
 
 export async function getCurrentUser() {
   try {
-    const response = await fetch(`${BASE_URL}/user/currentUser`, {
+    const response = await fetch(`${API_BASE_URL}/user/currentUser`, {
       method: "GET",
       credentials: "include",
     });
@@ -89,7 +91,7 @@ export async function getCurrentUser() {
 }
 
 export async function signOut() {
-  await fetch(`${BASE_URL}/user/deleteToken`, {
+  await fetch(`${API_BASE_URL}/user/deleteToken`, {
     method: "DELETE",
     credentials: "include",
   });
