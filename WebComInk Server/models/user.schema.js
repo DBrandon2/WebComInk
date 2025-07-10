@@ -17,6 +17,8 @@ const userSchema = new mongoose.Schema(
       },
     ],
     customCategories: { type: [String], default: [] }, // Catégories personnalisées
+    pendingEmail: { type: String, default: null },
+    pendingEmailToken: { type: String, default: null },
   },
   {
     timestamps: true,

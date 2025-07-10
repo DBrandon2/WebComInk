@@ -61,6 +61,7 @@ export default function Library() {
   // Pour la suppression
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
 
   // Catégorie sélectionnée est-elle personnalisée ?
   const isCustomTab = customCategories.includes(tab);
@@ -161,9 +162,12 @@ export default function Library() {
 
   // Effet pour filtrer et trier les favoris
   useEffect(() => {
-    let filtered = [...favorites];
+    // On filtre d'abord par catégorie courante
+    let filtered = favorites.filter(
+      (manga) => (manga.status || "en-cours") === tab
+    );
 
-    // Filtrage par terme de recherche
+    // Puis on filtre par terme de recherche
     if (searchTerm.trim()) {
       filtered = filtered.filter((manga) =>
         manga.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -171,7 +175,6 @@ export default function Library() {
     }
 
     // Tri
-    // Tri par ordre si présent, sinon par le critère choisi
     if (filtered.length > 0 && filtered[0].order !== undefined) {
       filtered.sort((a, b) => a.order - b.order);
     } else {
@@ -182,17 +185,14 @@ export default function Library() {
         } else if (sortBy === "addedAt") {
           comparison = new Date(a.addedAt) - new Date(b.addedAt);
         }
-
         return sortOrder === "asc" ? comparison : -comparison;
       });
     }
 
     setFilteredFavorites(filtered);
-  }, [favorites, searchTerm, sortBy, sortOrder]);
+  }, [favorites, searchTerm, sortBy, sortOrder, tab]);
 
-  const filteredByTab = filteredFavorites.filter(
-    (manga) => (manga.status || "en-cours") === tab
-  );
+  // On n'a plus besoin de filteredByTab, filteredFavorites contient déjà le bon résultat
 
   // Quand customCategories change, sélectionne la première catégorie si tab n'est pas valide
   useEffect(() => {
@@ -387,7 +387,7 @@ export default function Library() {
               key={key}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
-              className={`px-6 py-3 text-sm sm:px-5 sm:py-2 sm:text-base rounded-md font-semibold border-2 shadow flex items-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 cursor-pointer
+              className={`px-6 py-3 text-sm sm:px-5 sm:py-2 sm:text-base rounded-md font-semibold border-1 shadow flex items-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 cursor-pointer
               ${
                 tab === key
                   ? "bg-accent text-dark-bg border-accent"
@@ -490,7 +490,7 @@ export default function Library() {
       </div>
 
       {/* Message si aucun résultat après recherche */}
-      {filteredByTab.length === 0 && searchTerm.trim() && (
+      {filteredFavorites.length === 0 && searchTerm.trim() && (
         <div className="text-center py-12">
           <Search size={48} className="text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 text-lg">
@@ -512,29 +512,25 @@ export default function Library() {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={favorites
-            .filter((fav) => (fav.status || "en-cours") === tab)
-            .map((fav) => fav.mangaId)}
+          items={filteredFavorites.map((fav) => fav.mangaId)}
           strategy={rectSortingStrategy}
         >
           <div className="library-grid-container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-x-4 gap-y-6 w-full">
-            {favorites
-              .filter((fav) => (fav.status || "en-cours") === tab)
-              .map((manga, index) => (
-                <SortableMangaCard
-                  key={manga.mangaId}
-                  manga={manga}
-                  index={index}
-                  onRemove={() => handleRemoveFavorite(manga.mangaId)}
-                  onChangeCategory={() => handleChangeMangaCategory(manga)}
-                />
-              ))}
+            {filteredFavorites.map((manga, index) => (
+              <SortableMangaCard
+                key={manga.mangaId}
+                manga={manga}
+                index={index}
+                onRemove={() => handleRemoveFavorite(manga.mangaId)}
+                onChangeCategory={() => handleChangeMangaCategory(manga)}
+              />
+            ))}
           </div>
         </SortableContext>
       </DndContext>
 
       {/* Message si aucun manga dans l'onglet */}
-      {filteredByTab.length === 0 && (
+      {filteredFavorites.length === 0 && (
         <div className="text-center py-12 text-gray-500">
           Aucun manga dans cet onglet.
         </div>
@@ -554,18 +550,19 @@ export default function Library() {
       {/* Modal d'ajout de catégorie personnalisée */}
       {showAddCategoryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-          <div className="bg-dark-bg rounded-2xl shadow-2xl p-6 w-full max-w-xs sm:max-w-sm relative animate-fade-in border-2 border-accent">
+          <div className="bg-dark-bg rounded-2xl shadow-2xl p-6 w-full max-w-xs sm:max-w-sm relative animate-fade-in">
             <h2 className="text-xl sm:text-2xl font-bold mb-4 text-center text-accent">
               Nouvelle catégorie
             </h2>
             <form onSubmit={handleAddCategory}>
               <input
                 type="text"
-                className="w-full border-2 border-accent rounded-lg px-3 py-2 mb-2 bg-accent-hover text-accent placeholder:text-accent/60 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent text-base font-semibold transition"
-                placeholder="Nom de la catégorie"
+                className="w-full border-1 border-white rounded-lg px-3 py-2 mb-2 hover:bg-accent-hover focus:bg-accent-hover  placeholder:white/60 focus:placeholder:accent focus:outline-none  focus:border-accent text-base font-semibold transition"
+                placeholder={inputFocused ? "" : "Nom de la catégorie"}
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
-                autoFocus
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
                 maxLength={32}
                 disabled={addCatLoading}
               />
@@ -578,14 +575,14 @@ export default function Library() {
                 <button
                   type="button"
                   onClick={handleCloseAddCategory}
-                  className="px-4 py-2 rounded-lg bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition disabled:opacity-60"
+                  className="w-full border border-gray-400 text-gray-400 py-2 rounded cursor-pointer font-medium hover:text-white hover:bg-gray-500 transition"
                   disabled={addCatLoading}
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-accent text-dark-bg font-bold hover:bg-accent-hover transition disabled:opacity-60"
+                  className="w-full border border-accent text-accent hover:text-dark-bg hover:bg-accent transition py-2 rounded cursor-pointer font-medium"
                   disabled={addCatLoading}
                 >
                   {addCatLoading ? "Ajout..." : "Ajouter"}

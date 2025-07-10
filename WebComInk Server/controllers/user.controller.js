@@ -7,6 +7,8 @@ const {
   sendInvalidEmailToken,
 } = require("../email/email");
 const TempUser = require("../models/tempuser.schema");
+const bcryptjs = require("bcryptjs");
+const crypto = require("crypto");
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -513,6 +515,82 @@ const renameCustomCategory = async (req, res) => {
   }
 };
 
+// Demande de changement d'email
+const requestEmailChange = async (req, res) => {
+  const { _id, newEmail, password } = req.body;
+  try {
+    const user = await User.findById(_id);
+    if (!user)
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid)
+      return res.status(401).json({ message: "Mot de passe incorrect" });
+    // Génère un token unique
+    const token = crypto.randomBytes(32).toString("hex");
+    user.pendingEmail = newEmail;
+    user.pendingEmailToken = token;
+    await user.save();
+    await sendConfirmationEmail(newEmail, token);
+    res.status(200).json({ message: "Un email de confirmation a été envoyé." });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+// Confirmation du changement d'email
+const confirmEmailChange = async (req, res) => {
+  const { token } = req.params;
+  try {
+    const user = await User.findOne({ pendingEmailToken: token });
+    if (!user || !user.pendingEmail) {
+      return res.redirect(`${process.env.CLIENT_URL}/profile?email=error`);
+    }
+    // Applique le nouvel email
+    user.email = user.pendingEmail;
+    user.pendingEmail = null;
+    user.pendingEmailToken = null;
+    await user.save();
+    return res.redirect(`${process.env.CLIENT_URL}/profile?email=success`);
+  } catch (err) {
+    return res.redirect(`${process.env.CLIENT_URL}/profile?email=error`);
+  }
+};
+
+const deleteAccount = async (req, res) => {
+  try {
+    const { userId, confirmationWord } = req.body;
+
+    // Vérifier le mot de confirmation
+    if (confirmationWord !== "SUPPRIMER") {
+      return res.status(400).json({
+        message:
+          "Mot de confirmation incorrect. Veuillez taper 'SUPPRIMER' pour confirmer.",
+      });
+    }
+
+    // Vérifier que l'utilisateur existe
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Supprimer l'utilisateur (cela supprimera aussi les favoris et catégories grâce aux références)
+    await User.findByIdAndDelete(userId);
+
+    // Nettoyer le cookie de session
+    res.clearCookie("token");
+
+    res.status(200).json({
+      message: "Compte supprimé avec succès",
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression du compte:", error);
+    res.status(500).json({
+      message: "Erreur serveur lors de la suppression du compte",
+    });
+  }
+};
+
 module.exports = {
   signup,
   signin,
@@ -530,4 +608,7 @@ module.exports = {
   addCustomCategory,
   removeCustomCategory,
   renameCustomCategory,
+  requestEmailChange,
+  confirmEmailChange,
+  deleteAccount,
 };

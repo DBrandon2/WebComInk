@@ -42,7 +42,7 @@ export async function update(values) {
     username: values.username,
   };
   try {
-    const response = await fetch(`${API_BASE_URL}/auth`, {
+    const response = await fetch(`${API_BASE_URL}/user`, {
       method: "PUT",
       body: JSON.stringify(user),
       headers: {
@@ -95,4 +95,21 @@ export async function signOut() {
     method: "DELETE",
     credentials: "include",
   });
+}
+
+export async function requestEmailChange({ _id, newEmail, password }) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/request-email-change`, {
+      method: "POST",
+      body: JSON.stringify({ _id, newEmail, password }),
+      headers: {
+        "Content-type": "application/json",
+      },
+      credentials: "include",
+    });
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }

@@ -15,6 +15,9 @@ const {
   addCustomCategory,
   removeCustomCategory,
   renameCustomCategory,
+  requestEmailChange,
+  confirmEmailChange,
+  deleteAccount,
 } = require("../controllers/user.controller");
 
 const router = require("express").Router();
@@ -24,12 +27,14 @@ router.post("/register", signup);
 router.post("/login", signin);
 router.post("/favorites", addFavorite);
 router.post("/custom-categories", addCustomCategory);
+router.post("/request-email-change", requestEmailChange);
 
 // GET
 router.get("/currentUser", currentUser);
 router.get("/verifyMail/:token", verifyMail);
 router.get("/favorites", getFavorites);
 router.get("/custom-categories", getCustomCategories);
+router.get("/confirm-email-change/:token", confirmEmailChange);
 
 // PUT
 router.put("/", updateUser);
@@ -42,6 +47,7 @@ router.put("/custom-categories", renameCustomCategory);
 router.delete("/deleteToken", logoutUser);
 router.delete("/favorites/:mangaId", removeFavorite);
 router.delete("/custom-categories", removeCustomCategory);
+router.delete("/account", deleteAccount);
 
 module.exports = router;
 

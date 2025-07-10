@@ -32,7 +32,9 @@ export default function SortableMangaCard({
       style={style}
       {...attributes}
       {...listeners}
-      className={`library-grid-item${isDragging ? " is-dragging" : ""}`}
+      className={`library-grid-item ${
+        isDragging ? "cursor-grabbing" : "cursor-grab"
+      }${isDragging ? " is-dragging" : ""}`}
     >
       <LibraryMangaCard
         id={manga.mangaId}
