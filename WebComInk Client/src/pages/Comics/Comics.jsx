@@ -107,18 +107,18 @@ export default function Comics() {
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-0">
+      {/* Section centrée pour SwitchBtn et bouton Tous */}
+      <div className="w-full flex flex-col items-center justify-center mt-8 mb-2">
         <SwitchBtn
           btnleft="En cours"
           btnright="Terminé"
           activeFilter={activeFilter}
           onSwitchClick={handleSwitchClick}
         />
-
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className={`mx-auto mt-4 px-16 rounded-md h-[48px] cursor-pointer md:px-28 ${
+          className={`mt-4 px-16 rounded-md h-[48px] cursor-pointer md:px-28 ${
             activeFilter === "tous"
               ? "bg-accent text-dark-bg"
               : "bg-accent-hover text-gray-300"
@@ -128,31 +128,57 @@ export default function Comics() {
           Tous
         </motion.button>
       </div>
-
-      <SortComics activeSort={sort} onSortChange={handleSortChange} />
-
-      <MangaList
-        sort={sort}
-        filter={activeFilter}
-        includedTags={selectedTags}
-        excludedTags={excludedTags}
-      />
-
-      {/* Bouton flottant pour mobile */}
-      <FloatingFilterButton
-        onClick={handleFilterToggle}
-        isOpen={isFilterOpen}
-        hasActiveFilters={selectedTags.length > 0 || excludedTags.length > 0}
-      />
-
-      {/* Interface de filtrage par genre */}
-      <FilterGenreBtn
-        isOpen={isFilterOpen}
-        onClose={handleFilterClose}
-        selectedGenres={selectedTags}
-        excludedGenres={excludedTags}
-        onGenreChange={handleGenreChange}
-      />
+      {/* Layout deux colonnes sur desktop */}
+      <div className="flex flex-col lg:flex-row gap-8 w-full">
+        {/* Sidebar desktop responsive */}
+        <aside className="hidden lg:flex flex-col gap-8 w-full max-w-xs min-w-[220px] bg-dark-bg/70 rounded-xl h-fit self-start px-4">
+          <SortComics
+            activeSort={sort}
+            onSortChange={handleSortChange}
+            sidebarMode={true}
+          />
+          <div className="flex flex-col gap-4">
+            <span className="text-accent font-semibold mb-1 ">
+              Filtrer par genre
+            </span>
+            <FilterGenreBtn
+              isOpen={true}
+              onClose={handleFilterClose}
+              selectedGenres={selectedTags}
+              excludedGenres={excludedTags}
+              onGenreChange={handleGenreChange}
+              sidebarMode={true}
+            />
+          </div>
+        </aside>
+        {/* Contenu principal */}
+        <main className="flex-1 flex flex-col gap-6">
+          {/* SortComics et filtres cachés sur mobile, visibles dans la sidebar */}
+          <div className="lg:hidden flex flex-col gap-4">
+            <SortComics activeSort={sort} onSortChange={handleSortChange} />
+            <FloatingFilterButton
+              onClick={handleFilterToggle}
+              isOpen={isFilterOpen}
+              hasActiveFilters={
+                selectedTags.length > 0 || excludedTags.length > 0
+              }
+            />
+            <FilterGenreBtn
+              isOpen={isFilterOpen}
+              onClose={handleFilterClose}
+              selectedGenres={selectedTags}
+              excludedGenres={excludedTags}
+              onGenreChange={handleGenreChange}
+            />
+          </div>
+          <MangaList
+            sort={sort}
+            filter={activeFilter}
+            includedTags={selectedTags}
+            excludedTags={excludedTags}
+          />
+        </main>
+      </div>
     </div>
   );
 }

@@ -168,14 +168,14 @@ export default function MangaList({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-6 w-full"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-[auto-fit,minmax(180px,1fr)] gap-x-6 gap-y-10 w-full"
       >
         {mangas.map((manga, idx) => (
           <motion.div key={manga.id} variants={itemVariants}>
             <NavLink to={`/Comics/${manga.id}/${slugify(manga.title)}`}>
               <div className="flex flex-col items-center gap-2">
                 <motion.div
-                  className="w-[160px] h-[240px] lg:w-[240px] lg:h-[360px] bg-gray-200 relative overflow-hidden"
+                  className="w-[140px] h-[210px] md:w-[180px] md:h-[270px] lg:w-[180px] lg:h-[270px] bg-gray-200 relative overflow-hidden"
                   whileHover={{ scale: 1.03 }}
                   transition={{ duration: 0.18, ease: "easeOut" }}
                 >

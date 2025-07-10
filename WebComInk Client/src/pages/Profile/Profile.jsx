@@ -59,12 +59,12 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen text-white font-sans px-4 py-6 flex flex-col md:flex-row md:items-start md:justify-center md:gap-12">
+    <div className="min-h-screen text-white font-sans px-4 py-6 flex flex-col md:flex-row md:items-start md:justify-center md:gap-x-12">
       {/* Partie gauche : Profil & Formulaire */}
-      <div className="flex flex-col items-center md:items-start md:w-1/2 space-y-6">
+      <div className="flex flex-col items-center md:justify-center md:items-center w-full md:w-2/5 md:basis-2/5 space-y-6">
         <h1 className="text-accent text-2xl font-bold">Profile utilisateur</h1>
 
-        <div className="w-64 h-64 rounded-full overflow-hidden border-2 border-accent">
+        <div className="w-48 h-48 rounded-full overflow-hidden border-2 border-accent mx-auto">
           <img
             src={defaultAvatar}
             alt="Avatar"
@@ -163,27 +163,37 @@ export default function Profile() {
       </div>
 
       {/* Partie droite : Mangas aimés */}
-      <div className="mt-10 md:mt-0 md:w-1/2">
-        <h2 className="text-accent text-sm mb-2 md:mt-2">
-          Retrouvez les mangas que vous avez aimés !
+      <div className="mt-10 md:mt-0 w-full md:w-3/5 md:basis-3/5 flex flex-col items-center">
+        <h2 className="text-accent text-lg font-bold mb-4 md:mt-2">
+          Historique de lecture
         </h2>
-        <div className="grid grid-cols-3 gap-2">
-          {Array.from({ length: 9 }).map((_, index) => (
+        <div
+          className="grid gap-6 overflow-y-auto max-h-[70vh] w-full px-2"
+          style={{
+            gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+          }}
+        >
+          {Array.from({ length: 20 }).map((_, index) => (
             <div
               key={index}
-              className="w-full aspect-square bg-gray-700 rounded overflow-hidden"
+              className="flex flex-col items-center gap-2 w-full"
             >
-              <img
-                src="/placeholder-manga.png"
-                alt={`Manga ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
+              <div className="w-[80px] h-[120px] md:w-[120px] md:h-[180px] bg-gray-700 rounded overflow-hidden shadow flex-shrink-0">
+                <img
+                  src="/placeholder-manga.png"
+                  alt={`Manga ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="font-semibold text-accent text-sm md:text-base text-center line-clamp-2">
+                Titre du manga {index + 1}
+              </span>
+              <span className="text-xs text-gray-300 text-center">
+                Chapitre {Math.floor(Math.random() * 100) + 1}
+              </span>
             </div>
           ))}
         </div>
-        <button className="mt-4 border border-yellow-400 text-yellow-400 py-1 px-3 rounded hover:bg-yellow-400 hover:text-black text-sm">
-          Voir plus
-        </button>
       </div>
 
       <button
