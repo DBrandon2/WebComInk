@@ -123,19 +123,31 @@ export default function ChapterReader() {
         }
 
         const imageData = await imageResponse.json();
-        if (imageData.chapter && imageData.chapter.data && imageData.baseUrl) {
-          const images = imageData.chapter.data.map(
-            (filename) =>
-              `${imageData.baseUrl}/data/${imageData.chapter.hash}/${filename}`
-          );
-          setChapterImages(images);
+        if (imageData.chapter && imageData.baseUrl) {
+          // Récupérer la qualité choisie par l'utilisateur
+          let quality = "data";
+          if (typeof window !== "undefined") {
+            quality = localStorage.getItem("imageQuality") || "data";
+          }
+          const files =
+            quality === "data-saver"
+              ? imageData.chapter.dataSaver
+              : imageData.chapter.data;
+          const qualityPath = quality === "data-saver" ? "data-saver" : "data";
+          if (files && Array.isArray(files)) {
+            const images = files.map(
+              (filename) =>
+                `${imageData.baseUrl}/${qualityPath}/${imageData.chapter.hash}/${filename}`
+            );
+            setChapterImages(images);
 
-          // Initialiser les états de chargement des images
-          const initialLoadingStates = {};
-          images.forEach((_, index) => {
-            initialLoadingStates[index] = true;
-          });
-          setImageLoadingStates(initialLoadingStates);
+            // Initialiser les états de chargement des images
+            const initialLoadingStates = {};
+            images.forEach((_, index) => {
+              initialLoadingStates[index] = true;
+            });
+            setImageLoadingStates(initialLoadingStates);
+          }
         }
       } catch (err) {
         setError(err.message);

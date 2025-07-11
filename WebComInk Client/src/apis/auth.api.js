@@ -113,3 +113,20 @@ export async function requestEmailChange({ _id, newEmail, password }) {
     throw error;
   }
 }
+
+export async function deleteAccount({ userId, confirmationWord }) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/account`, {
+      method: "DELETE",
+      body: JSON.stringify({ userId, confirmationWord }),
+      headers: {
+        "Content-type": "application/json",
+      },
+      credentials: "include",
+    });
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}

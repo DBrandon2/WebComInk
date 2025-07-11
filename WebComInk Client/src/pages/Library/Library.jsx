@@ -381,7 +381,7 @@ export default function Library() {
       <TopBarMobile />
       {/* Onglets de tri dynamiques */}
       <div className="flex items-center justify-center mb-4">
-        <div className="flex gap-4 sm:gap-4 items-center overflow-x-auto whitespace-nowrap px-4 sm:px-8 pb-4 scrollbar-none w-full min-w-0 ">
+        <div className="flex gap-4 sm:gap-4 items-center overflow-x-auto whitespace-nowrap px-4 sm:px-8 py-4 scrollbar-none w-full min-w-0 ">
           {allCategories.map(([key, label]) => (
             <motion.button
               key={key}
@@ -427,7 +427,7 @@ export default function Library() {
               placeholder="Rechercher un manga..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2  focus:border-transparent w-full sm:w-64"
             />
           </div>
 
@@ -549,8 +549,14 @@ export default function Library() {
 
       {/* Modal d'ajout de catégorie personnalisée */}
       {showAddCategoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-          <div className="bg-dark-bg rounded-2xl shadow-2xl p-6 w-full max-w-xs sm:max-w-sm relative animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <motion.div
+            initial={{ scale: 0.7, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.7, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="bg-dark-bg rounded-2xl shadow-2xl p-6 w-full max-w-xs sm:max-w-sm relative animate-fade-in"
+          >
             <h2 className="text-xl sm:text-2xl font-bold mb-4 text-center text-accent">
               Nouvelle catégorie
             </h2>
@@ -589,7 +595,7 @@ export default function Library() {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
       {/* Modal de confirmation suppression catégorie */}

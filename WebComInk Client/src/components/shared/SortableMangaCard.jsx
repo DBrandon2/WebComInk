@@ -40,8 +40,6 @@ export default function SortableMangaCard({
         id={manga.mangaId}
         title={manga.title}
         coverUrl={manga.coverImage}
-        authorName={manga.author}
-        artistName={manga.artist}
         to={`/Comics/${manga.mangaId}/${slugify(manga.title)}`}
         onRemove={onRemove}
         onChangeCategory={onChangeCategory}
