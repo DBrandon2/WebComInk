@@ -15,42 +15,43 @@ export default function LibraryMangaCard({
 }) {
   return (
     <motion.div
-      className="group relative select-none "
-      whileHover={{ scale: isDragging ? 1 : 1.05 }}
+      className="group relative select-none will-change-transform"
+      {...(!isDragging && {
+        whileHover: { scale: 1.05 },
+      })}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
       tabIndex={-1}
+      style={isDragging ? { transform: "scale(1)" } : {}}
     >
       <Link
         to={to}
-        className="block focus:outline-none h-full select-none "
+        className="block focus:outline-none h-full select-none"
         tabIndex={0}
         draggable={false}
         style={isDragging ? { pointerEvents: "none" } : {}}
       >
-        <div className="flex flex-col items-center gap-2 ">
-          <motion.div
-            className="w-[160px] h-[240px] lg:w-[220px] lg:h-[330px] 2xl:w-[185px] 2xl:h-[277px] relative overflow-hidden rounded-md bg-gray-200"
-            transition={{ duration: 0.18, ease: "easeOut" }}
-          >
+        <div className="flex flex-col items-center gap-2">
+          <div className="relative  rounded bg-gray-200 shadow-sm w-[160px] h-[240px] lg:w-[220px] lg:h-[330px] 2xl:w-[185px] 2xl:h-[277px]">
+            {/* Image */}
             <img
               src={coverUrl || "/default-cover.png"}
               alt={`${title} cover`}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 select-none"
+              className="w-full h-full object-cover select-none"
               loading="lazy"
               onError={(e) => {
                 e.target.src = "/placeholder-manga.jpg";
               }}
             />
 
-            {/* Dégradé + titre en bas de l'image */}
-            <div className="absolute bottom-0 left-0 w-full p-2 pb-3 bg-gradient-to-t from-black/95 via-black/80 to-black/0 h-20 flex items-end">
-              <h3 className="font-normal text-white text-xs md:text-sm lg:text-base line-clamp-2 ">
+            {/* Dégradé + titre */}
+            <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-black/95 via-black/70 to-transparent flex items-end px-3 pb-3 z-10 pointer-events-none">
+              <h3 className="text-white text-xs md:text-sm lg:text-base font-medium line-clamp-2 drop-shadow-sm">
                 {title}
               </h3>
             </div>
-          </motion.div>
+          </div>
         </div>
       </Link>
     </motion.div>

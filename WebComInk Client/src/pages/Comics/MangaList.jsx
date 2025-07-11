@@ -168,7 +168,7 @@ export default function MangaList({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-[auto-fit,minmax(180px,1fr)] gap-x-6 gap-y-10 w-full"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-x-6 gap-y-10 w-full"
       >
         {mangas.map((manga, idx) => (
           <motion.div key={manga.id} variants={itemVariants}>

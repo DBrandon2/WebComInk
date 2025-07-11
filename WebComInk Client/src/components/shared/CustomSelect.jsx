@@ -65,7 +65,7 @@ export default function CustomSelect({
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="absolute left-0 right-0 top-full bg-white rounded-md shadow-lg z-20 overflow-hidden origin-top mt-2"
+            className="bg-white rounded-md shadow-lg z-20 overflow-hidden origin-top mt-2"
             role="listbox"
             style={{ willChange: "height" }}
           >
