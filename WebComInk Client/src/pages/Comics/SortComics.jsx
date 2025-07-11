@@ -9,6 +9,8 @@ import {
   Calendar,
   CalendarDays,
 } from "lucide-react";
+import CustomSelect from "../../components/shared/CustomSelect";
+import React from "react"; // Added missing import for React
 
 export default function SortComics({
   activeSort,
@@ -16,19 +18,13 @@ export default function SortComics({
   sidebarMode = false,
 }) {
   const sorts = [
-    { label: "Popularité", icon: <Flame className="w-6 h-6 " /> },
-    { label: "Chapitres récents", icon: <Clock className="w-6 h-6 " /> },
-    { label: "Nouveaux mangas", icon: <PlusCircle className="w-6 h-6" /> },
-    {
-      label: "Date de parution (récent)",
-      icon: <Calendar className="w-6 h-6" />,
-    },
-    {
-      label: "Date de parution (ancien)",
-      icon: <CalendarDays className="w-6 h-6" />,
-    },
-    { label: "A à Z", icon: <ArrowDownAz className="w-6 h-6 " /> },
-    { label: "Z à A", icon: <ArrowUpZa className="w-6 h-6 " /> },
+    { label: "Popularité", icon: Flame },
+    { label: "Chapitres récents", icon: Clock },
+    { label: "Nouveaux mangas", icon: PlusCircle },
+    { label: "Date de parution (récent)", icon: Calendar },
+    { label: "Date de parution (ancien)", icon: CalendarDays },
+    { label: "A à Z", icon: ArrowDownAz },
+    { label: "Z à A", icon: ArrowUpZa },
   ];
 
   // Si trop d'options, on passe en select (ici seuil arbitraire à 6)
@@ -49,17 +45,38 @@ export default function SortComics({
       <div className="flex flex-col gap-3 w-full">
         <span className="text-accent font-semibold mb-1">Trier par</span>
         {useSelect ? (
-          <select
-            className="w-full rounded border border-accent bg-dark-bg text-white py-2 px-3"
+          <CustomSelect
+            className="w-full min-w-[220px] md:w-[320px]"
+            options={sorts.map(({ label, icon }) => ({
+              value: label,
+              label,
+              icon,
+            }))}
             value={activeSort}
-            onChange={(e) => handleClick(e.target.value)}
-          >
-            {sorts.map(({ label }) => (
-              <option key={label} value={label}>
-                {label}
-              </option>
-            ))}
-          </select>
+            onChange={handleClick}
+            renderOption={(option) => {
+              const Icon = option.icon;
+              return (
+                <div className="flex items-center gap-2">
+                  {Icon && (
+                    <Icon className="w-5 h-5 mr-1" color="currentColor" />
+                  )}
+                  <span>{option.label}</span>
+                </div>
+              );
+            }}
+            renderValue={(option) => {
+              const Icon = option.icon;
+              return (
+                <div className="flex items-center gap-2">
+                  {Icon && (
+                    <Icon className="w-5 h-5 mr-1" color="currentColor" />
+                  )}
+                  <span>{option.label}</span>
+                </div>
+              );
+            }}
+          />
         ) : (
           sorts.map(({ label, icon }) => (
             <button
@@ -94,11 +111,11 @@ export default function SortComics({
         onDragStart={() => setIsDragging(true)}
         onDragEnd={() => setIsDragging(false)}
       >
-        {sorts.map(({ label, icon }) => (
+        {sorts.map(({ label, icon: Icon }) => (
           <motion.button
             key={label}
             onClick={() => handleClick(label)}
-            className={`flex items-center px-6 py-3 whitespace-nowrap rounded-md transition-all ${
+            className={`flex items-center gap-2 px-6 py-3 whitespace-nowrap rounded-md transition-all ${
               activeSort === label
                 ? "bg-accent text-dark-bg"
                 : "bg-accent-hover text-gray-300 border border-accent"
@@ -106,10 +123,8 @@ export default function SortComics({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <div className="flex gap-2 justify-center items-center">
-              {icon}
-              <span>{label}</span>
-            </div>
+            {Icon && <Icon className="w-5 h-5 mr-1" color="currentColor" />}
+            <span>{label}</span>
           </motion.button>
         ))}
       </motion.div>

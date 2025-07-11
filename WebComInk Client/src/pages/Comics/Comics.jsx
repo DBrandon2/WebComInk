@@ -131,7 +131,7 @@ export default function Comics() {
       {/* Layout deux colonnes sur desktop */}
       <div className="flex flex-col lg:flex-row gap-8 w-full">
         {/* Sidebar desktop responsive */}
-        <aside className="hidden lg:flex flex-col gap-8 w-full max-w-xs min-w-[220px] bg-dark-bg/70 rounded-xl h-fit self-start px-4">
+        <aside className="hidden lg:flex flex-col gap-8 w-full max-w-xs min-w-[220px] bg-dark-bg/70 rounded-xl h-fit self-start px-4 ml-8 ">
           <SortComics
             activeSort={sort}
             onSortChange={handleSortChange}

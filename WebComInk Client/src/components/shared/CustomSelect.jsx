@@ -7,6 +7,8 @@ export default function CustomSelect({
   value,
   onChange,
   className = "",
+  renderOption,
+  renderValue,
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef();
@@ -31,20 +33,25 @@ export default function CustomSelect({
     <div className={`relative w-full md:w-[30%] ${className}`} ref={ref}>
       <button
         type="button"
-        className="bg-white w-full py-2 px-4 rounded-md text-start flex justify-between items-center cursor-pointer relative"
+        className="bg-white w-full py-2 px-4 rounded-md text-start flex justify-between items-center cursor-pointer relative text-dark-bg"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
         tabIndex={0}
       >
-        {value === "neon" ? (
-          <span className="bg-gradient-to-r from-dark-bg to-accent bg-clip-text text-transparent font-semibold">
-            {selected ? selected.label : ""}
-          </span>
+        {selected ? (
+          renderValue ? (
+            renderValue(selected)
+          ) : (
+            <span className="flex items-center gap-2 font-semibold text-dark-bg">
+              {selected.icon && typeof selected.icon === "function" && (
+                <selected.icon className="w-5 h-5 mr-1" color="currentColor" />
+              )}
+              <span className="text-dark-bg">{selected.label}</span>
+            </span>
+          )
         ) : (
-          <span className="font-semibold text-dark-bg">
-            {selected ? selected.label : ""}
-          </span>
+          <span className="font-semibold text-dark-bg">Sélectionner...</span>
         )}
         <IoIosArrowDown
           className="text-dark-bg transition-transform"
@@ -76,11 +83,19 @@ export default function CustomSelect({
                   setTimeout(() => setOpen(false), 0);
                 }}
               >
-                <span
-                  className={opt.value === value ? "font-medium" : undefined}
-                >
-                  {opt.label}
-                </span>
+                {renderOption ? (
+                  renderOption(opt)
+                ) : (
+                  <span
+                    className={
+                      opt.value === value
+                        ? "font-medium text-accent"
+                        : undefined
+                    }
+                  >
+                    {opt.label}
+                  </span>
+                )}
               </li>
             ))}
           </motion.ul>
