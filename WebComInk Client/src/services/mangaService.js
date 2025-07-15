@@ -66,6 +66,24 @@ export async function getMangas({
   }
 }
 
+// Recherche stricte par titre (pour la SearchBar)
+export async function getMangasByTitle({
+  title,
+  limit = 10,
+  lang = "fr",
+  includes = ["cover_art"],
+}) {
+  if (!title || title.length < 2) return { result: "ok", data: [] };
+  try {
+    const res = await axios.get(`${API_BASE_URL}/manga/search`, {
+      params: { title, limit, lang, includes },
+    });
+    return res.data;
+  } catch (error) {
+    return { result: "error", data: [] };
+  }
+}
+
 // Récupère tous les tags depuis l'API MangaDex
 export async function getAllTags() {
   try {

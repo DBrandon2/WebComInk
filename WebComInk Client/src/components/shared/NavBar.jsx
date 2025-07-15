@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { ImBooks } from "react-icons/im";
@@ -9,12 +9,19 @@ import defaultAvatar from "../../assets/defaultAvatar.jpg";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AuthContext } from "../../context/AuthContext";
+import SearchBar from "./SearchBar";
 
 export default function NavBar() {
   const { user } = useContext(AuthContext);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navItems = [
     { to: "/", icon: <FaHome /> },
-    { to: "/Comics", icon: <HiOutlineMagnifyingGlass /> },
+    {
+      to: "/Comics",
+      icon: <HiOutlineMagnifyingGlass />,
+      isSearch: true,
+      onClick: () => setIsSearchOpen(!isSearchOpen),
+    },
     { to: "/Bibliothèque", icon: <ImBooks /> },
     {
       to: user ? "/Profile" : "/Auth",
@@ -36,80 +43,119 @@ export default function NavBar() {
       {/* NAV MOBILE */}
       <nav className="bg-light-bg w-screen h-[64px] fixed bottom-0 lg:hidden z-50">
         <ul className="flex justify-around items-center h-full w-full relative">
-          {navItems.map((item, index) => (
-            <NavLink key={index} to={item.to}>
-              {({ isActive }) => (
-                <motion.div
-                  whileTap={{ scale: 0.9 }}
-                  className={`relative flex items-center justify-center ${
-                    isActive ? "text-white" : "text-gray-500"
-                  }`}
+          {navItems.map((item, index) => {
+            if (item.isSearch) {
+              if (isSearchOpen) return null; // Masquer l'icône quand la SearchBar est ouverte
+              return (
+                <button
+                  key={index}
+                  onClick={item.onClick}
+                  className="relative flex items-center justify-center text-gray-500 cursor-pointer"
                 >
                   <motion.div
-                    className={`absolute w-15 h-15 rounded-full ${
-                      isActive ? "bg-light-bg" : ""
-                    }`}
-                    animate={{
-                      y: isActive ? -30 : 0,
-                      scale: isActive ? 1.2 : 1,
-                      transition: {
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 20,
-                      },
-                    }}
-                  />
-                  <motion.div
-                    className={`flex items-center justify-center w-12 h-12 rounded-full ${
-                      isActive ? "bg-accent" : ""
-                    }`}
-                    animate={{
-                      y: isActive ? -30 : 0,
-                      scale: isActive ? 1.2 : 1,
-                      transition: {
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 20,
-                      },
-                    }}
+                    whileTap={{ scale: 0.9 }}
+                    className="flex items-center justify-center w-12 h-12 rounded-full"
                   >
-                    {/* Affichage de l'icône ou de l'avatar selon le cas, avatar prend toute la div si connecté */}
-                    {user && item.to === "/Profile" ? (
-                      <img
-                        src={user.avatar || defaultAvatar}
-                        alt="avatar utilisateur"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : React.isValidElement(item.icon) ? (
-                      React.cloneElement(item.icon, {
-                        className: "text-[32px]",
-                      })
-                    ) : (
-                      item.icon
-                    )}
+                    {React.isValidElement(item.icon)
+                      ? React.cloneElement(item.icon, {
+                          className:
+                            "text-[32px] cursor-default lg:cursor-pointer",
+                        })
+                      : item.icon}
                   </motion.div>
+                </button>
+              );
+            }
 
-                  {/* Point sous l'icon actif  */}
-                  {isActive && (
+            return (
+              <NavLink key={index} to={item.to}>
+                {({ isActive }) => (
+                  <motion.div
+                    whileTap={{ scale: 0.9 }}
+                    className={`relative flex items-center justify-center ${
+                      isActive ? "text-white" : "text-gray-500"
+                    }`}
+                  >
                     <motion.div
-                      className="absolute bottom-[5px] w-2 h-2 bg-accent rounded-full"
+                      className={`absolute w-15 h-15 rounded-full ${
+                        isActive ? "bg-light-bg" : ""
+                      }`}
                       animate={{
-                        opacity: isActive ? 1 : 0,
-                        transition: { duration: 0.3 },
+                        y: isActive ? -30 : 0,
+                        scale: isActive ? 1.2 : 1,
+                        transition: {
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 20,
+                        },
                       }}
                     />
-                  )}
-                </motion.div>
-              )}
-            </NavLink>
-          ))}
+                    <motion.div
+                      className={`flex items-center justify-center w-12 h-12 rounded-full ${
+                        isActive ? "bg-accent" : ""
+                      }`}
+                      animate={{
+                        y: isActive ? -30 : 0,
+                        scale: isActive ? 1.2 : 1,
+                        transition: {
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 20,
+                        },
+                      }}
+                    >
+                      {/* Affichage de l'icône ou de l'avatar selon le cas, avatar prend toute la div si connecté */}
+                      {user && item.to === "/Profile" ? (
+                        <img
+                          src={user.avatar || defaultAvatar}
+                          alt="avatar utilisateur"
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : React.isValidElement(item.icon) ? (
+                        React.cloneElement(item.icon, {
+                          className: "text-[32px]",
+                        })
+                      ) : (
+                        item.icon
+                      )}
+                    </motion.div>
+
+                    {/* Point sous l'icon actif  */}
+                    {isActive && (
+                      <motion.div
+                        className="absolute bottom-[5px] w-2 h-2 bg-accent rounded-full"
+                        animate={{
+                          opacity: isActive ? 1 : 0,
+                          transition: { duration: 0.3 },
+                        }}
+                      />
+                    )}
+                  </motion.div>
+                )}
+              </NavLink>
+            );
+          })}
         </ul>
       </nav>
 
+      {/* Barre de recherche mobile en overlay */}
+      {isSearchOpen && (
+        <div className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]">
+          <div className="bg-dark-bg/95 backdrop-blur-lg p-4 m-4 rounded-lg mt-20">
+            <SearchBar
+              isOpen={true}
+              onToggle={() => setIsSearchOpen(false)}
+              onClose={() => setIsSearchOpen(false)}
+              isMobile={true}
+            />
+          </div>
+        </div>
+      )}
+
       {/* NAV DESKTOP */}
       <nav className="hidden lg:flex bg-dark-bg/25 backdrop-blur-lg drop-shadow-lg w-full h-[80px] fixed top-0 z-50">
-        <ul className="flex justify-between items-center h-full w-full px-8">
-          <li className="flex-1 flex ">
+        <ul className="flex items-center h-full w-full px-8">
+          <li className="flex-shrink-0 flex ">
             <NavLink to="/">
               <img
                 src={logo}
@@ -118,29 +164,81 @@ export default function NavBar() {
               />
             </NavLink>
           </li>
-          <li className="flex-2 xl:flex-1 flex justify-around tracking-[0.35rem] font-semibold">
-            <NavLink to="/">Accueil</NavLink>
-            <NavLink to="/Comics">Comics</NavLink>
-            <NavLink to="/Bibliothèque">Bibliothèque</NavLink>
+          {/* Bloc central : navigation principale */}
+          <li className="flex-1 flex justify-center items-center gap-12 min-w-0 transition-all duration-300">
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `transition-all duration-200 px-5 py-3 rounded-md group text-lg ${
+                  isActive
+                    ? "text-accent font-semibold"
+                    : "text-white lg:hover:text-accent lg:hover:scale-105"
+                }`
+              }
+            >
+              <span className="relative inline-block">
+                Accueil
+                <span className="absolute left-1/2 -translate-x-1/2 -bottom-1 h-[2.5px] w-[120%] bg-accent rounded origin-center scale-x-0 group-hover:scale-x-100 lg:group-hover:scale-x-100 transition-transform duration-200 pointer-events-none"></span>
+              </span>
+            </NavLink>
+            <NavLink
+              to="/Comics"
+              className={({ isActive }) =>
+                `transition-all duration-200 px-5 py-3 rounded-md group text-lg ${
+                  isActive
+                    ? "text-accent font-semibold"
+                    : "text-white lg:hover:text-accent lg:hover:scale-105"
+                }`
+              }
+            >
+              <span className="relative inline-block">
+                Comics
+                <span className="absolute left-1/2 -translate-x-1/2 -bottom-1 h-[2.5px] w-[120%] bg-accent rounded origin-center scale-x-0 group-hover:scale-x-100 lg:group-hover:scale-x-100 transition-transform duration-200 pointer-events-none"></span>
+              </span>
+            </NavLink>
+            <NavLink
+              to="/Bibliothèque"
+              className={({ isActive }) =>
+                `transition-all duration-200 px-5 py-3 rounded-md group text-lg ${
+                  isActive
+                    ? "text-accent font-semibold"
+                    : "text-white lg:hover:text-accent lg:hover:scale-105"
+                }`
+              }
+            >
+              <span className="relative inline-block">
+                Bibliothèque
+                <span className="absolute left-1/2 -translate-x-1/2 -bottom-1 h-[2.5px] w-[120%] bg-accent rounded origin-center scale-x-0 group-hover:scale-x-100 lg:group-hover:scale-x-100 transition-transform duration-200 pointer-events-none"></span>
+              </span>
+            </NavLink>
           </li>
-          <li className="flex-1 flex justify-end items-center gap-8">
-            <a href="">
-              <HiOutlineMagnifyingGlass className="text-[32px]" />
-            </a>
-            <NavLink to={user ? "/Profile" : "/Auth"}>
+          {/* Bloc droit : SearchBar + profil + paramètres */}
+          <li className="flex-shrink-0 flex items-center gap-6 min-w-0 h-full">
+            <div className="flex items-center h-full flex-shrink-0">
+              <SearchBar
+                isOpen={isSearchOpen}
+                onToggle={() => setIsSearchOpen(!isSearchOpen)}
+                onClose={() => setIsSearchOpen(false)}
+              />
+            </div>
+            <NavLink to={user ? "/Profile" : "/Auth"} className="flex-shrink-0">
               {/* Affichage conditionnel de l'avatar pour l'icône user */}
               {user ? (
                 <img
                   src={user.avatar || defaultAvatar}
                   alt="avatar utilisateur"
-                  className="w-10 h-10 rounded-full object-cover border-2 border-accent"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-accent"
                 />
               ) : (
-                <FaUser className="text-[32px]" />
+                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#23272f]">
+                  <FaUser className="text-[28px]" />
+                </div>
               )}
             </NavLink>
-            <NavLink to="/Paramètres">
-              <IoSettingsSharp className="text-[32px]" />
+            <NavLink to="/Paramètres" className="flex-shrink-0">
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#23272f]">
+                <IoSettingsSharp className="text-[28px]" />
+              </div>
             </NavLink>
           </li>
         </ul>

@@ -60,6 +60,8 @@ async function fetchMangas({
   includedTags = [],
   excludedTags = [],
   ids = [],
+  title = null,
+  year = null,
 }) {
   console.log("MANGAAPI ORDER : ", order);
 
@@ -208,11 +210,54 @@ async function fetchChapterById(id) {
   }
 }
 
+// Recherche stricte par titre (pour la SearchBar)
+async function fetchMangasByTitle({
+  title,
+  limit = 10,
+  lang = "fr",
+  includes = [],
+}) {
+  if (!title || title.length < 2) return { result: "ok", data: [] };
+  try {
+    const response = await axios.get("https://api.mangadex.org/manga", {
+      params: {
+        title,
+        limit,
+        availableTranslatedLanguage: [lang],
+        includes,
+        contentRating: ["safe"],
+      },
+      paramsSerializer: (params) => qs.stringify(params, { encode: false }),
+      headers: {
+        "Cache-Control": "no-cache",
+        "User-Agent": "WebComInk/1.0 (contact.webcomink@gmail.com)",
+      },
+    });
+    // On filtre côté serveur pour ne garder que les titres qui contiennent le terme recherché (fr, en, ja-ro)
+    const filtered = (response.data.data || []).filter((manga) => {
+      const t = manga.attributes?.title || {};
+      const search = title.toLowerCase();
+      return (
+        (t.fr && t.fr.toLowerCase().includes(search)) ||
+        (t.en && t.en.toLowerCase().includes(search)) ||
+        (t["ja-ro"] && t["ja-ro"].toLowerCase().includes(search))
+      );
+    });
+    return { result: "ok", data: filtered };
+  } catch (error) {
+    console.error(
+      "Erreur fetchMangasByTitle:",
+      error.response?.data || error.message
+    );
+    return { result: "error", data: [] };
+  }
+}
+
 module.exports = {
   fetchMangas,
   fetchMangaById,
   fetchCoverUrlByMangaId,
   fetchTags,
   fetchChapterById,
-  limit,
+  fetchMangasByTitle, // nouvelle fonction exportée
 };
