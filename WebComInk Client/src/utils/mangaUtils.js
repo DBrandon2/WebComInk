@@ -31,8 +31,9 @@ export function enrichMangas(mangas) {
     const coverRel = relationships.find((rel) => rel.type === "cover_art");
     const coverFileName = coverRel?.attributes?.fileName;
 
+    // Correction : utilise le proxy et pas de double extension
     const coverUrl = coverFileName
-      ? `${API_BASE_URL}/proxy/covers/${manga.id}/${coverFileName}.256.jpg`
+      ? `${API_BASE_URL}/proxy/covers/${manga.id}/${coverFileName}`
       : "/default-cover.png";
 
     // Extraction des auteurs
@@ -105,8 +106,9 @@ export function getMangaCoverUrl(manga, size = "256") {
   const coverRel = relationships.find((rel) => rel.type === "cover_art");
   const coverFileName = coverRel?.attributes?.fileName;
 
+  // Correction : utilise le proxy et pas de double extension
   return coverFileName
-    ? `${API_BASE_URL}/proxy/covers/${manga.id}/${coverFileName}.${size}.jpg`
+    ? `${API_BASE_URL}/proxy/covers/${manga.id}/${coverFileName}`
     : "/default-cover.png";
 }
 
@@ -147,7 +149,7 @@ export async function getChapterDetails(chapterId) {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/chapter/${chapterId}`);
+    const response = await fetch(`${API_BASE_URL}/proxy/chapter/${chapterId}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

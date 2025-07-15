@@ -62,6 +62,8 @@ export default function ChapterReader() {
   const settingsBtnRef = useRef(null);
   const [modalOrigin, setModalOrigin] = useState({ x: 0, y: 0 });
 
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
   // Hook useDrag (mobile only)
   const isMobile =
     typeof window !== "undefined" &&
@@ -108,7 +110,9 @@ export default function ChapterReader() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`/chapter/${chapterId}`);
+        const response = await fetch(
+          `${API_BASE_URL}/proxy/chapter/${chapterId}`
+        );
         if (!response.ok) {
           throw new Error("Chapitre non trouvé");
         }
@@ -117,7 +121,9 @@ export default function ChapterReader() {
         setChapter(data.data);
 
         // Récupération des données d'images
-        const imageResponse = await fetch(`/chapter-image/${chapterId}`);
+        const imageResponse = await fetch(
+          `${API_BASE_URL}/proxy/chapter-image/${chapterId}`
+        );
         if (!imageResponse.ok) {
           throw new Error("Images du chapitre non trouvées");
         }
@@ -317,7 +323,7 @@ export default function ChapterReader() {
       const nextChapter = allChapters[currentChapterIndex + 1];
       if (nextChapter && !nextChapterData) {
         // Précharger les métadonnées du chapitre suivant
-        fetch(`/chapter-image/${nextChapter.id}`)
+        fetch(`${API_BASE_URL}/proxy/chapter-image/${nextChapter.id}`)
           .then((res) => res.json())
           .then((data) => setNextChapterData(data))
           .catch(() => {}); // Ignore les erreurs de préchargement
@@ -703,7 +709,9 @@ function NextChapterButton() {
     async function fetchCover() {
       if (!nextChapter) return;
       try {
-        const res = await fetch(`/chapter-image/${nextChapter.id}`);
+        const res = await fetch(
+          `${API_BASE_URL}/proxy/chapter-image/${nextChapter.id}`
+        );
         const data = await res.json();
         if (
           data.chapter &&

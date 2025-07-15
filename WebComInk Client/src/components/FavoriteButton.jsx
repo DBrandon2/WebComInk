@@ -70,6 +70,8 @@ export default function FavoriteButton({
   const handleCategorySelect = async (category) => {
     setIsLoading(true);
     try {
+      // LOG : coverImage envoyé
+      console.log("[FavoriteButton] coverImage envoyé :", coverImage);
       await addFavorite(
         mangaId,
         title,

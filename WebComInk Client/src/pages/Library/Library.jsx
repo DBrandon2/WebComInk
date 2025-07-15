@@ -138,6 +138,8 @@ export default function Library() {
       try {
         setLoading(true);
         const data = await getFavorites();
+        // LOG : favoris reçus
+        console.log("[Library] Favoris reçus :", data);
         setFavorites(data);
         setError(null);
       } catch (err) {

@@ -18,6 +18,7 @@ export default function ChaptersList({ mangaId }) {
   const [cooldown, setCooldown] = useState(false); // Cooldown pagination
   const [selectedLang, setSelectedLang] = useState("fr");
   const [detectedLangs, setDetectedLangs] = useState([]);
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   // Détection initiale des langues disponibles (fr/en uniquement)
   useEffect(() => {
@@ -120,7 +121,9 @@ export default function ChaptersList({ mangaId }) {
       active++;
       const controller = new AbortController();
       abortControllers.push(controller);
-      fetch(`/chapter-image/${ch.id}`, { signal: controller.signal })
+      fetch(`${API_BASE_URL}/proxy/chapter-image/${ch.id}`, {
+        signal: controller.signal,
+      })
         .then((res) => {
           if (res.status === 429) {
             // Trop de requêtes, on attend 1 seconde et on réessaie

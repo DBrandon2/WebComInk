@@ -193,6 +193,9 @@ const addFavorite = async (req, res) => {
 
     const { mangaId, title, coverImage, status } = req.body;
 
+    // LOG : coverImage reçu
+    console.log("[addFavorite] coverImage reçu :", coverImage);
+
     if (!mangaId || !title) {
       return res.status(400).json({ message: "Données manquantes" });
     }
@@ -278,6 +281,9 @@ const getFavorites = async (req, res) => {
     const userId = decodedToken.sub;
 
     const user = await User.findById(userId);
+
+    // LOG : favoris renvoyés
+    console.log("[getFavorites] Favoris renvoyés :", user.favorites);
 
     res.status(200).json({ favorites: user.favorites });
   } catch (error) {

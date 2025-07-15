@@ -25,6 +25,13 @@ export default function LibraryMangaCard({
       tabIndex={-1}
       style={isDragging ? { transform: "scale(1)" } : {}}
     >
+      {/* LOG : coverUrl utilisé */}
+      {console.log(
+        "[LibraryMangaCard] coverUrl utilisé :",
+        coverUrl,
+        "pour",
+        title
+      )}
       <Link
         to={to}
         className="block focus:outline-none h-full select-none"
