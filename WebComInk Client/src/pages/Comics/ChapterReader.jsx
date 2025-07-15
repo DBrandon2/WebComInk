@@ -433,7 +433,7 @@ export default function ChapterReader() {
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div className="max-w-5xl mx-auto px-4 md:px-6 py-2 md:py-3">
+          <div className="w-full px-2 sm:px-4 md:px-6 py-2 md:py-3">
             <div className="flex items-center justify-between w-full gap-x-2 md:gap-x-6">
               {/* Logo à gauche (desktop only) */}
               <div className="hidden md:flex items-center min-w-[60px] mr-2">
