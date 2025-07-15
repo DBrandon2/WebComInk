@@ -23,18 +23,24 @@ export default function ChaptersList({ mangaId }) {
   // Détection initiale des langues disponibles (fr/en uniquement)
   useEffect(() => {
     async function detectLangs() {
+      let langs = [];
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=100&translatedLanguage[]=fr&translatedLanguage[]=en&order[chapter]=desc`
+        // Fetch FR
+        const resFr = await fetch(
+          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=1&translatedLanguage[]=fr&order[chapter]=desc`
         );
-        const data = await res.json();
-        const langs = new Set(
-          (data.data || [])
-            .map((ch) => ch.attributes.translatedLanguage)
-            .filter((lang) => lang === "fr" || lang === "en")
-        );
-        setDetectedLangs(Array.from(langs));
+        const dataFr = await resFr.json();
+        if ((dataFr.data || []).length > 0) langs.push("fr");
       } catch {}
+      try {
+        // Fetch EN
+        const resEn = await fetch(
+          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=1&translatedLanguage[]=en&order[chapter]=desc`
+        );
+        const dataEn = await resEn.json();
+        if ((dataEn.data || []).length > 0) langs.push("en");
+      } catch {}
+      setDetectedLangs(langs);
     }
     if (mangaId) detectLangs();
   }, [mangaId]);
