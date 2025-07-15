@@ -84,10 +84,10 @@ export async function getMangasByTitle({
   }
 }
 
-// Récupère tous les tags depuis l'API MangaDex
+// Récupère tous les tags depuis l'API MangaDex via le proxy backend
 export async function getAllTags() {
   try {
-    const res = await axios.get("https://api.mangadex.org/manga/tag");
+    const res = await axios.get(`${API_BASE_URL}/proxy/manga/tag`);
     return res.data.data; // tableau de tags
   } catch (error) {
     throw new Error(

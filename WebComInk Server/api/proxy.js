@@ -137,4 +137,15 @@ router.get("/chapter-image/:chapterId", async (req, res) => {
   }
 });
 
+// Proxy pour les tags MangaDex
+router.get("/manga/tag", async (req, res) => {
+  try {
+    const response = await axios.get("https://api.mangadex.org/manga/tag");
+    res.json(response.data);
+  } catch (error) {
+    console.error("Erreur proxy /manga/tag:", error.message);
+    res.status(500).json({ error: "Erreur proxy MangaDex tag" });
+  }
+});
+
 module.exports = router;
