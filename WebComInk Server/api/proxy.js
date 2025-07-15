@@ -154,6 +154,40 @@ router.get("/chapter-image/:chapterId", async (req, res) => {
   }
 });
 
+// Proxy pour la liste des chapitres (GET /proxy/chapter-list)
+router.get("/chapter-list", async (req, res) => {
+  const baseUrl = "https://api.mangadex.org/chapter";
+  const query = req.url.split("?")[1] || "";
+  const url = `${baseUrl}${query ? `?${query}` : ""}`;
+  console.log(`[PROXY] Requête /chapter-list → ${url}`);
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent": "WebComInk/1.0 (contact.webcomink@gmail.com)",
+        Origin: "https://web-com-ink.vercel.app",
+        Referer: "https://web-com-ink.vercel.app",
+      },
+    });
+    res.json(response.data);
+  } catch (err) {
+    if (err.response) {
+      console.error(
+        `[PROXY] Erreur /chapter-list - Status: ${err.response.status} - Data:`,
+        err.response.data
+      );
+      return res.status(err.response.status).json(err.response.data);
+    } else {
+      console.error(
+        `[PROXY] Erreur réseau ou inconnue pour /chapter-list:`,
+        err.message
+      );
+      return res
+        .status(500)
+        .json({ message: "Erreur lors du proxy chapter-list" });
+    }
+  }
+});
+
 // Proxy pour les tags MangaDex
 router.get("/manga/tag", async (req, res) => {
   try {

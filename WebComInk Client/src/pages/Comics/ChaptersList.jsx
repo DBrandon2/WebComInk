@@ -25,7 +25,7 @@ export default function ChaptersList({ mangaId }) {
     async function detectLangs() {
       try {
         const res = await fetch(
-          `https://api.mangadex.org/chapter?manga=${mangaId}&limit=100&translatedLanguage[]=fr&translatedLanguage[]=en&order[chapter]=desc`
+          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=100&translatedLanguage[]=fr&translatedLanguage[]=en&order[chapter]=desc`
         );
         const data = await res.json();
         const langs = new Set(
@@ -55,7 +55,7 @@ export default function ChaptersList({ mangaId }) {
       setError(null);
       try {
         const res = await fetch(
-          `https://api.mangadex.org/chapter?manga=${mangaId}&limit=100&translatedLanguage[]=${selectedLang}&order[chapter]=desc&includes[]=scanlation_group`
+          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=100&translatedLanguage[]=${selectedLang}&order[chapter]=desc&includes[]=scanlation_group`
         );
         const data = await res.json();
         setChapters(data.data || []);
