@@ -45,7 +45,7 @@ function getBestCoverUrl(manga) {
   const coverFileName = coverRel?.attributes?.fileName;
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
   return coverFileName
-    ? `${API_BASE_URL}/covers/${manga.id}/${coverFileName}`
+    ? `${API_BASE_URL}/proxy/covers/${manga.id}/${coverFileName}`
     : "/default-cover.png";
 }
 

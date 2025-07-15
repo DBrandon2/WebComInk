@@ -366,7 +366,9 @@ export default function ComicsDetails() {
     const coverRel = relationships.find((rel) => rel.type === "cover_art");
     const coverFileName = coverRel?.attributes?.fileName;
     return coverFileName
-      ? `${import.meta.env.VITE_API_URL}/covers/${manga.id}/${coverFileName}`
+      ? `${import.meta.env.VITE_API_URL}/proxy/covers/${
+          manga.id
+        }/${coverFileName}`
       : "/default-cover.png";
   }
 

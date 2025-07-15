@@ -32,7 +32,7 @@ export function enrichMangas(mangas) {
     const coverFileName = coverRel?.attributes?.fileName;
 
     const coverUrl = coverFileName
-      ? `${API_BASE_URL}/covers/${manga.id}/${coverFileName}.256.jpg`
+      ? `${API_BASE_URL}/proxy/covers/${manga.id}/${coverFileName}.256.jpg`
       : "/default-cover.png";
 
     // Extraction des auteurs
@@ -106,7 +106,7 @@ export function getMangaCoverUrl(manga, size = "256") {
   const coverFileName = coverRel?.attributes?.fileName;
 
   return coverFileName
-    ? `${API_BASE_URL}/covers/${manga.id}/${coverFileName}.${size}.jpg`
+    ? `${API_BASE_URL}/proxy/covers/${manga.id}/${coverFileName}.${size}.jpg`
     : "/default-cover.png";
 }
 
