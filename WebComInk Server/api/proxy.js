@@ -62,15 +62,32 @@ router.get("/covers/:mangaId/:fileName", async (req, res) => {
 router.get("/chapter/:chapterId", async (req, res) => {
   const { chapterId } = req.params;
   const url = `https://api.mangadex.org/chapter/${chapterId}`;
+  console.log(`[PROXY] Requête /chapter/:chapterId → ${url}`);
 
   try {
     const response = await axios.get(url);
+    console.log(
+      `[PROXY] Succès /chapter/:chapterId - Status: ${response.status}`
+    );
     res.json(response.data);
   } catch (err) {
-    if (err.response && err.response.status === 404) {
-      return res.status(404).send("Chapitre non trouvé");
+    if (err.response) {
+      console.error(
+        `[PROXY] Erreur /chapter/:chapterId - Status: ${err.response.status} - Data:`,
+        err.response.data
+      );
+      if (err.response.status === 404) {
+        return res.status(404).send("Chapitre non trouvé");
+      }
+      if (err.response.status === 429) {
+        return res.status(429).send("Trop de requêtes vers MangaDex (429)");
+      }
+    } else {
+      console.error(
+        `[PROXY] Erreur réseau ou inconnue pour /chapter/:chapterId:`,
+        err.message
+      );
     }
-    console.error("Erreur proxy chapter:", err.message);
     res.status(500).send("Erreur lors de la récupération du chapitre");
   }
 });
@@ -84,7 +101,7 @@ function delay(ms) {
 router.get("/chapter-image/:chapterId", async (req, res) => {
   const { chapterId } = req.params;
   const url = `https://api.mangadex.org/at-home/server/${chapterId}`;
-  console.log(`[PROXY] Requête pour chapitre : ${chapterId}`);
+  console.log(`[PROXY] Requête /chapter-image/:chapterId → ${url}`);
 
   // Vérifie le cache
   const cached = chapterImageCache.get(chapterId);
@@ -105,7 +122,7 @@ router.get("/chapter-image/:chapterId", async (req, res) => {
       })
     );
     console.log(
-      `[PROXY] Succès chapitre ${chapterId} - Status: ${response.status}`
+      `[PROXY] Succès /chapter-image/:chapterId - Status: ${response.status}`
     );
     // Met en cache la réponse
     chapterImageCache.set(chapterId, {
@@ -116,7 +133,7 @@ router.get("/chapter-image/:chapterId", async (req, res) => {
   } catch (err) {
     if (err.response) {
       console.error(
-        `[PROXY] Erreur chapitre ${chapterId} - Status: ${err.response.status} - Data:`,
+        `[PROXY] Erreur /chapter-image/:chapterId - Status: ${err.response.status} - Data:`,
         err.response.data
       );
       if (err.response.status === 404) {
@@ -127,7 +144,7 @@ router.get("/chapter-image/:chapterId", async (req, res) => {
       }
     } else {
       console.error(
-        `[PROXY] Erreur réseau ou inconnue pour chapitre ${chapterId}:`,
+        `[PROXY] Erreur réseau ou inconnue pour /chapter-image/:chapterId:`,
         err.message
       );
     }
