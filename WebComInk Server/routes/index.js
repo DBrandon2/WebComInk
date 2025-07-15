@@ -8,7 +8,7 @@ router.use("/user", apiUsers);
 
 router.use("/manga", apiMangas);
 
-router.use("/", proxyRouter);
+router.use("/proxy", proxyRouter);
 
 module.exports = router;
 
