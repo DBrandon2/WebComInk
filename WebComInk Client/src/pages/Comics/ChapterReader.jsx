@@ -696,6 +696,9 @@ function NextChapterButton() {
   const { allChapters, currentChapterIndex, mangaId, slug } =
     useContext(ChapterReaderContext);
 
+  // Déclare API_BASE_URL ici
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
   // Trouver le prochain chapitre
   const nextChapter =
     allChapters && currentChapterIndex > 0
@@ -713,6 +716,7 @@ function NextChapterButton() {
           `${API_BASE_URL}/proxy/chapter-image/${nextChapter.id}`
         );
         const data = await res.json();
+        // Suppression des logs debug
         if (
           data.chapter &&
           data.chapter.data &&
@@ -721,13 +725,20 @@ function NextChapterButton() {
           data.baseUrl
         ) {
           const files = data.chapter.data;
-          const file = files[4] || files[files.length - 1];
+          let file = null;
+          for (let idx of [4, 3, 2, 1, files.length - 1, 0]) {
+            if (files[idx]) {
+              file = files[idx];
+              break;
+            }
+          }
+          if (!file) file = files[0];
           const url = `${data.baseUrl}/data/${data.chapter.hash}/${file}`;
           if (!cancelled) setCoverImg(url);
         } else {
           setCoverImg(null);
         }
-      } catch {
+      } catch (e) {
         setCoverImg(null);
       }
     }
