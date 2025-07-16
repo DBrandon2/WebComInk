@@ -5,8 +5,8 @@ import { rootLoader } from "./loaders/rootLoader";
 const Auth = lazy(() => import("./pages/forms/Auth"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage"));
 const Profile = lazy(() => import("./pages/Profile/Profile"));
-const Overview = lazy(() => import("./pages/Profile/pages/Overview"));
-const Data = lazy(() => import("./pages/Profile/pages/Data"));
+const Overview = lazy(() => import("./pages/Profile/Overview"));
+const Data = lazy(() => import("./pages/Profile/Data"));
 const UserConnected = lazy(() =>
   import("./components/ProtectedRoutes/UserConnected")
 );
