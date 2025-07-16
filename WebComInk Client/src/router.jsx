@@ -5,8 +5,6 @@ import { rootLoader } from "./loaders/rootLoader";
 const Auth = lazy(() => import("./pages/forms/Auth"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage"));
 const Profile = lazy(() => import("./pages/Profile/Profile"));
-const Overview = lazy(() => import("./pages/Profile/Overview"));
-const Data = lazy(() => import("./pages/Profile/Data"));
 const UserConnected = lazy(() =>
   import("./components/ProtectedRoutes/UserConnected")
 );
@@ -82,16 +80,6 @@ export const router = createBrowserRouter([
             <Profile />
           </UserConnected>
         ),
-        children: [
-          {
-            index: true,
-            element: <Overview />,
-          },
-          {
-            path: "data",
-            element: <Data />,
-          },
-        ],
       },
       {
         path: "/Paramètres",
