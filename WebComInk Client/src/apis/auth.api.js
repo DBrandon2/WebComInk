@@ -59,7 +59,7 @@ export async function update(values) {
 
 export async function updateAvatar(values) {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/avatar`, {
+    const response = await fetch(`${API_BASE_URL}/user/avatar`, {
       method: "PUT",
       body: JSON.stringify(values),
       headers: {

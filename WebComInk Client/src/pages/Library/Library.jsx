@@ -14,6 +14,7 @@ import { slugify } from "../../utils/mangaUtils";
 import LibraryMangaCard from "../../components/shared/LibraryMangaCard";
 import { motion } from "framer-motion";
 import CategorySelectionModal from "../../components/modals/CategorySelectionModal";
+import { toast } from "react-hot-toast";
 
 import {
   DndContext,
@@ -94,19 +95,49 @@ export default function Library() {
   };
   const handleRenameCategory = async (e) => {
     e.preventDefault();
-    if (!renameValue.trim()) {
+    const newName = renameValue.trim();
+    if (!newName) {
       setRenameError("Le nom ne peut pas être vide.");
+      return;
+    }
+    if (newName === tab) {
+      // Si l'utilisateur n'a pas modifié le nom, on annule simplement
+      setIsRenaming(false);
+      setRenameValue("");
+      setRenameError("");
+      toast.success("Catégorie renommée avec succès !", {
+        position: window.innerWidth < 640 ? "bottom-center" : "bottom-right",
+        style: {
+          fontSize: window.innerWidth < 640 ? "1rem" : "1.1rem",
+          borderRadius: "8px",
+          background: "#222",
+          color: "#edf060",
+          minWidth: window.innerWidth < 640 ? "90vw" : "300px",
+          textAlign: "center",
+        },
+      });
       return;
     }
     setRenameLoading(true);
     setRenameError("");
     try {
-      await renameCustomCategory(tab, renameValue.trim());
+      await renameCustomCategory(tab, newName);
       setCustomCategories((prev) =>
-        prev.map((cat) => (cat === tab ? renameValue.trim() : cat))
+        prev.map((cat) => (cat === tab ? newName : cat))
       );
-      setTab(renameValue.trim());
+      setTab(newName);
       setIsRenaming(false);
+      toast.success("Catégorie renommée avec succès !", {
+        position: window.innerWidth < 640 ? "bottom-center" : "bottom-right",
+        style: {
+          fontSize: window.innerWidth < 640 ? "1rem" : "1.1rem",
+          borderRadius: "8px",
+          background: "#222",
+          color: "#edf060",
+          minWidth: window.innerWidth < 640 ? "90vw" : "300px",
+          textAlign: "center",
+        },
+      });
     } catch (err) {
       setRenameError(err.message || "Erreur lors du renommage.");
     } finally {
@@ -446,25 +477,25 @@ export default function Library() {
                     type="text"
                     value={renameValue}
                     onChange={(e) => setRenameValue(e.target.value)}
-                    className="px-2 py-1 rounded border-2 border-accent bg-accent-hover text-accent font-semibold focus:outline-none focus:ring-2 focus:ring-accent w-20 sm:w-28"
+                    className="px-2 py-1 rounded border-1 border-accent bg-accent-hover text-accent font-semibold focus:outline-none focus:ring-1 w-20 sm:w-28"
                     maxLength={32}
                     disabled={renameLoading}
                     autoFocus
                   />
                   <button
-                    type="submit"
-                    className="px-2 py-1 rounded bg-accent text-dark-bg font-bold hover:bg-accent-hover transition disabled:opacity-60 text-xs sm:text-base "
-                    disabled={renameLoading}
-                  >
-                    OK
-                  </button>
-                  <button
                     type="button"
                     onClick={handleCancelRename}
-                    className="px-2 py-1 rounded bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition disabled:opacity-60 text-xs sm:text-base"
+                    className="px-2 py-1 rounded bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 hover:text-gray-100 transition disabled:opacity-60 text-xs sm:text-base cursor-pointer"
                     disabled={renameLoading}
                   >
                     Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-2 py-1 rounded bg-accent text-dark-bg font-bold hover:bg-accent-hover hover:text-gray-200 transition disabled:opacity-60 text-xs sm:text-base cursor-pointer"
+                    disabled={renameLoading}
+                  >
+                    OK
                   </button>
                 </form>
               ) : (
@@ -473,8 +504,8 @@ export default function Library() {
                   className="p-1 sm:p-2 rounded hover:bg-accent-hover text-accent cursor-pointer"
                   title="Renommer la catégorie"
                 >
-                  <Edit3 size={16} className="sm:hidden" />
-                  <Edit3 size={18} className="hidden sm:inline" />
+                  <Edit3 size={22} className="sm:hidden" />
+                  <Edit3 size={26} className="hidden sm:inline" />
                 </button>
               )}
               {/* Supprimer */}
@@ -483,8 +514,8 @@ export default function Library() {
                 className="p-1 sm:p-2 rounded hover:bg-red-100 text-red-500 cursor-pointer"
                 title="Supprimer la catégorie"
               >
-                <Trash2 size={16} className="sm:hidden" />
-                <Trash2 size={18} className="hidden sm:inline" />
+                <Trash2 size={22} className="sm:hidden" />
+                <Trash2 size={26} className="hidden sm:inline" />
               </button>
             </div>
           )}

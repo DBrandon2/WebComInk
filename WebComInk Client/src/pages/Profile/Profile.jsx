@@ -2,11 +2,12 @@ import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import defaultAvatar from "../../assets/defaultAvatar.jpg";
 import { update, getReadingHistory } from "../../apis/auth.api";
-import ChangeEmailForm from "./pages/ChangeEmailForm";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import { enrichMangas } from "../../utils/mangaUtils";
+import { supabase } from "../../utils/supabaseClient";
+import { updateAvatar } from "../../apis/auth.api";
 
 export default function Profile() {
   const { user, logout, setUser } = useContext(AuthContext);
@@ -23,6 +24,10 @@ export default function Profile() {
   const [errorHistory, setErrorHistory] = useState(null);
   const [showClearModal, setShowClearModal] = useState(false);
   const [coversMap, setCoversMap] = useState({});
+  const [avatar, setAvatar] = useState(user?.avatar || "");
+  const inputAvatarRef = React.useRef(null);
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState(null);
+  const [previewAvatar, setPreviewAvatar] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -160,6 +165,58 @@ export default function Profile() {
     }
   }
 
+  // Handler pour ouvrir l'input file (depuis l'image ou le bouton)
+  const openAvatarFileDialog = (e) => {
+    // Suppression de la condition !isEditing
+    if (e) e.stopPropagation();
+    if (inputAvatarRef.current) {
+      inputAvatarRef.current.click();
+    }
+  };
+
+  // Handler pour sélectionner une image (mais ne pas l'uploader tout de suite)
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setSelectedAvatarFile(file);
+    setPreviewAvatar(URL.createObjectURL(file));
+  };
+
+  // Handler pour valider le changement d'avatar (upload)
+  const handleValidateAvatar = async () => {
+    if (!selectedAvatarFile) return;
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedAvatarFile);
+      formData.append("upload_preset", "avatars_unsigned");
+      formData.append("folder", "users/avatars");
+      // Upload direct à Cloudinary
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/drib6vkyw/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await res.json();
+      if (!data.secure_url) throw new Error("Erreur upload Cloudinary");
+      // MAJ avatar côté back (persistant)
+      const updatedUser = await updateAvatar({
+        _id: user._id,
+        avatar: data.secure_url,
+      });
+      setAvatar(data.secure_url);
+      setUser(updatedUser);
+      // MAJ localStorage
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setSelectedAvatarFile(null);
+      setPreviewAvatar("");
+    } catch (error) {
+      console.log(error);
+      alert("Erreur lors de l'upload de l'avatar.");
+    }
+  };
+
   return (
     <div className="min-h-screen text-white font-sans px-4 py-6 flex flex-col md:flex-row md:items-start md:justify-center md:gap-x-20">
       {/* Partie gauche : Profil & Formulaire */}
@@ -170,16 +227,62 @@ export default function Profile() {
         </div>
 
         <div className="flex flex-col items-center w-48 mx-auto mb-2">
-          <div className="w-48 h-48 rounded-full overflow-hidden border-2 border-accent">
+          <div
+            style={{
+              width: 160,
+              height: 160,
+              borderRadius: "50%",
+              overflow: "hidden",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "#222",
+            }}
+          >
             <img
-              src={defaultAvatar}
+              src={previewAvatar || avatar || defaultAvatar}
               alt="Avatar"
-              className="w-full h-full object-cover"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "50%",
+              }}
+              onClick={openAvatarFileDialog}
+              className="cursor-pointer"
             />
           </div>
-          <button className="mt-3 border border-accent text-accent py-1 px-3 rounded hover:bg-accent hover:text-black cursor-pointer">
-            Changer d'avatar
-          </button>
+          <input
+            type="file"
+            ref={inputAvatarRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/*"
+          />
+          {/* Bouton de validation d'avatar, affiché si un fichier est sélectionné */}
+          {selectedAvatarFile && (
+            <div className="flex gap-2 mt-2">
+              <button
+                className="px-4 py-1 rounded bg-gray-500 text-white font-medium hover:bg-gray-600 transition cursor-pointer"
+                onClick={() => {
+                  setSelectedAvatarFile(null);
+                  setPreviewAvatar("");
+                }}
+                type="button"
+                disabled={loading}
+              >
+                Annuler
+              </button>
+              <button
+                className="px-4 py-1 rounded bg-accent text-white font-medium hover:bg-accent-hover transition cursor-pointer"
+                onClick={handleValidateAvatar}
+                type="button"
+                disabled={loading}
+              >
+                Valider l'avatar
+              </button>
+            </div>
+          )}
         </div>
 
         <form
@@ -362,6 +465,8 @@ export default function Profile() {
               }
               // Correction de la cover
               let coverUrl = entry.coverImage || coversMap[entry.mangaId];
+              // On force le placeholder pour la première cover
+              const showPlaceholder = index === 0 || !coverUrl;
               return (
                 <Link
                   to={
@@ -375,14 +480,39 @@ export default function Profile() {
                     className="w-[80px] h-[120px] md:w-[120px] md:h-[180px] bg-gray-700 overflow-hidden shadow flex-shrink-0 transition-transform hover:scale-105 relative"
                     style={{ cursor: "pointer" }}
                   >
-                    <img
-                      src={coverUrl || "/placeholder-manga.png"}
-                      alt={clampedTitle}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = "/placeholder-manga.png";
-                      }}
-                    />
+                    {coverUrl && !showPlaceholder ? (
+                      <img
+                        src={coverUrl}
+                        alt={clampedTitle}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
+                          const placeholder =
+                            e.target.parentNode.querySelector(
+                              ".cover-placeholder"
+                            );
+                          if (placeholder) placeholder.style.display = "flex";
+                        }}
+                      />
+                    ) : null}
+                    <motion.div
+                      className="cover-placeholder absolute inset-0 flex items-center justify-center bg-gray-200 z-10"
+                      style={{ display: showPlaceholder ? "flex" : "none" }}
+                      initial={{ opacity: 0.7 }}
+                      animate={{ opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 1.2, repeat: Infinity }}
+                    >
+                      <motion.div
+                        className="w-12 h-12 border-4 border-gray-300 border-t-accent rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 1,
+                          ease: "linear",
+                        }}
+                      />
+                    </motion.div>
                     {/* Dégradé bas vers haut */}
                     <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black/95 via-black/70 to-transparent flex flex-col justify-end p-2">
                       <span
@@ -446,7 +576,42 @@ export default function Profile() {
               >
                 ×
               </button>
-              <ChangeEmailForm currentEmail={user.email} userId={user._id} />
+              <div className="bg-dark-bg rounded-lg shadow-lg p-6 w-full max-w-xs flex flex-col items-center relative">
+                <span className="text-lg font-bold text-accent mb-2">
+                  Modifier mon email
+                </span>
+                <p className="text-white mb-4 text-center">
+                  Veuillez entrer votre nouveau email.
+                </p>
+                <form className="w-full max-w-xs flex flex-col items-center space-y-4">
+                  <div className="w-full max-w-xs flex flex-col">
+                    <label className="text-accent text-sm w-full text-left">
+                      Nouveau email
+                    </label>
+                    <input
+                      type="email"
+                      name="newEmail"
+                      className="w-full px-4 py-2 rounded mt-1 bg-white text-gray-400"
+                      placeholder="Nouvel email"
+                    />
+                  </div>
+                  <div className="w-full max-w-xs flex gap-2">
+                    <button
+                      type="button"
+                      className="w-full border border-gray-400 text-gray-400 py-2 rounded cursor-pointer font-medium hover:text-white hover:bg-gray-500 transition"
+                      onClick={() => setShowEmailModal(false)}
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      className="w-full border border-accent text-accent py-2 rounded cursor-pointer font-medium hover:bg-accent-hover transition hover:text-white"
+                    >
+                      Enregistrer
+                    </button>
+                  </div>
+                </form>
+              </div>
             </motion.div>
           </div>
         )}
