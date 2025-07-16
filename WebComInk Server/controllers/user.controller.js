@@ -598,6 +598,159 @@ const deleteAccount = async (req, res) => {
   }
 };
 
+// --- Historique de lecture ---
+const markChapterAsRead = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).json({ message: "Non autorisé" });
+    }
+
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const userId = decodedToken.sub;
+
+    const {
+      mangaId,
+      mangaTitle,
+      mangaSlug,
+      coverImage,
+      chapterId,
+      chapterNumber,
+      chapterTitle,
+      progress = 100,
+    } = req.body;
+
+    if (!mangaId || !mangaTitle || !mangaSlug || !chapterId || !chapterNumber) {
+      return res.status(400).json({ message: "Données manquantes" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Vérifier si ce chapitre est déjà dans l'historique
+    const existingEntryIndex = user.readingHistory.findIndex(
+      (entry) => entry.chapterId === chapterId
+    );
+
+    const readingEntry = {
+      mangaId,
+      mangaTitle,
+      mangaSlug,
+      coverImage,
+      chapterId,
+      chapterNumber,
+      chapterTitle: chapterTitle || "",
+      readAt: new Date(),
+      progress,
+    };
+
+    if (existingEntryIndex !== -1) {
+      // Mettre à jour l'entrée existante
+      user.readingHistory[existingEntryIndex] = readingEntry;
+    } else {
+      // Ajouter une nouvelle entrée au début
+      user.readingHistory.unshift(readingEntry);
+    }
+
+    // Limiter l'historique à 50 entrées pour éviter une croissance excessive
+    if (user.readingHistory.length > 50) {
+      user.readingHistory = user.readingHistory.slice(0, 50);
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Chapitre marqué comme lu",
+      readingHistory: user.readingHistory,
+    });
+  } catch (error) {
+    console.error("Erreur lors du marquage du chapitre:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+const getReadingHistory = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).json({ message: "Non autorisé" });
+    }
+
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const userId = decodedToken.sub;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Trier par date de lecture (plus récent en premier)
+    const sortedHistory = user.readingHistory.sort(
+      (a, b) => new Date(b.readAt) - new Date(a.readAt)
+    );
+
+    res.status(200).json({ readingHistory: sortedHistory });
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'historique:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+const getLastReadChapter = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).json({ message: "Non autorisé" });
+    }
+
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const userId = decodedToken.sub;
+    const { mangaId } = req.params;
+
+    if (!mangaId) {
+      return res.status(400).json({ message: "ID du manga manquant" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    // Trouver le dernier chapitre lu pour ce manga
+    const lastReadChapter = user.readingHistory
+      .filter((entry) => entry.mangaId === mangaId)
+      .sort((a, b) => new Date(b.readAt) - new Date(a.readAt))[0];
+
+    res.status(200).json({ lastReadChapter: lastReadChapter || null });
+  } catch (error) {
+    console.error("Erreur lors de la récupération du dernier chapitre:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+const clearReadingHistory = async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      return res.status(401).json({ message: "Non autorisé" });
+    }
+    const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
+    const userId = decodedToken.sub;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    user.readingHistory = [];
+    await user.save();
+    res.status(200).json({ message: "Historique vidé" });
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'historique:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
 module.exports = {
   signup,
   signin,
@@ -618,4 +771,8 @@ module.exports = {
   requestEmailChange,
   confirmEmailChange,
   deleteAccount,
+  markChapterAsRead,
+  getReadingHistory,
+  getLastReadChapter,
+  clearReadingHistory,
 };

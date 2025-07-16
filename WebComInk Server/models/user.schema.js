@@ -17,6 +17,19 @@ const userSchema = new mongoose.Schema(
       },
     ],
     customCategories: { type: [String], default: [] }, // Catégories personnalisées
+    readingHistory: [
+      {
+        mangaId: { type: String, required: true },
+        mangaTitle: { type: String, required: true },
+        mangaSlug: { type: String, required: true },
+        coverImage: { type: String },
+        chapterId: { type: String, required: true },
+        chapterNumber: { type: String, required: true },
+        chapterTitle: { type: String },
+        readAt: { type: Date, default: Date.now },
+        progress: { type: Number, default: 100 }, // pourcentage de lecture (0-100)
+      },
+    ],
     pendingEmail: { type: String, default: null },
     pendingEmailToken: { type: String, default: null },
   },

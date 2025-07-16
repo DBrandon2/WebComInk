@@ -130,3 +130,76 @@ export async function deleteAccount({ userId, confirmationWord }) {
     throw error;
   }
 }
+
+// --- Historique de lecture ---
+export async function markChapterAsRead({
+  mangaId,
+  mangaTitle,
+  mangaSlug,
+  coverImage,
+  chapterId,
+  chapterNumber,
+  chapterTitle,
+  progress = 100,
+}) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/reading-history`, {
+      method: "POST",
+      body: JSON.stringify({
+        mangaId,
+        mangaTitle,
+        mangaSlug,
+        coverImage,
+        chapterId,
+        chapterNumber,
+        chapterTitle,
+        progress,
+      }),
+      headers: {
+        "Content-type": "application/json",
+      },
+      credentials: "include",
+    });
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function getReadingHistory() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/reading-history`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (response.ok) {
+      return await response.json();
+    } else {
+      throw new Error("Erreur lors de la récupération de l'historique");
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function getLastReadChapter(mangaId) {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/user/last-read-chapter/${mangaId}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+    if (response.ok) {
+      return await response.json();
+    } else {
+      throw new Error("Erreur lors de la récupération du dernier chapitre lu");
+    }
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}

@@ -21,6 +21,7 @@ import { Grip } from "lucide-react";
 import CustomChapterSelect from "../../components/shared/CustomChapterSelect";
 import { useDrag } from "@use-gesture/react";
 import { AnimatePresence, motion } from "framer-motion";
+import { markChapterAsRead } from "../../apis/auth.api";
 
 // Créer le contexte
 export const ChapterReaderContext = createContext();
@@ -61,6 +62,7 @@ export default function ChapterReader() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsBtnRef = useRef(null);
   const [modalOrigin, setModalOrigin] = useState({ x: 0, y: 0 });
+  const [isTitleLoading, setIsTitleLoading] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -351,6 +353,76 @@ export default function ChapterReader() {
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, [allChapters.length, currentChapterIndex, chapterId, mangaId]);
+
+  // Enregistrer la lecture dans l'historique utilisateur
+  useEffect(() => {
+    if (!chapter || !chapterId || !mangaId) return;
+    let cancelled = false;
+    async function fetchAndMark() {
+      setIsTitleLoading(true);
+      let titleToSend = mangaTitle && mangaTitle.trim() ? mangaTitle : null;
+      if (!titleToSend) {
+        // On tente de récupérer le titre via l'API Mangadex
+        try {
+          const res = await fetch(`https://api.mangadex.org/manga/${mangaId}`);
+          const data = await res.json();
+          titleToSend =
+            data.data?.attributes?.title?.fr ||
+            data.data?.attributes?.title?.en ||
+            data.data?.attributes?.title?.ja ||
+            "";
+        } catch {
+          titleToSend = "";
+        }
+      }
+      setIsTitleLoading(false);
+      // On n'appelle markChapterAsRead que si le titre est vraiment connu
+      if (!titleToSend || titleToSend === "Titre inconnu") {
+        console.warn(
+          "[markChapterAsRead] Titre du manga inconnu, on n'enregistre pas la lecture pour éviter l'historique vide."
+        );
+        return;
+      }
+      const coverRel = chapter?.relationships?.find(
+        (r) => r.type === "cover_art"
+      );
+      const coverImage = coverRel?.attributes?.fileName
+        ? `https://uploads.mangadex.org/covers/${mangaId}/${coverRel.attributes.fileName}.256.jpg`
+        : undefined;
+      const chapterNumber = chapter?.attributes?.chapter || "";
+      const chapterTitle = chapter?.attributes?.title || "";
+      // Log détaillé
+      console.log("[DEBUG markChapterAsRead] mangaId:", mangaId);
+      console.log("[DEBUG markChapterAsRead] mangaTitle:", titleToSend);
+      console.log("[DEBUG markChapterAsRead] mangaSlug:", slug);
+      console.log("[DEBUG markChapterAsRead] coverImage:", coverImage);
+      console.log("[DEBUG markChapterAsRead] chapterId:", chapterId);
+      console.log("[DEBUG markChapterAsRead] chapterNumber:", chapterNumber);
+      console.log("[DEBUG markChapterAsRead] chapterTitle:", chapterTitle);
+      const payload = {
+        mangaId,
+        mangaTitle: titleToSend,
+        mangaSlug: slug || "",
+        coverImage,
+        chapterId,
+        chapterNumber,
+        chapterTitle,
+        progress: 100,
+      };
+      console.log("[markChapterAsRead] Données envoyées :", payload);
+      markChapterAsRead(payload)
+        .then((res) => {
+          console.log("[markChapterAsRead] Réponse :", res);
+        })
+        .catch((err) => {
+          console.error("[markChapterAsRead] Erreur :", err);
+        });
+    }
+    fetchAndMark();
+    return () => {
+      cancelled = true;
+    };
+  }, [chapterId, chapter, mangaId, slug, mangaTitle]);
 
   // Gestion du scroll et navigation clavier
   useEffect(() => {
