@@ -626,10 +626,15 @@ export default function ChapterReader() {
                       imageLoadingStates[index] ? "opacity-0" : "opacity-100"
                     }`}
                     onLoad={() => {
+                      console.log("Image chargée", index, imageUrl);
                       handleImageLoad(index);
                       setLoadedPages((prev) => new Set([...prev, index]));
                     }}
-                    onError={() => handleImageError(index)}
+                    onError={(e) => {
+                      console.error("Erreur chargement image", index, imageUrl);
+                      handleImageError(index);
+                      e.target.src = "/default-placeholder.png";
+                    }}
                     draggable="false"
                     style={{ maxWidth: "100vw", width: "100%" }}
                   />
