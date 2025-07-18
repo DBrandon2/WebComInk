@@ -11,9 +11,6 @@ export default function FilterGenreBtn({
   excludedGenres,
   onGenreChange,
   selectedYear,
-  onYearChange,
-  sortDate,
-  onSortDateChange,
   sidebarMode = false,
 }) {
   const [allTags, setAllTags] = useState([]);
@@ -99,8 +96,8 @@ export default function FilterGenreBtn({
                                   ? "bg-red-600 text-white border-red-500"
                                   : "bg-accent-hover text-gray-300 border-gray-600 hover:border-accent"
                               }`}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
+                              whileHover={{ scale: 1.04 }}
+                              whileTap={{ scale: 0.97 }}
                             >
                               <span className="text-sm font-medium">
                                 {tag.attributes.name.fr ||
@@ -129,16 +126,16 @@ export default function FilterGenreBtn({
                   <motion.button
                     onClick={handleReset}
                     className="flex-1 py-3 px-4 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-500 transition-colors"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.97 }}
                   >
                     Réinitialiser
                   </motion.button>
                   <motion.button
                     onClick={handleApply}
                     className="flex-1 py-3 px-4 bg-accent text-dark-bg rounded-lg font-medium hover:bg-accent-hover transition-colors"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.97 }}
                   >
                     Appliquer (
                     {tempSelectedGenres.length + tempExcludedGenres.length})
@@ -233,18 +230,20 @@ export default function FilterGenreBtn({
               {tags.map((tag) => {
                 const state = getTagState(tag.id);
                 return (
-                  <button
+                  <motion.button
                     key={tag.id}
                     onClick={() => handleTagToggle(tag.id)}
                     className={`px-3 py-1 rounded-full border text-xs font-medium transition-all flex items-center gap-1 whitespace-nowrap cursor-pointer
                       ${
                         state === "included"
-                          ? "bg-green-600 text-white border-green-500"
+                          ? "bg-accent-hover text-white border-green-500"
                           : state === "excluded"
-                          ? "bg-red-600 text-white border-red-500"
-                          : "bg-accent-hover text-gray-300 border-gray-600 hover:border-accent"
+                          ? "bg-accent-hover text-white border-red-500"
+                          : "bg-white text-dark-bg border-dark-bg hover:border-accent"
                       }
                     `}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.97 }}
                   >
                     {tag.attributes.name.fr ||
                       tag.attributes.name.en ||
@@ -253,27 +252,31 @@ export default function FilterGenreBtn({
                       "Tag"}
                     {state === "included" && <Check className="w-3 h-3 ml-1" />}
                     {state === "excluded" && <X className="w-3 h-3 ml-1" />}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
           </div>
         ))}
       <div className="flex gap-2 mt-2">
-        <button
+        <motion.button
           onClick={handleReset}
-          className="flex-1 py-2 px-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-500 transition-colors text-xs cursor-pointer"
+          className="flex-1 py-2 px-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors text-xs cursor-pointer"
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.97 }}
         >
           Réinitialiser
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           onClick={() => {
             if (hasChanged) handleApply();
           }}
-          className="flex-1 py-2 px-3 rounded-lg font-medium text-xs transition-colors cursor-pointer bg-accent text-dark-bg hover:bg-accent-hover hover:text-white"
+          className="flex-1 py-2 px-3 rounded-lg font-medium text-xs transition-colors cursor-pointer bg-white text-dark-bg hover:bg-accent hover:text-dark-bg"
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.97 }}
         >
           Valider
-        </button>
+        </motion.button>
       </div>
     </div>
   );

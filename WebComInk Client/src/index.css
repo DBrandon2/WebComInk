@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
-
-
-@theme {
+/* Thème Néon (par défaut) */
+:root,
+.theme-neon {
   --color-white: #ffffff;
   --color-dark-bg: #171219;
   --color-light-bg: #2c2c3c;
@@ -13,12 +13,50 @@
   --color-accent: #edf060;
   --color-accent-hover: #2d2821;
   --color-btn-color: #d4d44d;
+}
 
-  --font-text: "Poppins", "sans-serif"
-  --font-title: "Monserrat", "sans-serif"
+/* Thème Clair */
+.theme-clair {
+  --color-white: #ffffff;
+  --color-dark-bg: #163739;
+  --color-light-bg: #1e4a4d;
+  --color-text-title: #ff9900;
+  --color-text-color: #ffffff;
+  --color-red-btn: #ff4345;
+  --color-white-btn: #ffffff;
+  --color-accent: #ff9900;
+  --color-accent-hover: #cc7700;
+  --color-btn-color: #ff9900;
+}
 
-  ---3xl: "1920px"
+/* Polices */
+:root,
+.font-defaut {
+  --font-text: "Poppins", "sans-serif";
+  --font-title: "Montserrat", "sans-serif";
+}
 
+.font-opendyslexic {
+  --font-text: "OpenDyslexic", "sans-serif";
+  --font-title: "OpenDyslexic", "sans-serif";
+}
+
+@theme {
+  --color-white: var(--color-white);
+  --color-dark-bg: var(--color-dark-bg);
+  --color-light-bg: var(--color-light-bg);
+  --color-text-title: var(--color-text-title);
+  --color-text-color: var(--color-text-color);
+  --color-red-btn: var(--color-red-btn);
+  --color-white-btn: var(--color-white-btn);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-btn-color: var(--color-btn-color);
+
+  --font-text: var(--font-text);
+  --font-title: var(--font-title);
+
+  ---3xl: "1920px";
 }
 
 /* --- Poppins --- */
@@ -60,10 +98,19 @@
   font-style: normal;
 }
 
-
 @layer base {
   body {
-    @apply font-text bg-dark-bg text-text-color transition-colors duration-500 ease-in-out;
+    @apply bg-dark-bg text-text-color transition-colors duration-500 ease-in-out;
+    font-family: var(--font-text);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-title);
   }
 }
 
@@ -87,22 +134,30 @@
 }
 
 /* Scrollbar custom globale pour tout le site */
-html, body, * {
+html,
+body,
+* {
   scrollbar-width: thin;
-  scrollbar-color: #edf060 #171219;
+  scrollbar-color: var(--color-accent) var(--color-dark-bg);
 }
 
 /* Pour Webkit (Chrome, Edge, Safari) */
-html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar {
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb, *::-webkit-scrollbar-thumb {
-  background: #edf060;
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
   border-radius: 6px;
 }
-html::-webkit-scrollbar-track, body::-webkit-scrollbar-track, *::-webkit-scrollbar-track {
-  background: rgba(23, 18, 25, 0.6);
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--color-dark-bg) 60%, transparent);
   border-radius: 6px;
 }
 
@@ -118,13 +173,11 @@ input:-webkit-autofill:focus {
   scrollbar-width: thin;
 }
 .scrollbar-thumb-accent {
-  scrollbar-color: #edf060 #171219;
+  scrollbar-color: var(--color-accent) var(--color-dark-bg);
 }
 .scrollbar-track-dark-bg\/60 {
-  background: rgba(23, 18, 25, 0.6);
+  background: color-mix(in srgb, var(--color-dark-bg) 60%, transparent);
 }
-
-
 
 /* Masquer la navbar mobile en mode lecture immersive (synchronisée avec showHeader) */
 body.immersive-reader-ui nav.bg-light-bg {
@@ -197,27 +250,45 @@ body.immersive-reader-desktop img {
 
 /* Zone de drop active avec animation */
 .drop-zone-active {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.1),
+    rgba(59, 130, 246, 0.05)
+  );
   border: 2px dashed rgba(59, 130, 246, 0.4);
   border-radius: 12px;
   animation: pulse-drop-zone 2s infinite;
 }
 
 @keyframes pulse-drop-zone {
-  0%, 100% {
+  0%,
+  100% {
     border-color: rgba(59, 130, 246, 0.4);
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.1),
+      rgba(59, 130, 246, 0.05)
+    );
   }
   50% {
     border-color: rgba(59, 130, 246, 0.6);
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08));
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.15),
+      rgba(59, 130, 246, 0.08)
+    );
   }
 }
 
 /* Indicateur de position de drop */
 .drop-indicator {
   position: absolute;
-  background: linear-gradient(90deg, transparent, rgba(237, 240, 96, 0.6), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-accent) 60%, transparent),
+    transparent
+  );
   height: 3px;
   border-radius: 2px;
   animation: shimmer 1.5s infinite;

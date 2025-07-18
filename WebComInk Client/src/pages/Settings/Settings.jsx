@@ -4,6 +4,7 @@ import { TbAlertTriangleFilled } from "react-icons/tb";
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import { ThemeContext } from "../../context/ThemeContext";
 import { deleteAccount } from "../../apis/auth.api";
 import toast from "react-hot-toast";
 import CustomSelect from "../../components/shared/CustomSelect";
@@ -11,12 +12,11 @@ import CustomSelect from "../../components/shared/CustomSelect";
 export default function Settings() {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
+  const { theme, font, changeTheme, changeFont } = useContext(ThemeContext);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [confirmationText, setConfirmationText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFinalDeleteConfirm, setShowFinalDeleteConfirm] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState("neon");
-  const [selectedFont, setSelectedFont] = useState("defaut");
   const [selectedImageQuality, setSelectedImageQuality] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("imageQuality") || "data";
@@ -116,8 +116,8 @@ export default function Settings() {
               { value: "neon", label: "Thème néon" },
               { value: "clair", label: "Thème clair" },
             ]}
-            value={selectedTheme}
-            onChange={setSelectedTheme}
+            value={theme}
+            onChange={changeTheme}
           />
         </div>
       </div>
@@ -137,8 +137,8 @@ export default function Settings() {
               { value: "defaut", label: "Défaut" },
               { value: "opendyslexic", label: "OpenDyslexic" },
             ]}
-            value={selectedFont}
-            onChange={setSelectedFont}
+            value={font}
+            onChange={changeFont}
           />
         </div>
       </div>
