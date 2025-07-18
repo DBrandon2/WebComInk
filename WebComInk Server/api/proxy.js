@@ -2,6 +2,8 @@ const express = require("express");
 const axios = require("axios");
 const { limit } = require("./MangaApi"); // Import de la limitation pLimit
 const router = express.Router();
+const stream = require("stream");
+const { URL } = require("url");
 
 // Cache en mémoire pour les réponses at-home/server (clé = chapterId)
 const chapterImageCache = new Map();
@@ -297,6 +299,41 @@ router.get("/manga/:id", async (req, res) => {
         .status(500)
         .json({ message: "Erreur lors du proxy manga/:id" });
     }
+  }
+});
+
+// Proxy d'image universel : /proxy/image?url=...
+router.get("/image", async (req, res) => {
+  const imageUrl = req.query.url;
+  if (!imageUrl) {
+    return res.status(400).send("Paramètre url manquant");
+  }
+  try {
+    // Sécurité : n'autoriser que les images du CDN MangaDex
+    const parsed = new URL(imageUrl);
+    if (!parsed.hostname.endsWith(".mangadex.network")) {
+      return res.status(403).send("Domaine non autorisé");
+    }
+    const response = await axios.get(imageUrl, {
+      responseType: "stream",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Referer: "https://mangadex.org/",
+        Origin: "https://mangadex.org",
+        Accept:
+          "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+      },
+    });
+    res.setHeader(
+      "Content-Type",
+      response.headers["content-type"] || "image/jpeg"
+    );
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    response.data.pipe(res);
+  } catch (err) {
+    console.error("[PROXY] Erreur /proxy/image:", err.message);
+    res.status(500).send("Erreur lors du proxy image");
   }
 });
 

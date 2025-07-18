@@ -614,37 +614,43 @@ export default function ChapterReader() {
                 transition: pullHeight > 0 ? "none" : "padding-bottom 0.3s",
               }}
             >
-              {chapterImages.map((imageUrl, index) => (
-                <div
-                  key={index}
-                  className="relative w-full min-h-[24rem] flex items-center justify-center"
-                >
-                  <img
-                    src={imageUrl}
-                    alt={`Page ${index + 1}`}
-                    className={`w-full h-auto block mx-auto max-w-full transition-opacity duration-300 ${
-                      imageLoadingStates[index] ? "opacity-0" : "opacity-100"
-                    }`}
-                    onLoad={() => {
-                      console.log("Image chargée", index, imageUrl);
-                      handleImageLoad(index);
-                      setLoadedPages((prev) => new Set([...prev, index]));
-                    }}
-                    onError={(e) => {
-                      console.error("Erreur chargement image", index, imageUrl);
-                      handleImageError(index);
-                      e.target.src = "/default-placeholder.png";
-                    }}
-                    draggable="false"
-                    style={{ maxWidth: "100vw", width: "100%" }}
-                  />
-                  {imageLoadingStates[index] && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
-                    </div>
-                  )}
-                </div>
-              ))}
+              {chapterImages.map((imageUrl, index) => {
+                const proxiedUrl = `${API_BASE_URL}/proxy/image?url=${encodeURIComponent(
+                  imageUrl
+                )}`;
+                return (
+                  <div
+                    key={index}
+                    className="relative w-full min-h-[24rem] flex items-center justify-center"
+                  >
+                    <img
+                      src={proxiedUrl}
+                      onLoad={() => {
+                        console.log("Image chargée", index, imageUrl);
+                        handleImageLoad(index);
+                        setLoadedPages((prev) => new Set([...prev, index]));
+                      }}
+                      onError={(e) => {
+                        console.error(
+                          "Erreur chargement image",
+                          index,
+                          imageUrl
+                        );
+                        handleImageError(index);
+                        e.target.src = "/default-placeholder.png";
+                      }}
+                      alt={`Page ${index + 1}`}
+                      draggable="false"
+                      style={{ maxWidth: "100vw", width: "100%" }}
+                    />
+                    {imageLoadingStates[index] && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
               {/* BOUTON CHAPITRE SUIVANT */}
               <NextChapterButton />
               {isMobile && (
