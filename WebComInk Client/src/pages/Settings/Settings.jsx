@@ -118,6 +118,13 @@ export default function Settings() {
             ]}
             value={theme}
             onChange={changeTheme}
+            placeholder={
+              theme === "neon"
+                ? "Thème néon"
+                : theme === "clair"
+                ? "Thème clair"
+                : "Sélectionner..."
+            }
           />
         </div>
       </div>
