@@ -188,6 +188,71 @@ router.get("/chapter-list", async (req, res) => {
   }
 });
 
+// Proxy pour la récupération de chapitres (GET /proxy/chapter)
+router.get("/chapter", async (req, res) => {
+  const baseUrl = "https://api.mangadex.org/chapter";
+  const query = req.url.split("?")[1] || "";
+  const url = `${baseUrl}${query ? `?${query}` : ""}`;
+  console.log(`[PROXY] Requête /chapter → ${url}`);
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent": "WebComInk/1.0 (contact.webcomink@gmail.com)",
+        Origin: "https://web-com-ink.vercel.app",
+        Referer: "https://web-com-ink.vercel.app",
+      },
+    });
+    res.json(response.data);
+  } catch (err) {
+    if (err.response) {
+      console.error(
+        `[PROXY] Erreur /chapter - Status: ${err.response.status} - Data:`,
+        err.response.data
+      );
+      return res.status(err.response.status).json(err.response.data);
+    } else {
+      console.error(
+        `[PROXY] Erreur réseau ou inconnue pour /chapter:`,
+        err.message
+      );
+      return res.status(500).json({ message: "Erreur lors du proxy chapter" });
+    }
+  }
+});
+
+// Proxy pour les statistiques d'un manga (GET /proxy/statistics/manga/:id)
+router.get("/statistics/manga/:id", async (req, res) => {
+  const { id } = req.params;
+  const url = `https://api.mangadex.org/statistics/manga/${id}`;
+  console.log(`[PROXY] Requête /statistics/manga/:id → ${url}`);
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent": "WebComInk/1.0 (contact.webcomink@gmail.com)",
+        Origin: "https://web-com-ink.vercel.app",
+        Referer: "https://web-com-ink.vercel.app",
+      },
+    });
+    res.json(response.data);
+  } catch (err) {
+    if (err.response) {
+      console.error(
+        `[PROXY] Erreur /statistics/manga/:id - Status: ${err.response.status} - Data:`,
+        err.response.data
+      );
+      return res.status(err.response.status).json(err.response.data);
+    } else {
+      console.error(
+        `[PROXY] Erreur réseau ou inconnue pour /statistics/manga/:id:`,
+        err.message
+      );
+      return res
+        .status(500)
+        .json({ message: "Erreur lors du proxy statistics/manga/:id" });
+    }
+  }
+});
+
 // Proxy pour les tags MangaDex
 router.get("/manga/tag", async (req, res) => {
   try {

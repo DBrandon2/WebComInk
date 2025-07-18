@@ -176,7 +176,7 @@ export default function ChapterReader() {
         // On récupère la langue du chapitre courant (par défaut fr)
         const lang = chapter?.attributes?.translatedLanguage || "fr";
         const response = await fetch(
-          `https://api.mangadex.org/chapter?manga=${mangaId}&limit=100&order[chapter]=desc&includes[]=scanlation_group&translatedLanguage[]=${lang}`
+          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=100&order[chapter]=desc&includes[]=scanlation_group&translatedLanguage[]=${lang}`
         );
         const data = await response.json();
         const chapters = data.data || [];

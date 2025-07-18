@@ -259,7 +259,9 @@ export default function ComicsDetails() {
       for (const lang of langs) {
         try {
           const res = await fetch(
-            `https://api.mangadex.org/chapter?manga=${id}&limit=100&translatedLanguage[]=${lang}&order[chapter]=desc&includes[]=scanlation_group`
+            `${
+              import.meta.env.VITE_API_URL || "http://localhost:3000"
+            }/proxy/chapter?manga=${id}&limit=100&translatedLanguage[]=${lang}&order[chapter]=desc&includes[]=scanlation_group`
           );
           const data = await res.json();
           const groups = new Set();
@@ -300,13 +302,16 @@ export default function ComicsDetails() {
           });
         }
 
-        // Récupération de la note moyenne via l'API statistics
+        // Récupération de la note moyenne via le proxy backend
         if (manga && manga.id) {
           try {
-            const resp = await axios.get(
-              `https://api.mangadex.org/statistics/manga/${manga.id}`
+            const resp = await fetch(
+              `${
+                import.meta.env.VITE_API_URL || "http://localhost:3000"
+              }/proxy/statistics/manga/${manga.id}`
             );
-            const stats = resp.data.statistics[manga.id];
+            const statsData = await resp.json();
+            const stats = statsData.statistics?.[manga.id];
             setMeanRating(stats?.rating?.average ?? null);
           } catch (e) {
             setMeanRating(null);
