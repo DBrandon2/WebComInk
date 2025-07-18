@@ -33,8 +33,73 @@ export default function FilterGenreBtn({
     }
   }, [isOpen, sidebarMode, allTags.length]);
 
+  // États temporaires pour la sélection (doivent être déclarés AVANT toute fonction qui les utilise)
+  const [tempSelectedGenres, setTempSelectedGenres] = useState(selectedGenres);
+  const [tempExcludedGenres, setTempExcludedGenres] = useState(excludedGenres);
+  const [hasChanged, setHasChanged] = useState(false);
+
+  useEffect(() => {
+    setTempSelectedGenres(selectedGenres);
+    setTempExcludedGenres(excludedGenres);
+    setHasChanged(false);
+  }, [selectedGenres, excludedGenres]);
+
+  // Fonctions à déclarer après les useState
+  const handleApply = () => {
+    onGenreChange({
+      included: tempSelectedGenres,
+      excluded: tempExcludedGenres,
+      year: selectedYear,
+    });
+    setHasChanged(false);
+  };
+
+  const handleReset = () => {
+    setTempSelectedGenres([]);
+    setTempExcludedGenres([]);
+    setHasChanged(true);
+  };
+
+  const getTagState = (tagId) => {
+    if (tempSelectedGenres.includes(tagId)) return "included";
+    if (tempExcludedGenres.includes(tagId)) return "excluded";
+    return "none";
+  };
+
+  const handleTagToggle = (tagId) => {
+    const currentState = getTagState(tagId);
+    setHasChanged(true);
+    switch (currentState) {
+      case "none":
+        setTempSelectedGenres((prev) => [...prev, tagId]);
+        break;
+      case "included":
+        setTempSelectedGenres((prev) => prev.filter((g) => g !== tagId));
+        setTempExcludedGenres((prev) => [...prev, tagId]);
+        break;
+      case "excluded":
+        setTempExcludedGenres((prev) => prev.filter((g) => g !== tagId));
+        break;
+    }
+  };
+
   // Version mobile : inchangée
   if (!sidebarMode) {
+    // Regrouper les tags par groupe (genre, theme, format, content)
+    const excludedTagNames = ["Sexual Violence", "Violence sexuelle", "Gore"];
+    const tagsByGroup = allTags.reduce((acc, tag) => {
+      const name = tag.attributes.name;
+      if (
+        (name?.en && excludedTagNames.includes(name.en)) ||
+        (name?.fr && excludedTagNames.includes(name.fr))
+      ) {
+        return acc;
+      }
+      const group = tag.attributes.group || "Autre";
+      if (!acc[group]) acc[group] = [];
+      acc[group].push(tag);
+      return acc;
+    }, {});
     return (
       <AnimatePresence>
         {isOpen && (
@@ -165,55 +230,6 @@ export default function FilterGenreBtn({
     acc[group].push(tag);
     return acc;
   }, {});
-
-  // États temporaires pour la sélection
-  const [tempSelectedGenres, setTempSelectedGenres] = useState(selectedGenres);
-  const [tempExcludedGenres, setTempExcludedGenres] = useState(excludedGenres);
-  const [hasChanged, setHasChanged] = useState(false);
-
-  useEffect(() => {
-    setTempSelectedGenres(selectedGenres);
-    setTempExcludedGenres(excludedGenres);
-    setHasChanged(false);
-  }, [selectedGenres, excludedGenres]);
-
-  const getTagState = (tagId) => {
-    if (tempSelectedGenres.includes(tagId)) return "included";
-    if (tempExcludedGenres.includes(tagId)) return "excluded";
-    return "none";
-  };
-
-  const handleTagToggle = (tagId) => {
-    const currentState = getTagState(tagId);
-    setHasChanged(true);
-    switch (currentState) {
-      case "none":
-        setTempSelectedGenres((prev) => [...prev, tagId]);
-        break;
-      case "included":
-        setTempSelectedGenres((prev) => prev.filter((g) => g !== tagId));
-        setTempExcludedGenres((prev) => [...prev, tagId]);
-        break;
-      case "excluded":
-        setTempExcludedGenres((prev) => prev.filter((g) => g !== tagId));
-        break;
-    }
-  };
-
-  const handleApply = () => {
-    onGenreChange({
-      included: tempSelectedGenres,
-      excluded: tempExcludedGenres,
-      year: selectedYear,
-    });
-    setHasChanged(false);
-  };
-
-  const handleReset = () => {
-    setTempSelectedGenres([]);
-    setTempExcludedGenres([]);
-    setHasChanged(true);
-  };
 
   return (
     <div className="flex flex-col gap-4">

@@ -10,6 +10,7 @@ export default function SearchBar({
   onToggle,
   onClose,
   isMobile = false,
+  className = "",
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -126,7 +127,7 @@ export default function SearchBar({
     return (
       <div
         ref={searchContainerRef}
-        className="w-full"
+        className={`w-full ${className}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="bg-dark-bg/95 backdrop-blur-lg rounded-lg border border-gray-600 overflow-hidden">
@@ -217,7 +218,7 @@ export default function SearchBar({
   return (
     <div
       ref={searchContainerRef}
-      className="relative flex items-center h-full"
+      className={`relative flex items-center h-full ${className}`}
       onMouseDown={(e) => e.stopPropagation()}
     >
       {/* Animation morphing bouton <-> searchbar */}
@@ -227,18 +228,18 @@ export default function SearchBar({
             key="search-btn"
             layoutId="searchbar-anim"
             onClick={onToggle}
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-[#23272f] text-[28px] hover:text-accent transition-colors duration-200 cursor-pointer border-none outline-none"
+            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/20 shadow-lg text-[28px] hover:text-accent transition-all duration-300 cursor-pointer border-none outline-none"
             aria-label="Rechercher"
             initial={{
               width: 48,
               height: 48,
-              backgroundColor: "#23272f",
+              backgroundColor: "rgba(255,255,255,0.20)",
               borderRadius: 999,
             }}
             animate={{
               width: 48,
               height: 48,
-              backgroundColor: "#23272f",
+              backgroundColor: "rgba(255,255,255,0.20)",
               borderRadius: 999,
             }}
             exit={{ opacity: 0 }}
@@ -259,12 +260,12 @@ export default function SearchBar({
             animate={{
               width: 400,
               height: 48,
-              backgroundColor: "#23272f",
+              backgroundColor: "rgba(255,255,255,0.20)",
               opacity: 1,
             }}
             exit={{ width: 48, height: 48, opacity: 0 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            className="flex items-center overflow-hidden shadow-lg border border-gray-600"
+            className="flex items-center overflow-hidden bg-white/20 backdrop-blur-md border border-white/20 shadow-lg transition-all duration-300"
             style={{ position: "static", overflow: "hidden", borderRadius: 8 }}
           >
             <div
