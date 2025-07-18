@@ -365,14 +365,13 @@ export default function ChapterReader() {
       setIsTitleLoading(true);
       let titleToSend = mangaTitle && mangaTitle.trim() ? mangaTitle : null;
       if (!titleToSend) {
-        // On tente de récupérer le titre via l'API Mangadex
+        // On tente de récupérer le titre via le proxy backend
         try {
-          const res = await fetch(`https://api.mangadex.org/manga/${mangaId}`);
-          const data = await res.json();
+          const mangaData = await getMangaById(mangaId);
           titleToSend =
-            data.data?.attributes?.title?.fr ||
-            data.data?.attributes?.title?.en ||
-            data.data?.attributes?.title?.ja ||
+            mangaData?.attributes?.title?.fr ||
+            mangaData?.attributes?.title?.en ||
+            mangaData?.attributes?.title?.ja ||
             "";
         } catch {
           titleToSend = "";
