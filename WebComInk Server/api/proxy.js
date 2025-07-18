@@ -264,4 +264,37 @@ router.get("/manga/tag", async (req, res) => {
   }
 });
 
+// Proxy pour la récupération d'un manga par ID (GET /proxy/manga/:id)
+router.get("/manga/:id", async (req, res) => {
+  const { id } = req.params;
+  const url = `https://api.mangadex.org/manga/${id}`;
+  console.log(`[PROXY] Requête /manga/:id → ${url}`);
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent": "WebComInk/1.0 (contact.webcomink@gmail.com)",
+        Origin: "https://web-com-ink.vercel.app",
+        Referer: "https://web-com-ink.vercel.app",
+      },
+    });
+    res.json(response.data);
+  } catch (err) {
+    if (err.response) {
+      console.error(
+        `[PROXY] Erreur /manga/:id - Status: ${err.response.status} - Data:`,
+        err.response.data
+      );
+      return res.status(err.response.status).json(err.response.data);
+    } else {
+      console.error(
+        `[PROXY] Erreur réseau ou inconnue pour /manga/:id:`,
+        err.message
+      );
+      return res
+        .status(500)
+        .json({ message: "Erreur lors du proxy manga/:id" });
+    }
+  }
+});
+
 module.exports = router;

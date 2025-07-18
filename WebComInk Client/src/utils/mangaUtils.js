@@ -264,3 +264,23 @@ export function slugify(str) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+/**
+ * Récupère les infos d'un manga par son ID via le proxy backend
+ * @param {string} mangaId - UUID du manga
+ * @returns {Promise<Object>} Détails du manga
+ */
+export async function getMangaById(mangaId) {
+  if (!mangaId) return null;
+  try {
+    const response = await fetch(`${API_BASE_URL}/proxy/manga/${mangaId}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération du manga par ID:", error);
+    return null;
+  }
+}

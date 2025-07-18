@@ -22,6 +22,7 @@ import CustomChapterSelect from "../../components/shared/CustomChapterSelect";
 import { useDrag } from "@use-gesture/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { markChapterAsRead } from "../../apis/auth.api";
+import { getMangaById } from "../../utils/mangaUtils";
 
 // Créer le contexte
 export const ChapterReaderContext = createContext();
@@ -192,9 +193,11 @@ export default function ChapterReader() {
             (rel) => rel.type === "manga"
           );
           if (mangaRelation) {
+            // Utilise le proxy backend pour récupérer les infos du manga
+            const mangaData = await getMangaById(mangaRelation.id);
             setMangaTitle(
-              mangaRelation.attributes?.title?.fr ||
-                mangaRelation.attributes?.title?.en ||
+              mangaData?.attributes?.title?.fr ||
+                mangaData?.attributes?.title?.en ||
                 "Manga"
             );
           }
