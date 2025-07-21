@@ -32,7 +32,7 @@ export default function SortableMangaCard({
       style={style}
       {...attributes}
       {...listeners}
-      className={`library-grid-item ${
+      className={`library-grid-item min-h-[180px] min-w-[120px] sm:min-h-[220px] sm:min-w-[150px] md:min-h-[250px] md:min-w-[180px] ${
         isDragging ? "cursor-grabbing" : "cursor-grab"
       }${isDragging ? " is-dragging" : ""}`}
     >

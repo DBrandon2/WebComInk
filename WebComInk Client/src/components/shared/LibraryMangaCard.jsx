@@ -42,7 +42,7 @@ export default function LibraryMangaCard({
       >
         <div className="flex flex-col items-center gap-2">
           <motion.div
-            className="w-[130px] h-[195px] lg:w-[170px] lg:h-[255px] bg-gray-200 relative overflow-hidden"
+            className="w-full aspect-[2/3] bg-gray-200 relative overflow-hidden"
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
             <img

@@ -446,60 +446,7 @@ export default function Library() {
           </button>
         </div>
         {/* Boutons de gestion de catégorie personnalisée */}
-        {isCustomTab && (
-          <div className="flex gap-1 sm:gap-2 items-center">
-            {/* Renommer */}
-            {isRenaming ? (
-              <form
-                onSubmit={handleRenameCategory}
-                className="flex gap-1 items-center"
-              >
-                <input
-                  type="text"
-                  value={renameValue}
-                  onChange={(e) => setRenameValue(e.target.value)}
-                  className="px-2 py-1 rounded border-1 border-accent bg-accent-hover text-accent font-semibold focus:outline-none focus:ring-1 w-20 sm:w-28"
-                  maxLength={32}
-                  disabled={renameLoading}
-                  autoFocus
-                />
-                <button
-                  type="button"
-                  onClick={handleCancelRename}
-                  className="px-2 py-1 rounded bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 hover:text-gray-100 transition disabled:opacity-60 text-xs sm:text-base cursor-pointer"
-                  disabled={renameLoading}
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-2 py-1 rounded bg-accent text-dark-bg font-bold hover:bg-accent-hover hover:text-gray-200 transition disabled:opacity-60 text-xs sm:text-base cursor-pointer"
-                  disabled={renameLoading}
-                >
-                  OK
-                </button>
-              </form>
-            ) : (
-              <button
-                onClick={handleStartRename}
-                className="p-1 sm:p-2 rounded hover:bg-accent-hover text-accent cursor-pointer"
-                title="Renommer la catégorie"
-              >
-                <Edit3 size={22} className="sm:hidden" />
-                <Edit3 size={26} className="hidden sm:inline" />
-              </button>
-            )}
-            {/* Supprimer */}
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="p-1 sm:p-2 rounded hover:bg-red-100 text-red-500 cursor-pointer"
-              title="Supprimer la catégorie"
-            >
-              <Trash2 size={22} className="sm:hidden" />
-              <Trash2 size={26} className="hidden sm:inline" />
-            </button>
-          </div>
-        )}
+        {/* SUPPRIMÉ : zone des boutons de modification/suppression dans la barre d'onglets */}
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-bold mb-4 sm:mb-0">
@@ -507,8 +454,8 @@ export default function Library() {
           {favorites.length > 1 ? "s" : ""})
         </h1>
 
-        {/* Barre de recherche et tri */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        {/* Barre de recherche et gestion de catégorie */}
+        <div className="flex flex-col sm:flex-row gap-3 items-center">
           {/* Recherche */}
           <div className="relative">
             <Search
@@ -524,44 +471,61 @@ export default function Library() {
             />
           </div>
 
-          {/* Boutons de tri */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleSortChange("title")}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
-                sortBy === "title"
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
-              title="Trier par titre"
-            >
-              <BookOpen size={16} />
-              {sortBy === "title" &&
-                (sortOrder === "asc" ? (
-                  <SortAsc size={16} />
-                ) : (
-                  <SortDesc size={16} />
-                ))}
-            </button>
-
-            <button
-              onClick={() => handleSortChange("addedAt")}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
-                sortBy === "addedAt"
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
-              title="Trier par date d'ajout"
-            >
-              <Calendar size={16} />
-              {sortBy === "addedAt" &&
-                (sortOrder === "asc" ? (
-                  <SortAsc size={16} />
-                ) : (
-                  <SortDesc size={16} />
-                ))}
-            </button>
-          </div>
+          {/* Boutons de gestion de catégorie personnalisée */}
+          {isCustomTab && (
+            <div className="flex gap-1 sm:gap-2 items-center">
+              {/* Renommer */}
+              {isRenaming ? (
+                <form
+                  onSubmit={handleRenameCategory}
+                  className="flex gap-1 items-center"
+                >
+                  <input
+                    type="text"
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    className="px-2 py-1 rounded border-1 border-accent bg-accent-hover text-accent font-semibold focus:outline-none focus:ring-1 w-20 sm:w-28"
+                    maxLength={32}
+                    disabled={renameLoading}
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCancelRename}
+                    className="px-2 py-1 rounded bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 hover:text-gray-100 transition disabled:opacity-60 text-xs sm:text-base cursor-pointer"
+                    disabled={renameLoading}
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-2 py-1 rounded bg-accent text-dark-bg font-bold hover:bg-accent-hover hover:text-gray-200 transition disabled:opacity-60 text-xs sm:text-base cursor-pointer"
+                    disabled={renameLoading}
+                  >
+                    OK
+                  </button>
+                </form>
+              ) : (
+                <button
+                  onClick={handleStartRename}
+                  className="p-1 sm:p-2 rounded hover:bg-accent-hover text-accent cursor-pointer"
+                  title="Renommer la catégorie"
+                >
+                  <Edit3 size={22} className="sm:hidden" />
+                  <Edit3 size={26} className="hidden sm:inline" />
+                </button>
+              )}
+              {/* Supprimer */}
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="p-1 sm:p-2 rounded hover:bg-red-100 text-red-500 cursor-pointer"
+                title="Supprimer la catégorie"
+              >
+                <Trash2 size={22} className="sm:hidden" />
+                <Trash2 size={26} className="hidden sm:inline" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -593,7 +557,7 @@ export default function Library() {
             .map((fav) => fav.mangaId)}
           strategy={rectSortingStrategy}
         >
-          <div className="library-grid-container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 gap-y-6 w-full">
+          <div className="library-grid-container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-6 w-full">
             {favorites
               .filter((fav) => (fav.status || "en-cours") === tab)
               .map((manga, index) => (
