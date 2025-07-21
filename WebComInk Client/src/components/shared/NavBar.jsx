@@ -45,11 +45,10 @@ export default function NavBar() {
         <ul className="flex justify-around items-center h-full w-full relative">
           {navItems.map((item, index) => {
             if (item.isSearch) {
-              if (isSearchOpen) return null; // Masquer l'icône quand la SearchBar est ouverte
               return (
-                <button
+                <NavLink
                   key={index}
-                  onClick={item.onClick}
+                  to={item.to}
                   className="relative flex items-center justify-center text-gray-500 cursor-pointer"
                 >
                   <motion.div
@@ -63,7 +62,7 @@ export default function NavBar() {
                         })
                       : item.icon}
                   </motion.div>
-                </button>
+                </NavLink>
               );
             }
 
@@ -137,20 +136,6 @@ export default function NavBar() {
           })}
         </ul>
       </nav>
-
-      {/* Barre de recherche mobile en overlay */}
-      {isSearchOpen && (
-        <div className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]">
-          <div className="bg-dark-bg/95 backdrop-blur-lg p-4 m-4 rounded-lg mt-20">
-            <SearchBar
-              isOpen={true}
-              onToggle={() => setIsSearchOpen(false)}
-              onClose={() => setIsSearchOpen(false)}
-              isMobile={true}
-            />
-          </div>
-        </div>
-      )}
 
       {/* NAV DESKTOP */}
       <nav className="hidden lg:flex bg-dark-bg/25 backdrop-blur-lg drop-shadow-lg w-full h-[80px] fixed top-0 z-50">

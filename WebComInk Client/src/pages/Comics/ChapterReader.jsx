@@ -537,7 +537,7 @@ export default function ChapterReader() {
       >
         {/* Header de navigation, affiché seulement si showHeader */}
         <div
-          className={`fixed top-0 left-0 w-full z-50 bg-dark-bg/95 backdrop-blur-sm border-b border-accent/30 transition-opacity duration-300 ${
+          className={`fixed top-0 left-0 w-full z-50 bg-dark-bg/25 backdrop-blur-lg shadow-lg transition-opacity duration-300 ${
             showHeader
               ? "opacity-100 pointer-events-auto"
               : "opacity-0 pointer-events-none"

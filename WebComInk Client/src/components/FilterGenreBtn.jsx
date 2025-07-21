@@ -33,6 +33,22 @@ export default function FilterGenreBtn({
     }
   }, [isOpen, sidebarMode, allTags.length]);
 
+  // Regrouper les tags par groupe (genre, theme, format, content) pour mobile ET desktop
+  const excludedTagNames = ["Sexual Violence", "Violence sexuelle", "Gore"];
+  const tagsByGroup = allTags.reduce((acc, tag) => {
+    const name = tag.attributes.name;
+    if (
+      (name?.en && excludedTagNames.includes(name.en)) ||
+      (name?.fr && excludedTagNames.includes(name.fr))
+    ) {
+      return acc;
+    }
+    const group = tag.attributes.group || "Autre";
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(tag);
+    return acc;
+  }, {});
+
   // Version mobile : inchangée
   if (!sidebarMode) {
     return (
@@ -150,22 +166,6 @@ export default function FilterGenreBtn({
   }
 
   // Version desktop (sidebar)
-  // Regrouper les tags par groupe (genre, theme, format, content)
-  const excludedTagNames = ["Sexual Violence", "Violence sexuelle", "Gore"];
-  const tagsByGroup = allTags.reduce((acc, tag) => {
-    const name = tag.attributes.name;
-    if (
-      (name?.en && excludedTagNames.includes(name.en)) ||
-      (name?.fr && excludedTagNames.includes(name.fr))
-    ) {
-      return acc;
-    }
-    const group = tag.attributes.group || "Autre";
-    if (!acc[group]) acc[group] = [];
-    acc[group].push(tag);
-    return acc;
-  }, {});
-
   // États temporaires pour la sélection
   const [tempSelectedGenres, setTempSelectedGenres] = useState(selectedGenres);
   const [tempExcludedGenres, setTempExcludedGenres] = useState(excludedGenres);
