@@ -9,7 +9,6 @@ export default function CustomSelect({
   className = "",
   renderOption,
   renderValue,
-  placeholder = "Sélectionner...",
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef();
@@ -52,7 +51,7 @@ export default function CustomSelect({
             </span>
           )
         ) : (
-          <span className="font-semibold text-dark-bg">{placeholder}</span>
+          <span className="font-semibold text-dark-bg">Sélectionner...</span>
         )}
         <IoIosArrowDown
           className="text-dark-bg transition-transform"
