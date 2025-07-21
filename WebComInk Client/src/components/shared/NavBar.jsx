@@ -20,6 +20,7 @@ export default function NavBar() {
       to: "/Comics",
       icon: <HiOutlineMagnifyingGlass />,
       isSearch: true,
+      onClick: () => setIsSearchOpen(!isSearchOpen),
     },
     { to: "/Bibliothèque", icon: <ImBooks /> },
     {
@@ -44,38 +45,25 @@ export default function NavBar() {
         <ul className="flex justify-around items-center h-full w-full relative">
           {navItems.map((item, index) => {
             if (item.isSearch) {
+              if (isSearchOpen) return null; // Masquer l'icône quand la SearchBar est ouverte
               return (
-                <NavLink key={index} to={item.to}>
-                  {({ isActive }) => (
-                    <motion.div
-                      whileTap={{ scale: 0.9 }}
-                      className={`relative flex items-center justify-center ${
-                        isActive ? "text-white" : "text-gray-500"
-                      }`}
-                    >
-                      <motion.div
-                        className={`flex items-center justify-center w-12 h-12 rounded-full ${
-                          isActive ? "bg-accent" : ""
-                        }`}
-                      >
-                        {React.isValidElement(item.icon)
-                          ? React.cloneElement(item.icon, {
-                              className: "text-[32px]",
-                            })
-                          : item.icon}
-                      </motion.div>
-                      {isActive && (
-                        <motion.div
-                          className="absolute bottom-[5px] w-2 h-2 bg-accent rounded-full"
-                          animate={{
-                            opacity: isActive ? 1 : 0,
-                            transition: { duration: 0.3 },
-                          }}
-                        />
-                      )}
-                    </motion.div>
-                  )}
-                </NavLink>
+                <button
+                  key={index}
+                  onClick={item.onClick}
+                  className="relative flex items-center justify-center text-gray-500 cursor-pointer"
+                >
+                  <motion.div
+                    whileTap={{ scale: 0.9 }}
+                    className="flex items-center justify-center w-12 h-12 rounded-full"
+                  >
+                    {React.isValidElement(item.icon)
+                      ? React.cloneElement(item.icon, {
+                          className:
+                            "text-[32px] cursor-default lg:cursor-pointer",
+                        })
+                      : item.icon}
+                  </motion.div>
+                </button>
               );
             }
 
@@ -150,10 +138,22 @@ export default function NavBar() {
         </ul>
       </nav>
 
-      {/* Suppression de la searchbar mobile en overlay */}
+      {/* Barre de recherche mobile en overlay */}
+      {isSearchOpen && (
+        <div className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]">
+          <div className="bg-dark-bg/95 backdrop-blur-lg p-4 m-4 rounded-lg mt-20">
+            <SearchBar
+              isOpen={true}
+              onToggle={() => setIsSearchOpen(false)}
+              onClose={() => setIsSearchOpen(false)}
+              isMobile={true}
+            />
+          </div>
+        </div>
+      )}
 
       {/* NAV DESKTOP */}
-      <nav className="hidden lg:flex bg-dark-bg/25 backdrop-blur-lg  w-full h-[80px] fixed top-0 z-50">
+      <nav className="hidden lg:flex bg-dark-bg/25 backdrop-blur-lg drop-shadow-lg w-full h-[80px] fixed top-0 z-50">
         <ul className="flex items-center h-full w-full px-8">
           <li className="flex-shrink-0 flex ">
             <NavLink to="/">
@@ -227,7 +227,7 @@ export default function NavBar() {
                 <img
                   src={user.avatar || defaultAvatar}
                   alt="avatar utilisateur"
-                  className="w-12 h-12 rounded-full object-cover border-1 border-accent"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-accent"
                 />
               ) : (
                 <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#23272f]">
@@ -236,7 +236,7 @@ export default function NavBar() {
               )}
             </NavLink>
             <NavLink to="/Paramètres" className="flex-shrink-0">
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/20 shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#23272f]">
                 <IoSettingsSharp className="text-[28px]" />
               </div>
             </NavLink>
