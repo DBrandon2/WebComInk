@@ -8,6 +8,19 @@ import { ThemeContext } from "../../context/ThemeContext";
 import { deleteAccount } from "../../apis/auth.api";
 import toast from "react-hot-toast";
 import CustomSelect from "../../components/shared/CustomSelect";
+import { motion, AnimatePresence } from "framer-motion";
+
+// Fonction utilitaire pour supprimer toutes les clés de settings de lecture
+function resetReaderSettings(mode) {
+  // Supprime la clé globale
+  localStorage.removeItem("readerMargin");
+  // Supprime toutes les clés individuelles (pattern : readerMargin_{mangaId})
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith("readerMargin_")) {
+      localStorage.removeItem(key);
+    }
+  });
+}
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -24,11 +37,27 @@ export default function Settings() {
     return "data";
   });
 
+  // Ajout pour le mode de préférences de lecture
+  const [readerSettingsMode, setReaderSettingsMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("readerSettingsMode") || "global";
+    }
+    return "global";
+  });
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [pendingMode, setPendingMode] = useState(null);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("imageQuality", selectedImageQuality);
     }
   }, [selectedImageQuality]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("readerSettingsMode", readerSettingsMode);
+    }
+  }, [readerSettingsMode]);
 
   const handleLogout = async () => {
     try {
@@ -171,6 +200,39 @@ export default function Settings() {
         <span className=" h-[1px] bg-white/70 w-[90%] md:w-[95%]"></span>
       </div>
       <div className="flex flex-col gap-2 m-8">
+        <h2 className="text-accent text-xl">Préférences de lecture</h2>
+        <p className="font-light text-gray-300 mb-4">
+          Cette option vous permet de choisir comment sont appliqués vos
+          réglages de lecture (marge, mode de lecture, etc.) dans le lecteur de
+          scans.
+          <br />
+          <span className="text-sm text-gray-400">
+            <strong>Globale</strong> : vos préférences s’appliquent à tous les
+            mangas, pour une expérience cohérente.
+            <br />
+            <strong>Par manga</strong> : vous pouvez personnaliser les réglages
+            pour chaque manga individuellement (pratique pour les webtoons ou
+            les formats spéciaux).
+          </span>
+        </p>
+        <div className="w-full flex justify-center md:justify-start">
+          <CustomSelect
+            options={[
+              { value: "global", label: "Globale" },
+              { value: "per-manga", label: "Individuel" },
+            ]}
+            value={readerSettingsMode}
+            onChange={(val) => {
+              setPendingMode(val);
+              setShowResetModal(true);
+            }}
+          />
+        </div>
+      </div>
+      <div className="flex justify-center items-center">
+        <span className=" h-[1px] bg-white/70 w-[90%] md:w-[95%]"></span>
+      </div>
+      <div className="flex flex-col gap-2 m-8">
         <h2 className="text-red-500 text-xl">Supprimer votre compte</h2>
         <p className="font-light text-gray-300 mb-4">
           Cliquer sur le bouton suivant pour supprimer votre compte WebComInk.
@@ -277,6 +339,61 @@ export default function Settings() {
           </div>
         </div>
       )}
+
+      {/* Modal d'avertissement de réinitialisation des réglages de lecture */}
+      <AnimatePresence>
+        {showResetModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 320, damping: 28 }}
+              className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl flex flex-col items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+                Changement du mode de préférences de lecture
+              </h3>
+              <p className="text-gray-700 mb-4 text-center">
+                En changeant ce mode,{" "}
+                <span className="text-accent font-semibold">
+                  tous vos réglages de lecture personnalisés
+                </span>{" "}
+                (marges, etc.) seront supprimés.
+                <br />
+                Vous devrez reconfigurer vos préférences lors de votre prochaine
+                lecture.
+                <br />
+              </p>
+              <div className="flex gap-3 justify-center mt-2 w-full">
+                <button
+                  onClick={() => setShowResetModal(false)}
+                  className="px-4 py-2 rounded-lg bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition w-full"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={() => {
+                    resetReaderSettings(pendingMode);
+                    setReaderSettingsMode(pendingMode);
+                    setShowResetModal(false);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-accent text-dark-bg font-bold hover:bg-accent-hover transition w-full"
+                >
+                  Confirmer
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

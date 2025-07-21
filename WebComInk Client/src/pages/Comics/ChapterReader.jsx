@@ -67,6 +67,42 @@ export default function ChapterReader() {
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+  // Récupérer le mode de settings (global ou individuel)
+  const readerSettingsMode = (() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("readerSettingsMode") || "global";
+    }
+    return "global";
+  })();
+
+  // Initialisation de la marge selon le mode (stockée et affichée de 0 à 100)
+  const [readerMargin, setReaderMargin] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const mangaId = window.location.pathname.split("/")[3];
+    let val = 0;
+    if (readerSettingsMode === "per-manga" && mangaId) {
+      val = localStorage.getItem(`readerMargin_${mangaId}`);
+    } else {
+      val = localStorage.getItem("readerMargin");
+    }
+    if (val !== null && !isNaN(parseFloat(val))) {
+      return Math.max(0, Math.min(100, parseFloat(val)));
+    }
+    return 0;
+  });
+
+  // Sauvegarder la marge dans la bonne clé selon le mode (toujours de 0 à 100)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mangaId = window.location.pathname.split("/")[3];
+    const val = Math.max(0, Math.min(100, readerMargin));
+    if (readerSettingsMode === "per-manga" && mangaId) {
+      localStorage.setItem(`readerMargin_${mangaId}`, val.toString());
+    } else {
+      localStorage.setItem("readerMargin", val.toString());
+    }
+  }, [readerMargin, readerSettingsMode]);
+
   // Hook useDrag (mobile only)
   const isMobile =
     typeof window !== "undefined" &&
@@ -618,10 +654,11 @@ export default function ChapterReader() {
                 const proxiedUrl = `${API_BASE_URL}/proxy/image?url=${encodeURIComponent(
                   imageUrl
                 )}`;
+                const marginValue = (readerMargin / 100) * 70; // mapping 0-100% slider vers 0-70% réel
                 return (
                   <div
                     key={index}
-                    className="relative w-full min-h-[24rem] flex items-center justify-center"
+                    className="relative w-full flex items-start justify-center"
                   >
                     <img
                       src={proxiedUrl}
@@ -641,7 +678,12 @@ export default function ChapterReader() {
                       }}
                       alt={`Page ${index + 1}`}
                       draggable="false"
-                      style={{ maxWidth: "100vw", width: "100%" }}
+                      style={{
+                        maxWidth: "100vw",
+                        width: `${100 - marginValue}%`,
+                        marginLeft: `${marginValue / 2}%`,
+                        marginRight: `${marginValue / 2}%`,
+                      }}
                     />
                     {imageLoadingStates[index] && (
                       <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
@@ -767,12 +809,175 @@ export default function ChapterReader() {
               >
                 ×
               </button>
-              {/* Ajoute ici d'autres options du menu si besoin */}
+
+              {/* Titre du modal */}
+              <h3 className="text-white text-lg font-semibold mb-6 mt-2">
+                Paramètres du lecteur
+              </h3>
+
+              {/* Slider pour les marges */}
+              <div className="w-full space-y-4">
+                <SliderSetting
+                  label="Marge latérale"
+                  value={readerMargin}
+                  onChange={setReaderMargin}
+                  min={0}
+                  max={100}
+                  step={1}
+                  unit=""
+                  description="Ajuste l'espace sur les côtés des images (0 = aucune marge, 20 = image réduite à 30% de sa largeur)"
+                  formatValue={(val) => `${Math.round((val / 100) * 20)}/20`}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal settings desktop */}
+      <AnimatePresence>
+        {!isMobile && settingsOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+            onClick={() => setSettingsOpen(false)}
+          >
+            <motion.div
+              initial={{
+                opacity: 0,
+                scale: 0.85,
+                x: modalOrigin.x,
+                y: modalOrigin.y,
+              }}
+              animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+              exit={{
+                opacity: 0,
+                scale: 0.85,
+                x: modalOrigin.x,
+                y: modalOrigin.y,
+              }}
+              transition={{ type: "spring", stiffness: 320, damping: 28 }}
+              className="bg-dark-bg rounded-xl shadow-2xl p-8 w-full max-w-md relative mx-4 flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="absolute top-3 right-3 text-accent text-xl font-bold hover:text-white transition cursor-pointer"
+                onClick={() => setSettingsOpen(false)}
+                aria-label="Fermer"
+              >
+                ×
+              </button>
+
+              {/* Titre du modal */}
+              <h3 className="text-white text-xl font-semibold mb-8 mt-2">
+                Paramètres du lecteur
+              </h3>
+
+              {/* Slider pour les marges */}
+              <div className="w-full space-y-6">
+                <SliderSetting
+                  label="Marge latérale"
+                  value={readerMargin}
+                  onChange={setReaderMargin}
+                  min={0}
+                  max={100}
+                  step={1}
+                  unit=""
+                  description="Ajuste l'espace sur les côtés des images"
+                  formatValue={(val) =>
+                    val === 0
+                      ? "Aucune"
+                      : val === 100
+                      ? "Maximum"
+                      : `${Math.round(val / 5)}/20`
+                  }
+                />
+              </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
     </ChapterReaderContext.Provider>
+  );
+}
+
+// Composant SliderSetting pour les paramètres avec slider
+function SliderSetting({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step,
+  unit = "",
+  description,
+  formatValue,
+}) {
+  const displayValue = formatValue ? formatValue(value) : `${value}${unit}`;
+
+  return (
+    <div className="w-full">
+      <div className="flex justify-between items-center mb-2">
+        <label className="text-white font-medium text-sm">{label}</label>
+        <span className="text-accent font-semibold text-sm">
+          {displayValue}
+        </span>
+      </div>
+
+      <div className="relative">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          style={{
+            background: `linear-gradient(to right, #edf060 0%, #edf060 ${
+              ((value - min) / (max - min)) * 100
+            }%, #374151 ${((value - min) / (max - min)) * 100}%, #374151 100%)`,
+          }}
+        />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+            input[type="range"]::-webkit-slider-thumb {
+              appearance: none;
+              height: 18px;
+              width: 18px;
+              border-radius: 50%;
+              background: #edf060;
+              cursor: pointer;
+              border: 2px solid #1f2937;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            input[type="range"]::-moz-range-thumb {
+              height: 18px;
+              width: 18px;
+              border-radius: 50%;
+              background: #edf060;
+              cursor: pointer;
+              border: 2px solid #1f2937;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+              border: none;
+            }
+            input[type="range"]::-moz-range-track {
+              background: transparent;
+              border: none;
+            }
+          `,
+          }}
+        />
+      </div>
+
+      {description && (
+        <p className="text-gray-400 text-xs mt-2">{description}</p>
+      )}
+    </div>
   );
 }
 
