@@ -558,17 +558,15 @@ export default function Library() {
           strategy={rectSortingStrategy}
         >
           <div className="library-grid-container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-6 w-full">
-            {favorites
-              .filter((fav) => (fav.status || "en-cours") === tab)
-              .map((manga, index) => (
-                <SortableMangaCard
-                  key={manga.mangaId}
-                  manga={manga}
-                  index={index}
-                  onRemove={() => handleRemoveFavorite(manga.mangaId)}
-                  onChangeCategory={() => handleChangeMangaCategory(manga)}
-                />
-              ))}
+            {filteredFavorites.map((manga, index) => (
+              <SortableMangaCard
+                key={manga.mangaId}
+                manga={manga}
+                index={index}
+                onRemove={() => handleRemoveFavorite(manga.mangaId)}
+                onChangeCategory={() => handleChangeMangaCategory(manga)}
+              />
+            ))}
           </div>
         </SortableContext>
       </DndContext>
