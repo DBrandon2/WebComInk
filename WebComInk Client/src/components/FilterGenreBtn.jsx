@@ -96,8 +96,8 @@ export default function FilterGenreBtn({
                                   ? "bg-red-600 text-white border-red-500"
                                   : "bg-accent-hover text-gray-300 border-gray-600 hover:border-accent"
                               }`}
-                              whileHover={{ scale: 1.04 }}
-                              whileTap={{ scale: 0.97 }}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
                             >
                               <span className="text-sm font-medium">
                                 {tag.attributes.name.fr ||
@@ -126,16 +126,16 @@ export default function FilterGenreBtn({
                   <motion.button
                     onClick={handleReset}
                     className="flex-1 py-3 px-4 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-500 transition-colors"
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.97 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     Réinitialiser
                   </motion.button>
                   <motion.button
                     onClick={handleApply}
                     className="flex-1 py-3 px-4 bg-accent text-dark-bg rounded-lg font-medium hover:bg-accent-hover transition-colors"
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.97 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     Appliquer (
                     {tempSelectedGenres.length + tempExcludedGenres.length})
@@ -242,8 +242,8 @@ export default function FilterGenreBtn({
                           : "bg-white text-dark-bg border-dark-bg hover:border-accent"
                       }
                     `}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.97 }}
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     {tag.attributes.name.fr ||
                       tag.attributes.name.en ||
@@ -262,8 +262,8 @@ export default function FilterGenreBtn({
         <motion.button
           onClick={handleReset}
           className="flex-1 py-2 px-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors text-xs cursor-pointer"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
         >
           Réinitialiser
         </motion.button>
@@ -272,8 +272,8 @@ export default function FilterGenreBtn({
             if (hasChanged) handleApply();
           }}
           className="flex-1 py-2 px-3 rounded-lg font-medium text-xs transition-colors cursor-pointer bg-white text-dark-bg hover:bg-accent hover:text-dark-bg"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
         >
           Valider
         </motion.button>

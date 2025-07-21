@@ -42,7 +42,7 @@ export default function LibraryMangaCard({
       >
         <div className="flex flex-col items-center gap-2">
           <motion.div
-            className="w-[160px] h-[240px] lg:w-[240px] lg:h-[360px] bg-gray-200 relative overflow-hidden"
+            className="w-[130px] h-[195px] lg:w-[170px] lg:h-[255px] bg-gray-200 relative overflow-hidden"
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
             <img
@@ -61,57 +61,7 @@ export default function LibraryMangaCard({
                 {title}
               </h3>
             </div>
-            {/* Overlay avec boutons d'action */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 select-none">
-              <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 select-none">
-                <motion.button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onChangeCategory();
-                  }}
-                  className="p-2 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-colors select-none"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  title="Changer de catégorie"
-                  tabIndex={-1}
-                >
-                  <Edit3 size={16} />
-                </motion.button>
-                <motion.button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onRemove(id);
-                  }}
-                  className="p-2 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors select-none"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  title="Retirer des favoris"
-                  tabIndex={-1}
-                >
-                  <Trash2 size={16} />
-                </motion.button>
-              </div>
-            </div>
           </motion.div>
-        </div>
-
-        {/* Content + lien */}
-        <div className="p-3 select-none">
-          <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg cursor-pointer">
-            {title}
-          </h3>
-          {authorName && (
-            <span className="text-xs text-gray-400 md:text-sm line-clamp-1">
-              {authorName}
-            </span>
-          )}
-          {artistName && (
-            <span className="text-xs text-gray-400 md:text-sm line-clamp-1">
-              {artistName}
-            </span>
-          )}
         </div>
       </Link>
     </motion.div>
