@@ -221,7 +221,7 @@ export default function NavBar() {
               )}
             </NavLink>
             <NavLink to="/Paramètres" className="flex-shrink-0">
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#23272f]">
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.25)] text-white hover:bg-white/20 transition-colors duration-200">
                 <IoSettingsSharp className="text-[28px]" />
               </div>
             </NavLink>

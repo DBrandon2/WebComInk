@@ -533,7 +533,7 @@ export default function ChapterReader() {
       }}
     >
       <div
-        className="min-h-screen bg-dark-bg mt-[-12px] overflow-x-hidden"
+        className="min-h-screen bg-dark-bg mt-[-12px] overflow-x-hidden "
         style={{ paddingBottom: 128 }}
         {...bind()}
       >
@@ -545,7 +545,7 @@ export default function ChapterReader() {
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div className="w-full px-8 md:px-16 py-2 md:py-3 relative">
+          <div className="w-full px-16 md:px-16 py-2 md:py-3 relative">
             <div className="flex items-center justify-between w-full gap-x-2 md:gap-x-6 relative">
               {/* Colonne gauche : logo + retour */}
               <div className="flex items-center min-w-0">
@@ -597,7 +597,7 @@ export default function ChapterReader() {
               <div className="flex items-center min-w-[40px] justify-end ml-auto">
                 <button
                   ref={settingsBtnRef}
-                  className="p-2 md:p-3 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition shadow cursor-pointer"
+                  className="p-2 md:p-3 bg-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.25)] text-white rounded-full hover:bg-white/20 transition-colors duration-200 cursor-pointer"
                   title="Options / Paramètres"
                   onClick={() => {
                     if (settingsBtnRef.current) {

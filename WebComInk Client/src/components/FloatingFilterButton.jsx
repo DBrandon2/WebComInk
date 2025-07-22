@@ -11,7 +11,7 @@ export default function FloatingFilterButton({
   return (
     <motion.button
       onClick={onClick}
-      className={`fixed bottom-36 left-6 z-50 w-14 h-14 rounded-full shadow-2xl drop-shadow-lg flex items-center justify-center md:hidden bg-dark-bg/25 backdrop-blur-lg text-accent`}
+      className={`fixed bottom-36 left-6 z-50 w-14 h-14 rounded-full bg-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.25)] flex items-center justify-center md:hidden text-accent transition-colors duration-200 hover:bg-white/20`}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
     >

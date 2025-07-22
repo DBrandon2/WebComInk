@@ -49,15 +49,15 @@ function ScrollToTop() {
         {showScrollTop && !forceHide && (
           <motion.button
             onClick={scrollToTop}
-            className="fixed bottom-36 right-6 z-50 w-14 h-14 bg-dark-bg/25 backdrop-blur-lg text-accent rounded-full shadow-2xl drop-shadow-lg flex items-center justify-center cursor-pointer"
+            className="fixed bottom-36 right-6 z-50 w-14 h-14 bg-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/20 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.25)] text-white flex items-center justify-center cursor-pointer transition-all duration-300"
             initial={{ opacity: 0, scale: 0.5, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: 20 }}
             whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.95 }}
             title="Remonter en haut"
           >
-            <FaArrowUp size={28} />
+            <FaArrowUp size={24} />
           </motion.button>
         )}
       </AnimatePresence>

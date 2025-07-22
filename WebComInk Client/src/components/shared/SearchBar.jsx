@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HiOutlineMagnifyingGlass, HiXMark } from "react-icons/hi2";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+  animate,
+} from "framer-motion";
 import { getMangasByTitle } from "../../services/mangaService";
 import { useNavigate } from "react-router-dom";
 import { slugify } from "../../utils/mangaUtils";
@@ -11,141 +17,125 @@ export default function SearchBar({
   onClose,
   isMobile = false,
 }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const searchInputRef = useRef(null);
-  const searchContainerRef = useRef(null);
+
+  const inputRef = useRef(null);
+  const containerRef = useRef(null);
   const navigate = useNavigate();
 
-  // Focus sur l'input quand la barre s'ouvre
+  // Motion values for width + border radius
+  const width = useMotionValue(isOpen ? 400 : 48);
+  const borderRadius = useTransform(width, (w) => Math.min(24, w / 2));
+
   useEffect(() => {
-    if (isOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
+    const controls = animate(width, isOpen ? 400 : 48, {
+      type: "spring",
+      stiffness: 300,
+      damping: 30,
+    });
+    return controls.stop;
   }, [isOpen]);
 
-  // Fermer la recherche quand on clique à l'extérieur
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target)
-      ) {
+    if (isOpen && inputRef.current) inputRef.current.focus();
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
         onClose();
         setShowResults(false);
       }
-    }
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
     };
+    if (isOpen) document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [isOpen, onClose]);
 
-  // Fonction de recherche avec debounce
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (searchQuery.trim().length >= 2) {
-        searchMangas(searchQuery.trim());
+    const timeout = setTimeout(() => {
+      if (query.trim().length >= 2) {
+        fetchMangas(query.trim());
       } else {
-        setSearchResults([]);
+        setResults([]);
         setShowResults(false);
       }
-    }, 500); // debounce augmenté à 500ms
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [query]);
 
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
-
-  const searchMangas = async (query) => {
-    setIsLoading(true);
+  const fetchMangas = async (title) => {
+    setLoading(true);
     try {
-      const response = await getMangasByTitle({
-        title: query,
+      const res = await getMangasByTitle({
+        title,
         limit: 10,
         lang: "fr",
         includes: ["cover_art"],
       });
-      setSearchResults(response.data || []);
+      setResults(res.data || []);
       setShowResults(true);
-    } catch (error) {
-      console.error("Erreur lors de la recherche:", error);
-      setSearchResults([]);
+    } catch (err) {
+      console.error(err);
+      setResults([]);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleMangaClick = (manga) => {
+  const handleClear = () => {
+    setQuery("");
+    setResults([]);
+    setShowResults(false);
+    inputRef.current?.focus();
+  };
+
+  const handleClick = (manga) => {
     const title =
       manga.attributes?.title?.fr ||
       manga.attributes?.title?.en ||
-      manga.attributes?.title?.["ja-ro"] ||
       Object.values(manga.attributes?.title || {})[0] ||
       "";
     navigate(`/Comics/${manga.id}/${slugify(title)}`);
     onClose();
-    setSearchQuery("");
+    setQuery("");
     setShowResults(false);
   };
 
-  const handleClear = () => {
-    setSearchQuery("");
-    setSearchResults([]);
-    setShowResults(false);
-    searchInputRef.current?.focus();
+  const getCover = (m) => {
+    const cover = m.relationships?.find((r) => r.type === "cover_art");
+    return cover?.attributes?.fileName
+      ? `https://uploads.mangadex.org/covers/${m.id}/${cover.attributes.fileName}.256.jpg`
+      : "/placeholder-manga.jpg";
   };
 
-  const getMangaCoverUrl = (manga) => {
-    const coverArt = manga.relationships?.find(
-      (rel) => rel.type === "cover_art"
-    );
-    if (coverArt && coverArt.attributes?.fileName) {
-      return `https://uploads.mangadex.org/covers/${manga.id}/${coverArt.attributes.fileName}.256.jpg`;
-    }
-    return "/placeholder-manga.jpg"; // Image par défaut
+  const getTitle = (m) => {
+    const t = m.attributes?.title;
+    return t?.fr || t?.en || Object.values(t || {})[0] || "Titre inconnu";
   };
 
-  const getMangaTitle = (manga) => {
-    const title = manga.attributes?.title;
-    return (
-      title?.fr ||
-      title?.en ||
-      title?.["ja-ro"] ||
-      Object.values(title || {})[0] ||
-      "Titre non disponible"
-    );
-  };
-
-  // Version mobile : affichage direct sans bouton
   if (isMobile) {
     return (
       <div
-        ref={searchContainerRef}
-        className="w-full"
+        ref={containerRef}
+        className="w-full z-20"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="bg-dark-bg/95 backdrop-blur-lg rounded-lg border border-gray-600 overflow-hidden">
+        <div className="bg-dark-bg/95 backdrop-blur-lg rounded-lg border border-gray-600">
           <div className="flex items-center p-3">
             <HiOutlineMagnifyingGlass className="text-gray-400 text-xl mr-3" />
             <input
-              ref={searchInputRef}
+              ref={inputRef}
               type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder="Rechercher un manga..."
               className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none"
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  onClose();
-                }
-              }}
+              onKeyDown={(e) => e.key === "Escape" && onClose()}
             />
-            {searchQuery && (
+            {query && (
               <button
                 onClick={handleClear}
                 className="text-gray-400 hover:text-white ml-2"
@@ -155,13 +145,12 @@ export default function SearchBar({
             )}
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white ml-2 cursor-pointer"
+              className="text-gray-400 hover:text-white ml-2"
             >
               <HiXMark className="text-xl" />
             </button>
           </div>
 
-          {/* Résultats de recherche mobile */}
           <AnimatePresence>
             {showResults && (
               <motion.div
@@ -170,42 +159,38 @@ export default function SearchBar({
                 exit={{ opacity: 0, height: 0 }}
                 className="border-t border-gray-600 max-h-96 overflow-y-auto"
               >
-                {isLoading ? (
+                {loading ? (
                   <div className="p-4 text-center text-gray-400">
                     Recherche en cours...
                   </div>
-                ) : searchResults.length > 0 ? (
-                  <div className="py-2">
-                    {searchResults.map((manga) => (
-                      <button
-                        key={manga.id}
-                        onClick={() => handleMangaClick(manga)}
-                        className="w-full flex items-center p-3 hover:bg-gray-700/50 transition-colors duration-200 text-left"
-                      >
-                        <img
-                          src={getMangaCoverUrl(manga)}
-                          alt={getMangaTitle(manga)}
-                          className="w-12 h-16 object-cover rounded mr-3 flex-shrink-0"
-                          onError={(e) => {
-                            e.target.src = "/placeholder-manga.jpg";
-                          }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-white font-medium truncate">
-                            {getMangaTitle(manga)}
-                          </h3>
-                          <p className="text-gray-400 text-sm truncate">
-                            {manga.attributes?.status || "Statut inconnu"}
-                          </p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                ) : searchQuery.trim().length >= 2 ? (
+                ) : results.length > 0 ? (
+                  results.map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => handleClick(m)}
+                      className="flex w-full p-3 hover:bg-gray-700/50 text-left"
+                    >
+                      <img
+                        src={getCover(m)}
+                        alt={getTitle(m)}
+                        className="w-12 h-16 object-cover rounded mr-3"
+                        onError={(e) =>
+                          (e.target.src = "/placeholder-manga.jpg")
+                        }
+                      />
+                      <div className="min-w-0">
+                        <h3 className="text-white truncate">{getTitle(m)}</h3>
+                        <p className="text-gray-400 text-sm truncate">
+                          {m.attributes?.status || "Statut inconnu"}
+                        </p>
+                      </div>
+                    </button>
+                  ))
+                ) : (
                   <div className="p-4 text-center text-gray-400">
-                    Aucun résultat trouvé pour "{searchQuery}"
+                    Aucun résultat pour "{query}"
                   </div>
-                ) : null}
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -216,151 +201,90 @@ export default function SearchBar({
 
   return (
     <div
-      ref={searchContainerRef}
-      className="relative flex items-center h-full"
+      ref={containerRef}
+      className="relative h-12 z-20"
       onMouseDown={(e) => e.stopPropagation()}
     >
-      {/* Animation morphing bouton <-> searchbar */}
-      <AnimatePresence initial={false}>
-        {!isOpen && (
-          <motion.button
-            key="search-btn"
-            layoutId="searchbar-anim"
+      <motion.div
+        style={{ width, borderRadius }}
+        className={`h-12 bg-white/10 backdrop-blur-xl flex items-center justify-between px-3 border border-white/20 overflow-hidden transition-colors duration-200 ${
+          !isOpen ? "hover:bg-white/20 cursor-pointer" : ""
+        }`}
+      >
+        {!isOpen ? (
+          <button
             onClick={onToggle}
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-[#23272f] text-[28px] hover:text-accent transition-colors duration-200 cursor-pointer border-none outline-none"
-            aria-label="Rechercher"
-            initial={{
-              width: 48,
-              height: 48,
-              backgroundColor: "#23272f",
-              borderRadius: 999,
-            }}
-            animate={{
-              width: 48,
-              height: 48,
-              backgroundColor: "#23272f",
-              borderRadius: 999,
-            }}
-            exit={{ opacity: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="text-white text-xl cursor-pointer"
           >
             <HiOutlineMagnifyingGlass />
-          </motion.button>
-        )}
-        {isOpen && (
-          <motion.div
-            key="searchbar-open"
-            layoutId="searchbar-anim"
-            initial={{
-              width: 48,
-              height: 48,
-              backgroundColor: "#23272f",
-            }}
-            animate={{
-              width: 400,
-              height: 48,
-              backgroundColor: "#23272f",
-              opacity: 1,
-            }}
-            exit={{ width: 48, height: 48, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            className="flex items-center overflow-hidden shadow-lg border border-gray-600"
-            style={{ position: "static", overflow: "hidden", borderRadius: 8 }}
-          >
-            <div
-              className="flex items-center w-full px-3"
-              style={{ height: 48 }}
-            >
-              <HiOutlineMagnifyingGlass className="text-gray-400 text-xl mr-3" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Rechercher un manga..."
-                className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none h-[48px]"
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") {
-                    onClose();
-                  }
-                }}
-                style={{ minWidth: 0 }}
-              />
-              {searchQuery && (
-                <button
-                  onClick={handleClear}
-                  className="text-gray-400 hover:text-white ml-2 cursor-pointer"
-                >
-                  <HiXMark className="text-xl" />
-                </button>
-              )}
+          </button>
+        ) : (
+          <>
+            <HiOutlineMagnifyingGlass className="text-gray-400 text-xl mr-2" />
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none"
+              placeholder="Rechercher un manga..."
+              onKeyDown={(e) => e.key === "Escape" && onClose()}
+            />
+            {query && (
               <button
-                onClick={onClose}
+                onClick={handleClear}
                 className="text-gray-400 hover:text-white ml-2 cursor-pointer"
               >
-                <HiXMark className="text-xl" />
+                <HiXMark />
               </button>
-            </div>
-          </motion.div>
+            )}
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-white ml-2 cursor-pointer"
+            >
+              <HiXMark />
+            </button>
+          </>
         )}
-      </AnimatePresence>
-      {/* Résultats de recherche */}
+      </motion.div>
+
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && showResults && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="absolute right-0 top-12 bg-dark-bg/95 backdrop-blur-lg rounded-lg overflow-hidden w-[400px] max-w-full z-10"
+            className="absolute top-14 right-0 w-[400px] bg-dark-bg/95 rounded-lg border border-gray-600 backdrop-blur-lg max-h-96 overflow-y-auto"
           >
-            {/* Résultats de recherche */}
-            <AnimatePresence>
-              {showResults && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="border-t border-gray-600 max-h-96 overflow-y-auto"
+            {loading ? (
+              <div className="p-4 text-center text-gray-400">
+                Recherche en cours...
+              </div>
+            ) : results.length > 0 ? (
+              results.map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => handleClick(m)}
+                  className="flex w-full p-3 hover:bg-gray-700/50 text-left cursor-pointer"
                 >
-                  {isLoading ? (
-                    <div className="p-4 text-center text-gray-400">
-                      Recherche en cours...
-                    </div>
-                  ) : searchResults.length > 0 ? (
-                    <div className="py-2">
-                      {searchResults.map((manga) => (
-                        <button
-                          key={manga.id}
-                          onClick={() => handleMangaClick(manga)}
-                          className="w-full flex items-center p-3 hover:bg-gray-700/50 transition-colors duration-200 text-left"
-                        >
-                          <img
-                            src={getMangaCoverUrl(manga)}
-                            alt={getMangaTitle(manga)}
-                            className="w-12 h-16 object-cover rounded mr-3 flex-shrink-0"
-                            onError={(e) => {
-                              e.target.src = "/placeholder-manga.jpg";
-                            }}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-white font-medium truncate">
-                              {getMangaTitle(manga)}
-                            </h3>
-                            <p className="text-gray-400 text-sm truncate">
-                              {manga.attributes?.status || "Statut inconnu"}
-                            </p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  ) : searchQuery.trim().length >= 2 ? (
-                    <div className="p-4 text-center text-gray-400">
-                      Aucun résultat trouvé pour "{searchQuery}"
-                    </div>
-                  ) : null}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  <img
+                    src={getCover(m)}
+                    alt={getTitle(m)}
+                    className="w-12 h-16 object-cover rounded mr-3"
+                    onError={(e) => (e.target.src = "/placeholder-manga.jpg")}
+                  />
+                  <div className="min-w-0">
+                    <h3 className="text-white truncate">{getTitle(m)}</h3>
+                    <p className="text-gray-400 text-sm truncate">
+                      {m.attributes?.status || "Statut inconnu"}
+                    </p>
+                  </div>
+                </button>
+              ))
+            ) : (
+              <div className="p-4 text-center text-gray-400">
+                Aucun résultat pour "{query}"
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
