@@ -119,11 +119,11 @@ export default function ChapterReader() {
         return;
       }
       if (down && my < 0) {
-        // Augmentation de la résistance : division par 2 pour rendre le drag plus difficile
+        // Le cercle suit toujours le drag, même si on dépasse triggerPull puis on revient en arrière
         const resistance = -my / 2;
-        setPullHeight(Math.min(maxPull, resistance));
+        setPullHeight(Math.max(0, Math.min(maxPull, resistance)));
       } else if (last) {
-        // Passage au chapitre suivant réactivé
+        // Passage au chapitre suivant uniquement si relâché au-delà du seuil
         if (
           pullHeight >= triggerPull &&
           allChapters &&
@@ -136,6 +136,7 @@ export default function ChapterReader() {
             return;
           }
         }
+        // Sinon, reset simplement
         setPullHeight(0);
       }
     },
@@ -533,6 +534,7 @@ export default function ChapterReader() {
     >
       <div
         className="min-h-screen bg-dark-bg mt-[-12px] overflow-x-hidden"
+        style={{ paddingBottom: 128 }}
         {...bind()}
       >
         {/* Header de navigation, affiché seulement si showHeader */}

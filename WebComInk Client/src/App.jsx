@@ -15,7 +15,7 @@ function App() {
     location.pathname
   );
   return (
-    <div className=" w-full pb-[128px] lg:pb-0 lg:my-[80px]">
+    <div className="w-full lg:pb-0 lg:my-[80px]">
       <ThemeProvider>
         <AuthProvider>
           <ScrollToTop />
