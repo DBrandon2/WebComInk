@@ -17,6 +17,11 @@ export default function FilterGenreBtn({
   const [loadingTags, setLoadingTags] = useState(false);
   const [errorTags, setErrorTags] = useState(null);
 
+  // États temporaires pour la sélection (une seule déclaration partagée)
+  const [tempSelectedGenres, setTempSelectedGenres] = useState(selectedGenres);
+  const [tempExcludedGenres, setTempExcludedGenres] = useState(excludedGenres);
+  const [hasChanged, setHasChanged] = useState(false);
+
   // On charge tous les tags au montage du modal OU dès le montage en mode sidebar
   useEffect(() => {
     if ((isOpen || sidebarMode) && allTags.length === 0) {
@@ -48,6 +53,45 @@ export default function FilterGenreBtn({
     acc[group].push(tag);
     return acc;
   }, {});
+
+  // Fonctions utilitaires (déplacées AVANT tout return)
+  const getTagState = (tagId) => {
+    if (tempSelectedGenres.includes(tagId)) return "included";
+    if (tempExcludedGenres.includes(tagId)) return "excluded";
+    return "none";
+  };
+
+  const handleTagToggle = (tagId) => {
+    const currentState = getTagState(tagId);
+    setHasChanged(true);
+    switch (currentState) {
+      case "none":
+        setTempSelectedGenres((prev) => [...prev, tagId]);
+        break;
+      case "included":
+        setTempSelectedGenres((prev) => prev.filter((g) => g !== tagId));
+        setTempExcludedGenres((prev) => [...prev, tagId]);
+        break;
+      case "excluded":
+        setTempExcludedGenres((prev) => prev.filter((g) => g !== tagId));
+        break;
+    }
+  };
+
+  const handleApply = () => {
+    onGenreChange({
+      included: tempSelectedGenres,
+      excluded: tempExcludedGenres,
+      year: selectedYear,
+    });
+    setHasChanged(false);
+  };
+
+  const handleReset = () => {
+    setTempSelectedGenres([]);
+    setTempExcludedGenres([]);
+    setHasChanged(true);
+  };
 
   // Version mobile : inchangée
   if (!sidebarMode) {
@@ -165,55 +209,11 @@ export default function FilterGenreBtn({
     );
   }
 
-  // Version desktop (sidebar)
-  // États temporaires pour la sélection
-  const [tempSelectedGenres, setTempSelectedGenres] = useState(selectedGenres);
-  const [tempExcludedGenres, setTempExcludedGenres] = useState(excludedGenres);
-  const [hasChanged, setHasChanged] = useState(false);
-
   useEffect(() => {
     setTempSelectedGenres(selectedGenres);
     setTempExcludedGenres(excludedGenres);
     setHasChanged(false);
   }, [selectedGenres, excludedGenres]);
-
-  const getTagState = (tagId) => {
-    if (tempSelectedGenres.includes(tagId)) return "included";
-    if (tempExcludedGenres.includes(tagId)) return "excluded";
-    return "none";
-  };
-
-  const handleTagToggle = (tagId) => {
-    const currentState = getTagState(tagId);
-    setHasChanged(true);
-    switch (currentState) {
-      case "none":
-        setTempSelectedGenres((prev) => [...prev, tagId]);
-        break;
-      case "included":
-        setTempSelectedGenres((prev) => prev.filter((g) => g !== tagId));
-        setTempExcludedGenres((prev) => [...prev, tagId]);
-        break;
-      case "excluded":
-        setTempExcludedGenres((prev) => prev.filter((g) => g !== tagId));
-        break;
-    }
-  };
-
-  const handleApply = () => {
-    onGenreChange({
-      included: tempSelectedGenres,
-      excluded: tempExcludedGenres,
-      year: selectedYear,
-    });
-    setHasChanged(false);
-  };
-
-  const handleReset = () => {
-    setTempSelectedGenres([]);
-    setTempExcludedGenres([]);
-    setHasChanged(true);
-  };
 
   return (
     <div className="flex flex-col gap-4">
