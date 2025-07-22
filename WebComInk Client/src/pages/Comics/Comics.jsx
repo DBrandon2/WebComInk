@@ -78,7 +78,7 @@ export default function Comics() {
   };
 
   return (
-    <div className="flex flex-col gap-8 mt-12 md:mt-24">
+    <div className="flex flex-col gap-8 mt-20 md:mt-24">
       <TopBarMobile />
       <div className="flex w-full h-full xl:justify-center">
         <div className="flex w-full justify-center lg:justify-between items-center lg:px-7">

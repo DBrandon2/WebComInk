@@ -44,30 +44,9 @@ export default function NavBar() {
       <nav className="bg-light-bg w-screen h-[64px] fixed bottom-0 lg:hidden z-50">
         <ul className="flex justify-around items-center h-full w-full relative">
           {navItems.map((item, index) => {
-            if (item.isSearch) {
-              return (
-                <NavLink
-                  key={index}
-                  to={item.to}
-                  className="relative flex items-center justify-center text-gray-500 cursor-pointer"
-                >
-                  <motion.div
-                    whileTap={{ scale: 0.9 }}
-                    className="flex items-center justify-center w-12 h-12 rounded-full"
-                  >
-                    {React.isValidElement(item.icon)
-                      ? React.cloneElement(item.icon, {
-                          className:
-                            "text-[32px] cursor-default lg:cursor-pointer",
-                        })
-                      : item.icon}
-                  </motion.div>
-                </NavLink>
-              );
-            }
-
+            // Unifier le rendu pour tous les boutons, y compris la recherche
             return (
-              <NavLink key={index} to={item.to}>
+              <NavLink key={index} to={item.to} onClick={item.onClick}>
                 {({ isActive }) => (
                   <motion.div
                     whileTap={{ scale: 0.9 }}
@@ -212,7 +191,7 @@ export default function NavBar() {
                 <img
                   src={user.avatar || defaultAvatar}
                   alt="avatar utilisateur"
-                  className="w-12 h-12 rounded-full object-cover border-2 border-accent"
+                  className="w-12 h-12 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#23272f]">
