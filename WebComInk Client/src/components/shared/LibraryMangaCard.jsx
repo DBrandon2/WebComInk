@@ -17,11 +17,12 @@ export default function LibraryMangaCard({
 }) {
   // On force le placeholder pour la première carte
   const showPlaceholder = index === 0 || !coverUrl;
+
   return (
     <motion.div
       className={"group relative select-none will-change-transform"}
-      whileHover={{ scale: isDragging ? 1 : 1.03 }}
-      initial={{ opacity: 0, y: 20 }}
+      whileHover={{ scale: isDragging ? 1 : 1 }}
+      initial={{ opacity: 0, y: 0 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
       tabIndex={-1}
