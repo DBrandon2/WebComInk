@@ -50,6 +50,7 @@ function getBestCoverUrl(manga) {
 }
 
 export default function Discover() {
+  console.log("Discover component mounted");
   const [mangaOfTheDay, setMangaOfTheDay] = useState(null);
   const [chapterNumber, setChapterNumber] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -98,6 +99,18 @@ export default function Discover() {
     }
     fetchChapterNumber();
   }, [mangaOfTheDay]);
+
+  // LOG pour debug : affiche les attributs du manga du jour dans la console
+  if (
+    mangaOfTheDay &&
+    mangaOfTheDay.originalData &&
+    mangaOfTheDay.originalData.attributes
+  ) {
+    console.log(
+      "ATTRIBUTES MANGA DU JOUR",
+      mangaOfTheDay.originalData.attributes
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-6 mx-3 lg:gap-y-12">
@@ -164,6 +177,28 @@ export default function Discover() {
                 <span className="font-semibold">Chapitres : </span>{" "}
                 {chapterNumber || mangaOfTheDay.chapter}
               </p>
+            </div>
+            {/* Ajout des infos complémentaires */}
+            <div className="flex flex-wrap w-full justify-center lg:justify-start gap-4 mt-2 text-sm">
+              {/* Date de parution */}
+              {"year" in mangaOfTheDay.originalData.attributes && (
+                <span>
+                  <span className="font-semibold">Parution :</span>{" "}
+                  {mangaOfTheDay.originalData.attributes.year || "N/A"}
+                </span>
+              )}
+              {/* Statut */}
+              {"status" in mangaOfTheDay.originalData.attributes && (
+                <span>
+                  <span className="font-semibold">Statut :</span>{" "}
+                  {mangaOfTheDay.originalData.attributes.status === "ongoing"
+                    ? "En cours"
+                    : mangaOfTheDay.originalData.attributes.status ===
+                      "completed"
+                    ? "Terminé"
+                    : mangaOfTheDay.originalData.attributes.status || "N/A"}
+                </span>
+              )}
             </div>
             <div className="flex flex-col justify-center items-center w-full gap-2 mt-4">
               <span className="w-[90%] h-[1px] bg-accent"></span>

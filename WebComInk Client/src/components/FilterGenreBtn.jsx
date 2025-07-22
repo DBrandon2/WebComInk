@@ -104,7 +104,7 @@ export default function FilterGenreBtn({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden "
+              className="fixed inset-0 bg-black/50 z-40 md:hidden "
               onClick={onClose}
             />
 
@@ -154,7 +154,7 @@ export default function FilterGenreBtn({
                                   ? "bg-green-600 text-white border-green-500"
                                   : state === "excluded"
                                   ? "bg-red-600 text-white border-red-500"
-                                  : "bg-accent-hover text-gray-300 border-gray-600 hover:border-accent"
+                                  : "bg-white text-dark-bg border-gray-600"
                               }`}
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
