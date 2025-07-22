@@ -543,60 +543,59 @@ export default function ChapterReader() {
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div className="w-full px-2 sm:px-4 md:px-6 py-2 md:py-3">
-            <div className="flex items-center justify-between w-full gap-x-2 md:gap-x-6">
-              {/* Logo à gauche (desktop only) */}
-              <div className="hidden md:flex items-center min-w-[60px] mr-2">
-                <Link to="/" className="flex items-center" title="Accueil">
-                  <img
-                    src={logo}
-                    alt="Logo"
-                    className="w-10 h-10 md:w-14 md:h-14 object-contain transition-transform duration-300 ease-in-out transform hover:scale-120 hover:rotate-[-5deg] z-50"
-                  />
-                </Link>
+          <div className="w-full px-8 md:px-16 py-2 md:py-3 relative">
+            <div className="flex items-center justify-between w-full gap-x-2 md:gap-x-6 relative">
+              {/* Colonne gauche : logo + retour */}
+              <div className="flex items-center min-w-0">
+                <div className="hidden md:flex items-center min-w-[60px] mr-2">
+                  <Link to="/" className="flex items-center" title="Accueil">
+                    <img
+                      src={logo}
+                      alt="Logo"
+                      className="w-10 h-10 md:w-14 md:h-14 object-contain transition-transform duration-300 ease-in-out transform hover:scale-120 hover:rotate-[-5deg] z-50"
+                    />
+                  </Link>
+                </div>
+                <div className="flex items-center min-w-[40px]">
+                  <Link
+                    to={`/Comics/${mangaId}/${slug}`}
+                    className="flex items-center gap-2 px-3 py-2 rounded text-white hover:bg-accent hover:text-dark-bg transition text-sm font-semibold"
+                    title="Retour au manga"
+                  >
+                    <span className="text-[20px] md:text-[28px] flex items-center">
+                      <Grip />
+                    </span>
+                    <span className="hidden sm:inline">Retour au manga</span>
+                  </Link>
+                </div>
               </div>
-              {/* Bouton grip toujours visible, à gauche */}
-              <div className="flex items-center min-w-[40px]">
-                <Link
-                  to={`/Comics/${mangaId}/${slug}`}
-                  className="flex items-center gap-2 px-3 py-2 rounded text-white hover:bg-accent hover:text-dark-bg transition text-sm font-semibold"
-                  title="Retour au manga"
-                >
-                  <span className="text-[20px] md:text-[28px] flex items-center">
-                    <Grip />
-                  </span>
-                  <span className="hidden sm:inline">Retour au manga</span>
-                </Link>
-              </div>
-              {/* Navigation centrale, prend toute la place restante */}
-              <div className="flex flex-wrap items-center justify-center flex-1 gap-1 md:gap-3 min-w-0 overflow-x-auto">
-                {/* Bouton précédent : visible seulement sur desktop */}
+              {/* Colonne centre : select centré absolument */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center min-w-0 w-[min(420px,90vw)]">
                 <button
                   onClick={goToPreviousChapter}
                   disabled={currentChapterIndex >= allChapters.length - 1}
-                  className="hidden sm:flex w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer"
+                  className="hidden sm:flex w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer mr-2"
                   title="Chapitre précédent (←)"
                 >
                   <FaArrowLeft size={18} />
                 </button>
-                <div className="min-w-0 flex items-center justify-center">
+                <div className="min-w-0 flex items-center justify-center flex-1">
                   <ChapterSelectorDropdown direction="down" />
                 </div>
-                {/* Bouton suivant : visible seulement sur desktop */}
                 <button
                   onClick={goToNextChapter}
                   disabled={currentChapterIndex <= 0}
-                  className="hidden sm:flex w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer"
+                  className="hidden sm:flex w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer ml-2"
                   title="Chapitre suivant (→)"
                 >
                   <FaArrowRight size={18} />
                 </button>
               </div>
-              {/* Settings à droite */}
-              <div className="flex items-center min-w-[40px] justify-end">
+              {/* Colonne droite : settings */}
+              <div className="flex items-center min-w-[40px] justify-end ml-auto">
                 <button
                   ref={settingsBtnRef}
-                  className="p-2 md:p-3 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition shadow"
+                  className="p-2 md:p-3 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition shadow cursor-pointer"
                   title="Options / Paramètres"
                   onClick={() => {
                     if (settingsBtnRef.current) {

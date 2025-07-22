@@ -348,34 +348,51 @@ export default function Settings() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
+            {/* Overlay */}
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowResetModal(false)}
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", stiffness: 320, damping: 28 }}
-              className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl flex flex-col items-center"
+              className="relative bg-dark-bg rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col items-center"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-                Changement du mode de préférences de lecture
-              </h3>
-              <p className="text-gray-700 mb-4 text-center">
-                En changeant ce mode,{" "}
-                <span className="text-accent font-semibold">
-                  tous vos réglages de lecture personnalisés
-                </span>{" "}
-                (marges, etc.) seront supprimés.
-                <br />
-                Vous devrez reconfigurer vos préférences lors de votre prochaine
-                lecture.
-                <br />
-              </p>
-              <div className="flex gap-3 justify-center mt-2 w-full">
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 w-full">
+                <h3 className="text-xl font-bold text-accent text-center w-full">
+                  Changement du mode de préférences de lecture
+                </h3>
+              </div>
+              {/* Content */}
+              <div className="p-6 w-full">
+                <p className="text-gray-300 mb-4 text-center">
+                  En changeant ce mode,
+                  <span className="text-accent font-semibold">
+                    {" "}
+                    tous vos réglages de lecture personnalisés{" "}
+                  </span>
+                  (marges, etc.) seront supprimés.
+                  <br />
+                  Vous devrez reconfigurer vos préférences lors de votre
+                  prochaine lecture.
+                </p>
+              </div>
+              {/* Footer */}
+              <div className="flex gap-3 justify-center p-6 border-t border-gray-200 bg-dark-bg w-full">
                 <button
                   onClick={() => setShowResetModal(false)}
-                  className="px-4 py-2 rounded-lg bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition w-full"
+                  className="w-full px-4 py-2 rounded-lg bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition cursor-pointer"
                 >
                   Annuler
                 </button>
@@ -385,7 +402,7 @@ export default function Settings() {
                     setReaderSettingsMode(pendingMode);
                     setShowResetModal(false);
                   }}
-                  className="px-4 py-2 rounded-lg bg-accent text-dark-bg font-bold hover:bg-accent-hover transition w-full"
+                  className="w-full px-4 py-2 rounded-lg bg-accent text-dark-bg font-bold hover:bg-accent-hover hover:text-white transition cursor-pointer"
                 >
                   Confirmer
                 </button>
