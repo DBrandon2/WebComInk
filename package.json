@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
-    "bcryptjs": "^3.0.2"
+    "bcryptjs": "^3.0.2",
+    "date-fns": "^4.1.0"
   }
 }
