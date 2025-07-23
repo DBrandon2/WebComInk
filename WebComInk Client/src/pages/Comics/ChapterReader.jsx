@@ -521,8 +521,8 @@ export default function ChapterReader() {
     );
   }
 
-  // Cas fin de lecture (plus de chapitre suivant)
-  if (chapterImages.length > 0 && allChapters && currentChapterIndex === 0) {
+  // Cas fin de lecture (chapitre non trouvé)
+  if (currentChapterIndex === -1) {
     return (
       <div className="min-h-screen bg-dark-bg flex flex-col items-center justify-center">
         <div className="flex justify-center mt-8 m-3">
@@ -538,7 +538,6 @@ export default function ChapterReader() {
             />
           </div>
         </div>
-        {/* Section commentaires supprimée ici pour éviter le doublon */}
       </div>
     );
   }
@@ -568,11 +567,73 @@ export default function ChapterReader() {
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div className="w-full px-16 md:px-16 py-2 md:py-3 relative">
-            <div className="flex items-center justify-between w-full gap-x-2 md:gap-x-6 relative">
-              {/* Colonne gauche : logo + retour */}
+          <div className="w-full px-3 md:px-16 py-2 md:py-3 relative">
+            {/* Top bar responsive */}
+            {/* Mobile : tout sur une ligne */}
+            <div className="flex items-center w-full justify-between gap-x-2 md:hidden">
+              {/* Bouton retour */}
               <div className="flex items-center min-w-0">
-                <div className="hidden md:flex items-center min-w-[60px] mr-2">
+                <Link
+                  to={`/Comics/${mangaId}/${slug}`}
+                  className="flex items-center gap-2 px-3 py-2 rounded text-white hover:bg-accent hover:text-dark-bg transition text-sm font-semibold"
+                  title="Retour au manga"
+                >
+                  <span className="text-[20px] flex items-center">
+                    <Grip />
+                  </span>
+                </Link>
+              </div>
+              {/* Selecteur chapitre réduit */}
+              <div className="flex items-center flex-1 min-w-0 max-w-[160px] mx-2">
+                <button
+                  onClick={goToPreviousChapter}
+                  disabled={currentChapterIndex >= allChapters.length - 1}
+                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer mr-2"
+                  title="Chapitre précédent (←)"
+                >
+                  <FaArrowLeft size={18} />
+                </button>
+                <div className="min-w-0 flex items-center justify-center flex-1">
+                  <ChapterSelectorDropdown direction="down" />
+                </div>
+                <button
+                  onClick={goToNextChapter}
+                  disabled={currentChapterIndex <= 0}
+                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer ml-2"
+                  title="Chapitre suivant (→)"
+                >
+                  <FaArrowRight size={18} />
+                </button>
+              </div>
+              {/* Bouton settings */}
+              <div className="flex items-center min-w-[40px] justify-end ml-2">
+                <button
+                  ref={settingsBtnRef}
+                  className="p-2 bg-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.25)] text-white rounded-full hover:bg-white/20 transition-colors duration-200 cursor-pointer"
+                  title="Options / Paramètres"
+                  onClick={() => {
+                    if (settingsBtnRef.current) {
+                      const rect =
+                        settingsBtnRef.current.getBoundingClientRect();
+                      const centerX = window.innerWidth / 2;
+                      const centerY = window.innerHeight / 2;
+                      setModalOrigin({
+                        x: rect.left + rect.width / 2 - centerX,
+                        y: rect.top + rect.height / 2 - centerY,
+                      });
+                    }
+                    setSettingsOpen(true);
+                  }}
+                >
+                  <FaCog size={22} />
+                </button>
+              </div>
+            </div>
+            {/* Desktop : retour à gauche, selecteur centré absolument, settings à droite */}
+            <div className="hidden md:flex items-center w-full relative">
+              {/* Logo + bouton retour à gauche */}
+              <div className="flex items-center min-w-0">
+                <div className="flex items-center min-w-[60px] mr-2">
                   <Link to="/" className="flex items-center" title="Accueil">
                     <img
                       src={logo}
@@ -587,19 +648,19 @@ export default function ChapterReader() {
                     className="flex items-center gap-2 px-3 py-2 rounded text-white hover:bg-accent hover:text-dark-bg transition text-sm font-semibold"
                     title="Retour au manga"
                   >
-                    <span className="text-[20px] md:text-[28px] flex items-center">
+                    <span className="text-[28px] flex items-center">
                       <Grip />
                     </span>
-                    <span className="hidden sm:inline">Retour au manga</span>
+                    <span className="hidden xl:inline">Retour au manga</span>
                   </Link>
                 </div>
               </div>
-              {/* Colonne centre : select centré absolument */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center min-w-0 w-[min(420px,90vw)]">
+              {/* Selecteur centré absolument, unique, centré verticalement */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center min-w-0 w-[min(420px,90vw)] h-full">
                 <button
                   onClick={goToPreviousChapter}
                   disabled={currentChapterIndex >= allChapters.length - 1}
-                  className="hidden sm:flex w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer mr-2"
+                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow flex items-center justify-center cursor-pointer mr-2"
                   title="Chapitre précédent (←)"
                 >
                   <FaArrowLeft size={18} />
@@ -610,17 +671,17 @@ export default function ChapterReader() {
                 <button
                   onClick={goToNextChapter}
                   disabled={currentChapterIndex <= 0}
-                  className="hidden sm:flex w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer ml-2"
+                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow flex items-center justify-center cursor-pointer ml-2"
                   title="Chapitre suivant (→)"
                 >
                   <FaArrowRight size={18} />
                 </button>
               </div>
-              {/* Colonne droite : settings */}
+              {/* Bouton settings à droite */}
               <div className="flex items-center min-w-[40px] justify-end ml-auto">
                 <button
                   ref={settingsBtnRef}
-                  className="p-2 md:p-3 bg-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.25)] text-white rounded-full hover:bg-white/20 transition-colors duration-200 cursor-pointer"
+                  className="p-3 bg-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.25)] text-white rounded-full hover:bg-white/20 transition-colors duration-200 cursor-pointer"
                   title="Options / Paramètres"
                   onClick={() => {
                     if (settingsBtnRef.current) {
