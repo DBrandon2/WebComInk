@@ -26,8 +26,8 @@ const Contact = lazy(() => import("./pages/Legal/Contact"));
 const FAQ = lazy(() => import("./pages/Legal/FAQ"));
 const Media = lazy(() => import("./pages/Legal/Media"));
 const ValidationSuccess = lazy(() => import("./pages/Legal/ValidationSuccess"));
-const ForgotPass = lazy(() => import("./pages/forms/Security/ForgotPass"));
-const ResetPass = lazy(() => import("./pages/forms/Security/ResetPass"));
+const ForgotPass = lazy(() => import("./pages/forms/security/ForgotPass"));
+const ResetPass = lazy(() => import("./pages/forms/security/ResetPass"));
 const ComicsDetails = lazy(() => import("./pages/Comics/ComicsDetails"));
 const ChapterReader = lazy(() => import("./pages/Comics/ChapterReader"));
 
