@@ -23,6 +23,7 @@ import { useDrag } from "@use-gesture/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { markChapterAsRead } from "../../apis/auth.api";
 import { getMangaById } from "../../utils/mangaUtils";
+import ChapterComments from "../../components/shared/ChapterComments";
 
 // Créer le contexte
 export const ChapterReaderContext = createContext();
@@ -520,6 +521,28 @@ export default function ChapterReader() {
     );
   }
 
+  // Cas fin de lecture (plus de chapitre suivant)
+  if (chapterImages.length > 0 && allChapters && currentChapterIndex === 0) {
+    return (
+      <div className="min-h-screen bg-dark-bg flex flex-col items-center justify-center">
+        <div className="flex justify-center mt-8 m-3">
+          <div className="bg-gray-800 text-white rounded-md shadow px-3 py-4 max-w-md w-full text-center flex flex-col items-center">
+            <div className="font-bold text-base mb-1">Fin de la lecture</div>
+            <div className="text-sm text-gray-300 mb-3">
+              Il n'y a pas de chapitre suivant disponible pour le moment.
+            </div>
+            <img
+              src={logo}
+              alt="Logo WebComInk"
+              className="w-16 h-16 mt-2 opacity-80"
+            />
+          </div>
+        </div>
+        {/* Section commentaires supprimée ici pour éviter le doublon */}
+      </div>
+    );
+  }
+
   // Rendu principal
   return (
     <ChapterReaderContext.Provider
@@ -696,6 +719,8 @@ export default function ChapterReader() {
               })}
               {/* BOUTON CHAPITRE SUIVANT */}
               <NextChapterButton />
+              {/* Section commentaires sous le chapitre */}
+              <ChapterComments chapterId={chapterId} mangaId={mangaId} />
               {isMobile && (
                 <div
                   style={{
@@ -773,6 +798,7 @@ export default function ChapterReader() {
             </div>
           )}
         </div>
+        {/* Section commentaires sous le chapitre */}
       </div>
       {/* Modal settings mobile animé (plus de bouton retour au manga) */}
       <AnimatePresence>

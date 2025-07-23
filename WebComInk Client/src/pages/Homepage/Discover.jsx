@@ -8,6 +8,7 @@ import {
   filterSynopsis,
   slugify,
 } from "../../utils/mangaUtils";
+import { FaCalendarAlt } from "react-icons/fa";
 
 // Shuffle déterministe basé sur une seed (ici, la date du jour)
 function seededRandom(seed) {
@@ -182,23 +183,47 @@ export default function Discover() {
             <div className="flex flex-wrap w-full justify-center lg:justify-start gap-4 mt-2 text-sm">
               {/* Date de parution */}
               {"year" in mangaOfTheDay.originalData.attributes && (
-                <span>
+                <span className="flex items-center gap-1">
+                  <FaCalendarAlt size={14} className="text-accent" />
                   <span className="font-semibold">Parution :</span>{" "}
                   {mangaOfTheDay.originalData.attributes.year || "N/A"}
                 </span>
               )}
               {/* Statut */}
-              {"status" in mangaOfTheDay.originalData.attributes && (
-                <span>
-                  <span className="font-semibold">Statut :</span>{" "}
-                  {mangaOfTheDay.originalData.attributes.status === "ongoing"
-                    ? "En cours"
-                    : mangaOfTheDay.originalData.attributes.status ===
-                      "completed"
-                    ? "Terminé"
-                    : mangaOfTheDay.originalData.attributes.status || "N/A"}
-                </span>
-              )}
+              {"status" in mangaOfTheDay.originalData.attributes &&
+                (() => {
+                  let statusColor = "bg-gray-400";
+                  let statusText = mangaOfTheDay.originalData.attributes.status;
+                  switch (statusText) {
+                    case "ongoing":
+                      statusColor = "bg-blue-400";
+                      statusText = "En cours";
+                      break;
+                    case "completed":
+                      statusColor = "bg-green-400";
+                      statusText = "Terminé";
+                      break;
+                    case "hiatus":
+                      statusColor = "bg-orange-400";
+                      statusText = "Hiatus";
+                      break;
+                    case "cancelled":
+                      statusColor = "bg-red-500";
+                      statusText = "Annulé";
+                      break;
+                    default:
+                      statusText = statusText || "N/A";
+                  }
+                  return (
+                    <span className="flex items-center gap-1">
+                      <span
+                        className={`inline-block w-3 h-3 rounded-full ${statusColor}`}
+                      ></span>
+                      <span className="font-semibold">Statut :</span>{" "}
+                      {statusText}
+                    </span>
+                  );
+                })()}
             </div>
             <div className="flex flex-col justify-center items-center w-full gap-2 mt-4">
               <span className="w-[90%] h-[1px] bg-accent"></span>
