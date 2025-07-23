@@ -49,7 +49,7 @@ function ScrollToTop() {
         {showScrollTop && !forceHide && (
           <motion.button
             onClick={scrollToTop}
-            className="fixed bottom-36 right-6 z-50 w-14 h-14 bg-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/20 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.25)] text-white flex items-center justify-center cursor-pointer transition-all duration-300"
+            className="fixed bottom-36 right-6 md:right-10 lg:right-16 xl:right-20 z-50 w-14 h-14 bg-white/10 backdrop-blur-xl backdrop-saturate-150 border border-white/20 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.25)] text-white flex items-center justify-center cursor-pointer transition-all duration-300"
             initial={{ opacity: 0, scale: 0.5, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: 20 }}
