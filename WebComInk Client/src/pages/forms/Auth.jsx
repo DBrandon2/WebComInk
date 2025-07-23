@@ -84,7 +84,7 @@ export default function Auth() {
   });
 
   const loginForm = useForm({
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "", password: "", remember: false },
     resolver: yupResolver(loginSchema),
     mode: "onChange",
   });
@@ -103,10 +103,20 @@ export default function Auth() {
 
   async function submitLogin(values) {
     try {
-      const response = await signin(values);
+      // Passe la valeur remember au backend
+      const response = await signin({
+        email: values.email,
+        password: values.password,
+        remember: values.remember,
+      });
       if (!response.message) {
         loginForm.reset();
         toast.success("Connexion réussie");
+        if (values.remember) {
+          localStorage.setItem("rememberMe", "true");
+        } else {
+          localStorage.removeItem("rememberMe");
+        }
         login(response);
         navigate("/");
       } else {
@@ -229,6 +239,22 @@ export default function Auth() {
                 </button>
               </div>
 
+              {/* Rester connecté */}
+              <div className="flex items-center space-x-2 pt-2">
+                <input
+                  {...loginForm.register("remember")}
+                  type="checkbox"
+                  id="remember"
+                  className="w-4 h-4 text-accent bg-transparent border-2 border-accent rounded focus:ring-accent focus:ring-2 cursor-pointer"
+                />
+                <label
+                  htmlFor="remember"
+                  className="text-gray-300 text-sm cursor-pointer"
+                >
+                  Rester connecté
+                </label>
+              </div>
+
               {/* Bouton */}
               <div className="pt-4">
                 <button
@@ -323,7 +349,7 @@ export default function Auth() {
                 <input
                   {...registerForm.register("rgpd")}
                   type="checkbox"
-                  className="mt-1 w-4 h-4 text-accent bg-transparent border-2 border-gray-600 rounded focus:ring-accent focus:ring-2 cursor-pointer"
+                  className="mt-1 w-4 h-4 text-accent bg-transparent border-2 border-accent rounded focus:ring-accent focus:ring-2 cursor-pointer"
                   id="rgpd"
                 />
                 <label

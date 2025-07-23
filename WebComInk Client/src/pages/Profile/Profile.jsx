@@ -28,6 +28,10 @@ export default function Profile() {
   const inputAvatarRef = React.useRef(null);
   const [selectedAvatarFile, setSelectedAvatarFile] = useState(null);
   const [previewAvatar, setPreviewAvatar] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showFinalDeleteModal, setShowFinalDeleteModal] = useState(false);
+  const [deleteInput, setDeleteInput] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -217,6 +221,26 @@ export default function Profile() {
     }
   };
 
+  // Handler suppression de compte (à compléter avec ton API)
+  async function handleDeleteAccount() {
+    setDeleteLoading(true);
+    try {
+      // Appelle ton API de suppression ici
+      // await deleteAccount({ userId: user._id, confirmationWord: deleteInput });
+      // logout();
+      // navigate("/");
+      // Pour la démo, on ferme tout
+      setShowFinalDeleteModal(false);
+      setShowDeleteModal(false);
+      setDeleteInput("");
+      // Ajoute ici la logique de déconnexion/redirect
+    } catch (e) {
+      // Gère l'erreur
+    } finally {
+      setDeleteLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen text-white font-sans px-4 py-6 flex flex-col md:flex-row md:items-start md:justify-center md:gap-x-20">
       {/* Partie gauche : Profil & Formulaire */}
@@ -378,6 +402,13 @@ export default function Profile() {
           onClick={() => setShowEmailModal(true)}
         >
           Modifier mon email
+        </button>
+
+        <button
+          className="w-full max-w-xs border border-red-500 text-red-500 py-2 rounded font-medium hover:bg-red-500 hover:text-white transition cursor-pointer mb-3"
+          onClick={() => setShowDeleteModal(true)}
+        >
+          Supprimer mon compte
         </button>
 
         <button
@@ -611,6 +642,124 @@ export default function Profile() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Modal de suppression de compte (1) */}
+      <AnimatePresence>
+        {showDeleteModal && !showFinalDeleteModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+            <motion.div
+              className="relative"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.2 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.2 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+            >
+              <button
+                className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-2xl font-bold z-10 cursor-pointer"
+                onClick={() => setShowDeleteModal(false)}
+                aria-label="Fermer"
+              >
+                ×
+              </button>
+              <div className="bg-dark-bg rounded-lg shadow-lg p-6 w-full max-w-xs flex flex-col items-center relative">
+                <span className="text-lg font-bold text-accent mb-2">
+                  Supprimer mon compte
+                </span>
+                <p className="text-white mb-4 text-center">
+                  Pour confirmer la suppression, tape{" "}
+                  <span className="text-red-400 font-bold">supprimer</span>{" "}
+                  ci-dessous.
+                </p>
+                <input
+                  type="text"
+                  value={deleteInput}
+                  onChange={(e) => setDeleteInput(e.target.value)}
+                  className="w-full px-4 py-2 rounded bg-white text-black mb-4"
+                  placeholder="supprimer"
+                  autoFocus
+                />
+                <div className="flex gap-2 w-full">
+                  <button
+                    className="flex-1 px-3 py-2 rounded bg-gray-500 text-white hover:bg-gray-600 transition cursor-pointer"
+                    onClick={() => setShowDeleteModal(false)}
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    className="flex-1 px-3 py-2 rounded bg-red-600 text-white font-bold hover:bg-red-700 transition cursor-pointer"
+                    onClick={() => {
+                      if (deleteInput === "supprimer") {
+                        setShowDeleteModal(false);
+                        setShowFinalDeleteModal(true);
+                      }
+                    }}
+                    disabled={deleteInput !== "supprimer"}
+                  >
+                    Valider
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Modal de suppression de compte (2) */}
+      <AnimatePresence>
+        {showFinalDeleteModal && !showDeleteModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+            <motion.div
+              className="relative"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.2 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.2 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+            >
+              <button
+                className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-2xl font-bold z-10 cursor-pointer"
+                onClick={() => {
+                  setShowFinalDeleteModal(false);
+                  setShowDeleteModal(true);
+                }}
+                aria-label="Fermer"
+              >
+                ×
+              </button>
+              <div className="bg-dark-bg rounded-lg shadow-lg p-6 w-full max-w-xs flex flex-col items-center relative">
+                <span className="text-lg font-bold text-accent mb-2">
+                  Confirmation finale
+                </span>
+                <p className="text-white mb-4 text-center">
+                  Es-tu sûr de vouloir{" "}
+                  <span className="text-red-400 font-bold">
+                    supprimer définitivement
+                  </span>{" "}
+                  ton compte ?<br />
+                  Cette action est irréversible.
+                </p>
+                <div className="flex gap-2 w-full">
+                  <button
+                    className="flex-1 px-3 py-2 rounded bg-gray-500 text-white hover:bg-gray-600 transition cursor-pointer"
+                    onClick={() => {
+                      setShowFinalDeleteModal(false);
+                      setShowDeleteModal(true);
+                    }}
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    className="flex-1 px-3 py-2 rounded bg-red-600 text-white font-bold hover:bg-red-700 transition cursor-pointer"
+                    onClick={handleDeleteAccount}
+                    disabled={deleteLoading}
+                  >
+                    {deleteLoading ? "Suppression..." : "Supprimer"}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

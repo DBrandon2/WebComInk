@@ -210,13 +210,14 @@ export default function SearchBar({
         className={`h-12 bg-white/10 backdrop-blur-xl flex items-center justify-between px-3 border border-white/20 overflow-hidden transition-colors duration-200 ${
           !isOpen ? "hover:bg-white/20 cursor-pointer" : ""
         }`}
-        onClick={!isOpen ? onToggle : undefined}
-        role={!isOpen ? "button" : undefined}
-        tabIndex={!isOpen ? 0 : undefined}
-        aria-label={!isOpen ? "Ouvrir la recherche" : undefined}
       >
         {!isOpen ? (
-          <HiOutlineMagnifyingGlass className="text-white text-xl" />
+          <button
+            onClick={onToggle}
+            className="text-white text-xl cursor-pointer"
+          >
+            <HiOutlineMagnifyingGlass />
+          </button>
         ) : (
           <>
             <HiOutlineMagnifyingGlass className="text-gray-400 text-xl mr-2" />

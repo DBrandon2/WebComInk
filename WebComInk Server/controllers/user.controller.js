@@ -61,7 +61,7 @@ const verifyMail = async (req, res) => {
     await newUser.save();
     await TempUser.deleteOne({ email: tempUser.email });
     await sendValidationAccount(tempUser.email);
-    res.redirect(`${process.env.CLIENT_URL}/login?message=success`);
+    res.redirect(`${process.env.CLIENT_URL}/validation-inscription`);
   } catch (error) {
     if (
       error.name === "TokenExpiredError" ||
@@ -80,7 +80,7 @@ const verifyMail = async (req, res) => {
 
 const signin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, remember } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
       return res
@@ -94,12 +94,16 @@ const signin = async (req, res) => {
         expiresIn: "7d",
         algorithm: "HS256",
       });
-      res.cookie("token", token, {
+      // Cookie persistant si remember, sinon cookie de session
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+      };
+      if (remember) {
+        cookieOptions.maxAge = 7 * 24 * 60 * 60 * 1000;
+      }
+      res.cookie("token", token, cookieOptions);
       res.status(200).json(userWithoutPassword);
     } else {
       res.status(400).json({ message: "Email et/ou mot de passe incorrect" });

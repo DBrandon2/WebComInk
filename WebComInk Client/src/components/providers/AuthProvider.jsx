@@ -9,13 +9,19 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(initialUser);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Hydrate depuis localStorage si besoin
+  // Hydrate depuis localStorage uniquement si 'rememberMe' est présent
   useEffect(() => {
     async function hydrate() {
       if (!initialUser) {
-        const stored = localStorage.getItem("user");
-        if (stored) {
-          setUser(JSON.parse(stored));
+        if (localStorage.getItem("rememberMe") === "true") {
+          const stored = localStorage.getItem("user");
+          if (stored) {
+            setUser(JSON.parse(stored));
+          }
+        } else {
+          // Sinon, hydrate depuis le backend (session)
+          const current = await getCurrentUser();
+          if (current) setUser(current);
         }
       }
       setIsLoading(false);
@@ -24,13 +30,21 @@ export default function AuthProvider({ children }) {
   }, [initialUser]);
 
   const login = async (credentials) => {
-    setUser(credentials); // Pour compatibilité immédiate
-    localStorage.setItem("user", JSON.stringify(credentials));
+    setUser(credentials);
+    if (localStorage.getItem("rememberMe") === "true") {
+      localStorage.setItem("user", JSON.stringify(credentials));
+    } else {
+      localStorage.removeItem("user");
+    }
     // Hydrate avec le currentUser complet
     const current = await getCurrentUser();
     if (current) {
       setUser(current);
-      localStorage.setItem("user", JSON.stringify(current));
+      if (localStorage.getItem("rememberMe") === "true") {
+        localStorage.setItem("user", JSON.stringify(current));
+      } else {
+        localStorage.removeItem("user");
+      }
     }
   };
 
@@ -38,6 +52,7 @@ export default function AuthProvider({ children }) {
     await signOut();
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("rememberMe");
   };
   return (
     <AuthContext.Provider value={{ user, login, logout, setUser, isLoading }}>

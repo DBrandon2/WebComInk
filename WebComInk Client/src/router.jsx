@@ -25,6 +25,7 @@ const API = lazy(() => import("./pages/Legal/API"));
 const Contact = lazy(() => import("./pages/Legal/Contact"));
 const FAQ = lazy(() => import("./pages/Legal/FAQ"));
 const Media = lazy(() => import("./pages/Legal/Media"));
+const ValidationSuccess = lazy(() => import("./pages/Legal/ValidationSuccess"));
 // const ForgotPass = lazy(() => import("./pages/forms/Security/forgotPass"));
 // const ResetPass = lazy(() => import("./pages/forms/Security/ResetPass"));
 const ComicsDetails = lazy(() => import("./pages/Comics/ComicsDetails"));
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
       //   path: "resetpassword",
       //   element: <ResetPass />,
       // },
+      {
+        path: "/validation-inscription",
+        element: <ValidationSuccess />,
+      },
       {
         path: "/Profile",
         element: (
