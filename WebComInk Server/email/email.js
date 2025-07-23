@@ -41,8 +41,21 @@ const sendInvalidEmailToken = async (email) => {
   await transporter.sendMail(mailOptions);
 };
 
+const sendResetPasswordEmail = async (email, token) => {
+  console.log("[MAIL] Envoi reset password à :", email, "token:", token);
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Réinitialisation du mot de passe",
+    html: `<p>Pour réinitialiser votre mot de passe, cliquez sur le lien suivant : <a href="${process.env.CLIENT_URL}/resetpassword?token=${token}">Réinitialiser le mot de passe</a></p>`,
+  };
+  const info = await transporter.sendMail(mailOptions);
+  console.log("[MAIL] Résultat nodemailer :", info);
+};
+
 module.exports = {
   sendConfirmationEmail,
   sendValidationAccount,
   sendInvalidEmailToken,
+  sendResetPasswordEmail,
 };

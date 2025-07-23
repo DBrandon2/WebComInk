@@ -37,9 +37,11 @@ mongoose
   .connect(config.mongoDb.uri)
   .then(() => {
     console.log("Connexion MongoDB OK");
+    app.listen(3000, () => {
+      console.log("Serveur démarré sur le port 3000");
+    });
   })
-  .catch((err) => console.error("Erreur connexion MongoDB:", err));
-
-app.listen(3000, () => {
-  console.log("Serveur démarré sur le port 3000");
-});
+  .catch((err) => {
+    console.error("Erreur connexion MongoDB:", err);
+    process.exit(1);
+  });

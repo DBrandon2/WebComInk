@@ -26,8 +26,8 @@ const Contact = lazy(() => import("./pages/Legal/Contact"));
 const FAQ = lazy(() => import("./pages/Legal/FAQ"));
 const Media = lazy(() => import("./pages/Legal/Media"));
 const ValidationSuccess = lazy(() => import("./pages/Legal/ValidationSuccess"));
-// const ForgotPass = lazy(() => import("./pages/forms/Security/forgotPass"));
-// const ResetPass = lazy(() => import("./pages/forms/Security/ResetPass"));
+const ForgotPass = lazy(() => import("./pages/forms/Security/ForgotPass"));
+const ResetPass = lazy(() => import("./pages/forms/Security/ResetPass"));
 const ComicsDetails = lazy(() => import("./pages/Comics/ComicsDetails"));
 const ChapterReader = lazy(() => import("./pages/Comics/ChapterReader"));
 
@@ -66,14 +66,22 @@ export const router = createBrowserRouter([
           </UserNotConnected>
         ),
       },
-      // {
-      //   path: "forgot-password",
-      //   element: <ForgotPass />,
-      // },
-      // {
-      //   path: "resetpassword",
-      //   element: <ResetPass />,
-      // },
+      {
+        path: "/forgot-password",
+        element: (
+          <UserNotConnected>
+            <ForgotPass />
+          </UserNotConnected>
+        ),
+      },
+      {
+        path: "/resetpassword",
+        element: (
+          <UserNotConnected>
+            <ResetPass />
+          </UserNotConnected>
+        ),
+      },
       {
         path: "/validation-inscription",
         element: <ValidationSuccess />,

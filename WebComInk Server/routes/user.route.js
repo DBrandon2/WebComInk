@@ -22,6 +22,8 @@ const {
   getReadingHistory,
   getLastReadChapter,
   clearReadingHistory,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/user.controller");
 
 const router = require("express").Router();
@@ -29,6 +31,8 @@ const router = require("express").Router();
 // POST
 router.post("/register", signup);
 router.post("/login", signin);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
 router.post("/favorites", addFavorite);
 router.post("/custom-categories", addCustomCategory);
 router.post("/request-email-change", requestEmailChange);

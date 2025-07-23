@@ -5,6 +5,7 @@ const {
   sendConfirmationEmail,
   sendValidationAccount,
   sendInvalidEmailToken,
+  sendResetPasswordEmail,
 } = require("../email/email");
 const TempUser = require("../models/tempuser.schema");
 const bcryptjs = require("bcryptjs");
@@ -755,6 +756,54 @@ const clearReadingHistory = async (req, res) => {
   }
 };
 
+// --- Mot de passe oublié ---
+const forgotPassword = async (req, res) => {
+  console.log("[FORGOT] Appel API reçu avec body :", req.body);
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Pour la sécurité, on ne précise pas si l'email existe ou non
+      return res
+        .status(200)
+        .json({ message: "Si ce mail existe, un lien a été envoyé." });
+    }
+    const token = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 1000 * 60 * 30; // 30 min
+    await user.save();
+    await sendResetPasswordEmail(email, token);
+    res
+      .status(200)
+      .json({ message: "Si ce mail existe, un lien a été envoyé." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+// --- Réinitialisation du mot de passe ---
+const resetPassword = async (req, res) => {
+  const { token, password } = req.body;
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+      return res.status(400).json({ message: "Lien invalide ou expiré." });
+    }
+    user.password = await bcrypt.hash(password, 10);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+    res.status(200).json({ message: "Mot de passe réinitialisé avec succès." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
 module.exports = {
   signup,
   signin,
@@ -779,4 +828,6 @@ module.exports = {
   getReadingHistory,
   getLastReadChapter,
   clearReadingHistory,
+  forgotPassword,
+  resetPassword,
 };

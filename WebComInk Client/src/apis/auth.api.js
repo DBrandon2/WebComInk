@@ -203,3 +203,37 @@ export async function getLastReadChapter(mangaId) {
     throw error;
   }
 }
+
+// --- Mot de passe oublié ---
+export async function forgotPassword(email) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/forgot-password`, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+// --- Réinitialisation du mot de passe ---
+export async function resetPassword({ token, password }) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/reset-password`, {
+      method: "POST",
+      body: JSON.stringify({ token, password }),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
