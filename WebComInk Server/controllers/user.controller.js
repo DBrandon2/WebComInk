@@ -390,7 +390,7 @@ const saveFavoritesOrder = async (req, res) => {
 // --- Catégories personnalisées ---
 const getCustomCategories = async (req, res) => {
   try {
-    const { token } = req.cookies;
+    const token = getTokenFromRequest(req);
     if (!token) return res.status(401).json({ message: "Non autorisé" });
     const decodedToken = jsonwebtoken.verify(token, SECRET_KEY);
     const user = await User.findById(decodedToken.sub);
