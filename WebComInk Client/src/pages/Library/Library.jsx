@@ -414,40 +414,78 @@ export default function Library() {
   // Désormais, toutes les catégories viennent du backend (customCategories)
   const allCategories = customCategories.map((cat) => [cat, cat]);
 
+  // Affichage debug pour mobile/iPad (affiche les données reçues)
+  const debugStyle = {
+    background: "#222",
+    color: "#edf060",
+    padding: 8,
+    fontSize: 12,
+    marginBottom: 16,
+    borderRadius: 8,
+    maxHeight: 200,
+    overflow: "auto",
+    wordBreak: "break-all",
+    zIndex: 9999,
+  };
+
+  // Fallback : si aucune catégorie, on affiche tous les mangas
+  const hasCategories = customCategories && customCategories.length > 0;
+  const mangasToShow = hasCategories
+    ? filteredFavorites.filter((manga) => (manga.status || "en-cours") === tab)
+    : favorites;
+
   return (
     <div className="container mx-auto p-4 mt-12">
+      {/* Affichage debug pour iPad/mobile */}
+      <div style={debugStyle}>
+        <div>
+          <b>Favoris (raw):</b> {JSON.stringify(favorites)}
+        </div>
+        <div>
+          <b>Catégories personnalisées:</b> {JSON.stringify(customCategories)}
+        </div>
+        <div>
+          <b>Tab sélectionné:</b> {tab}
+        </div>
+      </div>
       <TopBarMobile />
       {/* Onglets de tri dynamiques */}
-      <div className="flex items-center justify-center mb-4">
-        <div className="flex gap-4 sm:gap-4 items-center overflow-x-auto whitespace-nowrap px-4 sm:px-8 py-4 scrollbar-none w-full min-w-0 ">
-          {allCategories.map(([key, label]) => (
-            <motion.button
-              key={key}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-              className={`px-6 py-3 text-sm sm:px-5 sm:py-2 sm:text-base rounded-md font-semibold border-1 shadow flex items-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 cursor-pointer
-                ${
-                  tab === key
-                    ? "bg-accent text-dark-bg border-accent"
-                    : "bg-accent-hover text-accent border-accent "
-                }`}
-              onClick={() => setTab(key)}
+      {hasCategories ? (
+        <div className="flex items-center justify-center mb-4">
+          <div className="flex gap-4 sm:gap-4 items-center overflow-x-auto whitespace-nowrap px-4 sm:px-8 py-4 scrollbar-none w-full min-w-0 ">
+            {customCategories.map((key) => (
+              <motion.button
+                key={key}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                className={`px-6 py-3 text-sm sm:px-5 sm:py-2 sm:text-base rounded-md font-semibold border-1 shadow flex items-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 cursor-pointer
+                  ${
+                    tab === key
+                      ? "bg-accent text-dark-bg border-accent"
+                      : "bg-accent-hover text-accent border-accent "
+                  }`}
+                onClick={() => setTab(key)}
+              >
+                {key}
+              </motion.button>
+            ))}
+            {/* Bouton + pour ajouter une catégorie */}
+            <button
+              onClick={handleOpenAddCategory}
+              className="w-8 h-8 text-xl sm:w-10 sm:h-10 sm:text-2xl rounded hover:bg-accent-hover text-accent leading-none flex items-center justify-center transition ml-1 sm:ml-2 p-0 cursor-pointer"
+              title="Ajouter une catégorie"
             >
-              {label}
-            </motion.button>
-          ))}
-          {/* Bouton + pour ajouter une catégorie */}
-          <button
-            onClick={handleOpenAddCategory}
-            className="w-8 h-8 text-xl sm:w-10 sm:h-10 sm:text-2xl rounded hover:bg-accent-hover text-accent leading-none flex items-center justify-center transition ml-1 sm:ml-2 p-0 cursor-pointer"
-            title="Ajouter une catégorie"
-          >
-            <span className="relative -top-0.5">+</span>
-          </button>
+              <span className="relative -top-0.5">+</span>
+            </button>
+          </div>
         </div>
-        {/* Boutons de gestion de catégorie personnalisée */}
-        {/* SUPPRIMÉ : zone des boutons de modification/suppression dans la barre d'onglets */}
-      </div>
+      ) : (
+        <div className="text-center text-accent font-bold mb-6">
+          Aucune catégorie personnalisée trouvée. Tous les mangas sont affichés.
+        </div>
+      )}
+      {/* Boutons de gestion de catégorie personnalisée */}
+      {/* SUPPRIMÉ : zone des boutons de modification/suppression dans la barre d'onglets */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-bold mb-4 sm:mb-0">
           Ma Bibliothèque ({favorites.length} manga
@@ -558,7 +596,7 @@ export default function Library() {
           strategy={rectSortingStrategy}
         >
           <div className="library-grid-container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-6 w-full">
-            {filteredFavorites.map((manga, index) => (
+            {mangasToShow.map((manga, index) => (
               <SortableMangaCard
                 key={manga.mangaId}
                 manga={manga}
@@ -571,10 +609,10 @@ export default function Library() {
         </SortableContext>
       </DndContext>
 
-      {/* Message si aucun manga dans l'onglet */}
-      {filteredByTab.length === 0 && (
+      {/* Message si aucun manga dans l'onglet ou dans la bibliothèque */}
+      {mangasToShow.length === 0 && (
         <div className="text-center py-12 text-gray-500">
-          Aucun manga dans cet onglet.
+          Aucun manga à afficher dans cette catégorie ou bibliothèque vide.
         </div>
       )}
 
