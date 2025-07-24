@@ -114,8 +114,11 @@ export async function saveFavoritesOrder(category, mangaIds) {
 // --- Catégories personnalisées ---
 export async function getCustomCategories() {
   try {
+    const token = localStorage.getItem("jwt_token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
     const res = await axios.get(`${API_BASE_URL}/user/custom-categories`, {
-      withCredentials: true,
+      withCredentials: !token,
+      headers,
     });
     return res.data;
   } catch (error) {
