@@ -436,18 +436,6 @@ export default function Library() {
 
   return (
     <div className="container mx-auto p-4 mt-12">
-      {/* Affichage debug pour iPad/mobile */}
-      <div style={debugStyle}>
-        <div>
-          <b>Favoris (raw):</b> {JSON.stringify(favorites)}
-        </div>
-        <div>
-          <b>Catégories personnalisées:</b> {JSON.stringify(customCategories)}
-        </div>
-        <div>
-          <b>Tab sélectionné:</b> {tab}
-        </div>
-      </div>
       <TopBarMobile />
       {/* Onglets de tri dynamiques */}
       {hasCategories ? (
