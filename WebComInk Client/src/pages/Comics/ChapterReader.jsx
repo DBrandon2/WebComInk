@@ -24,6 +24,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { markChapterAsRead } from "../../apis/auth.api";
 import { getMangaById } from "../../utils/mangaUtils";
 import ChapterComments from "../../components/shared/ChapterComments";
+import ReactDOM from "react-dom";
+import CustomSelect from "../../components/shared/CustomSelect";
+import { useMotionValue, useAnimation } from "framer-motion";
 
 // Créer le contexte
 export const ChapterReaderContext = createContext();
@@ -66,6 +69,17 @@ export default function ChapterReader() {
   const [modalOrigin, setModalOrigin] = useState({ x: 0, y: 0 });
   const [isTitleLoading, setIsTitleLoading] = useState(false);
 
+  // Index de la page actuelle pour les modes manga et comics
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  // Pour l'animation de swipe
+  const [swipeDirection, setSwipeDirection] = useState(0);
+  const [animPageIndex, setAnimPageIndex] = useState(currentPageIndex);
+  // Pour le swipe animé façon carrousel
+  const x = useMotionValue(0);
+  const controls = useAnimation();
+  const [isDragging, setIsDragging] = useState(false);
+  const SWIPE_THRESHOLD = 80;
+
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   // Récupérer le mode de settings (global ou individuel)
@@ -92,6 +106,21 @@ export default function ChapterReader() {
     return 0;
   });
 
+  // Initialisation du mode de lecture
+  const [readingMode, setReadingMode] = useState(() => {
+    if (typeof window === "undefined") return "webtoon";
+    const mangaId = window.location.pathname.split("/")[3];
+    let mode = "webtoon";
+    if (readerSettingsMode === "per-manga" && mangaId) {
+      mode = localStorage.getItem(`readingMode_${mangaId}`);
+    } else {
+      mode = localStorage.getItem("readingMode");
+    }
+    return mode && ["webtoon", "manga", "comics"].includes(mode)
+      ? mode
+      : "webtoon";
+  });
+
   // Sauvegarder la marge dans la bonne clé selon le mode (toujours de 0 à 100)
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -104,13 +133,25 @@ export default function ChapterReader() {
     }
   }, [readerMargin, readerSettingsMode]);
 
+  // Sauvegarder le mode de lecture dans la bonne clé selon le mode
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mangaId = window.location.pathname.split("/")[3];
+    if (readerSettingsMode === "per-manga" && mangaId) {
+      localStorage.setItem(`readingMode_${mangaId}`, readingMode);
+    } else {
+      localStorage.setItem("readingMode", readingMode);
+    }
+  }, [readingMode, readerSettingsMode]);
+
   // Hook useDrag (mobile only)
   const isMobile =
     typeof window !== "undefined" &&
     window.matchMedia("(pointer: coarse)").matches;
+  // Drag vertical (pull-to-refresh) uniquement en mode webtoon
   const bind = useDrag(
     ({ down, movement: [, my], last, event }) => {
-      if (!isMobile) return;
+      if (!isMobile || readingMode !== "webtoon") return;
       const scrollTop = window.scrollY;
       const docHeight =
         document.documentElement.scrollHeight - window.innerHeight;
@@ -141,8 +182,100 @@ export default function ChapterReader() {
         setPullHeight(0);
       }
     },
+    { pointer: { touch: true }, enabled: isMobile && readingMode === "webtoon" }
+  );
+
+  const bindSwipe = useDrag(
+    ({ down, movement: [mx], last }) => {
+      if (!isMobile || readingMode === "webtoon") return;
+      setIsDragging(down);
+      x.set(down ? mx : 0);
+      if (down) return;
+      // Fin du drag
+      if (Math.abs(mx) > SWIPE_THRESHOLD) {
+        // Swipe validé
+        if (mx < 0) {
+          // Swipe gauche → page suivante (manga = droite, comics = droite)
+          if (
+            (readingMode === "manga" && currentPageIndex > 0) ||
+            (readingMode !== "manga" &&
+              currentPageIndex < chapterImages.length - 1)
+          ) {
+            controls
+              .start({
+                x: -window.innerWidth,
+                opacity: 0,
+                transition: { duration: 0.18, ease: "linear" },
+              })
+              .then(() => {
+                x.set(0);
+                if (readingMode === "manga") {
+                  goToPreviousPage();
+                } else {
+                  goToNextPage();
+                }
+                controls.set({ x: window.innerWidth, opacity: 0 });
+                controls.start({
+                  x: 0,
+                  opacity: 1,
+                  transition: { duration: 0.18, ease: "linear" },
+                });
+              });
+          } else {
+            controls.start({
+              x: 0,
+              transition: { duration: 0.18, ease: "linear" },
+            });
+          }
+        } else {
+          // Swipe droite → page précédente (manga = gauche, comics = gauche)
+          if (
+            (readingMode === "manga" &&
+              currentPageIndex < chapterImages.length - 1) ||
+            (readingMode !== "manga" && currentPageIndex > 0)
+          ) {
+            controls
+              .start({
+                x: window.innerWidth,
+                opacity: 0,
+                transition: { duration: 0.18, ease: "linear" },
+              })
+              .then(() => {
+                x.set(0);
+                if (readingMode === "manga") {
+                  goToNextPage();
+                } else {
+                  goToPreviousPage();
+                }
+                controls.set({ x: -window.innerWidth, opacity: 0 });
+                controls.start({
+                  x: 0,
+                  opacity: 1,
+                  transition: { duration: 0.18, ease: "linear" },
+                });
+              });
+          } else {
+            controls.start({
+              x: 0,
+              transition: { duration: 0.18, ease: "linear" },
+            });
+          }
+        }
+      } else {
+        // Swipe trop court, retour à la position initiale
+        controls.start({
+          x: 0,
+          transition: { duration: 0.18, ease: "linear" },
+        });
+      }
+    },
     { pointer: { touch: true }, enabled: isMobile }
   );
+
+  // Synchronise l'index d'image pour l'animation
+  useEffect(() => {
+    setAnimPageIndex(currentPageIndex);
+  }, [currentPageIndex]);
 
   // Récupération des métadonnées du chapitre
   useEffect(() => {
@@ -305,6 +438,30 @@ export default function ChapterReader() {
     navigate(`/Comics/${mangaId}/${slug}/chapter/${chapterId}`);
     setShowChapterSelector(false);
   };
+
+  // Navigation des pages pour les modes manga et comics
+  const goToNextPage = () => {
+    if (currentPageIndex < chapterImages.length - 1) {
+      setCurrentPageIndex(currentPageIndex + 1);
+    } else {
+      // Fin du chapitre, passer au chapitre suivant
+      goToNextChapter();
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPageIndex > 0) {
+      setCurrentPageIndex(currentPageIndex - 1);
+    } else {
+      // Début du chapitre, passer au chapitre précédent
+      goToPreviousChapter();
+    }
+  };
+
+  // Reset de l'index de page lors du changement de chapitre
+  useEffect(() => {
+    setCurrentPageIndex(0);
+  }, [chapterId]);
 
   // Filtrer les chapitres pour la recherche
   const filteredChapters = allChapters.filter((ch) => {
@@ -470,19 +627,53 @@ export default function ChapterReader() {
       // Ignorer si on est dans un input
       if (e.target.tagName === "INPUT") return;
 
-      if (e.key === "ArrowDown" || e.key === "PageDown") {
-        e.preventDefault();
-        window.scrollBy({ top: window.innerHeight * 0.8, behavior: "smooth" });
-      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
-        e.preventDefault();
-        window.scrollBy({ top: -window.innerHeight * 0.8, behavior: "smooth" });
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        goToPreviousChapter();
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        goToNextChapter();
-      } else if (e.key === "c" || e.key === "C") {
+      if (readingMode === "webtoon") {
+        // Mode webtoon : navigation verticale
+        if (e.key === "ArrowDown" || e.key === "PageDown") {
+          e.preventDefault();
+          window.scrollBy({
+            top: window.innerHeight * 0.8,
+            behavior: "smooth",
+          });
+        } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+          e.preventDefault();
+          window.scrollBy({
+            top: -window.innerHeight * 0.8,
+            behavior: "smooth",
+          });
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          goToPreviousChapter();
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          goToNextChapter();
+        }
+      } else {
+        // Modes manga et comics : navigation page par page
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          if (readingMode === "manga") {
+            goToNextPage(); // Manga : gauche = suivant
+          } else {
+            goToPreviousPage(); // Comics : gauche = précédent
+          }
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          if (readingMode === "manga") {
+            goToPreviousPage(); // Manga : droite = précédent
+          } else {
+            goToNextPage(); // Comics : droite = suivant
+          }
+        } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+          e.preventDefault();
+          goToPreviousPage();
+        } else if (e.key === "ArrowDown" || e.key === "PageDown") {
+          e.preventDefault();
+          goToNextPage();
+        }
+      }
+
+      if (e.key === "c" || e.key === "C") {
         e.preventDefault();
         setShowChapterSelector(true);
       } else if (e.key === "Escape") {
@@ -492,7 +683,132 @@ export default function ChapterReader() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentChapterIndex, allChapters.length]);
+  }, [
+    currentChapterIndex,
+    allChapters.length,
+    readingMode,
+    currentPageIndex,
+    chapterImages.length,
+  ]);
+
+  // --- Carrousel façon Tachiyomi ---
+  const BUFFER_SIZE = 2; // nombre d'images avant/après à bufferiser
+  // Calcule le buffer d'index autour de la page courante
+  const getBufferIndexes = () => {
+    const indexes = [];
+    for (let i = -BUFFER_SIZE; i <= BUFFER_SIZE; i++) {
+      const idx = currentPageIndex + i;
+      if (idx >= 0 && idx < chapterImages.length) indexes.push(idx);
+    }
+    return indexes;
+  };
+  const bufferIndexes = getBufferIndexes();
+
+  // Préchargement des images du buffer
+  useEffect(() => {
+    bufferIndexes.forEach((idx) => {
+      const url = chapterImages[idx];
+      if (!url) return;
+      const img = new window.Image();
+      img.src = `${API_BASE_URL}/proxy/image?url=${encodeURIComponent(url)}`;
+    });
+  }, [currentPageIndex, chapterImages]);
+
+  // Carrousel horizontal
+  const [carouselX, setCarouselX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const carouselRef = useRef();
+
+  // Largeur d'une page (en px)
+  const getPageWidth = () => {
+    if (!carouselRef.current) return window.innerWidth;
+    return carouselRef.current.offsetWidth;
+  };
+
+  // Snap à la page la plus proche
+  const snapToPage = (targetIdx) => {
+    setCarouselX(-getPageWidth() * (targetIdx - bufferIndexes[0]));
+  };
+
+  // Drag/swipe natif
+  const bindTachiSwipe = useDrag(
+    ({ down, movement: [mx], velocity, direction: [dx], last }) => {
+      if (!isMobile || readingMode === "webtoon") return;
+      setDragging(down);
+      const pageWidth = getPageWidth();
+      // Position du carrousel pendant le drag
+      if (down) {
+        setCarouselX(-pageWidth * (currentPageIndex - bufferIndexes[0]) + mx);
+      } else {
+        // Fin du drag : snap à la page la plus proche
+        let newIdx = currentPageIndex;
+        if (Math.abs(mx) > pageWidth * 0.18 || velocity > 0.5) {
+          // Si on est à la dernière page et swipe vers la droite (ou gauche en manga), on change de chapitre SANS animation de slide
+          if (mx < 0) {
+            if (
+              currentPageIndex === chapterImages.length - 1 &&
+              allChapters &&
+              currentChapterIndex > 0
+            ) {
+              // Dernière page, swipe vers la droite → chapitre suivant
+              const nextChapter = allChapters[currentChapterIndex - 1];
+              if (nextChapter) {
+                navigate(
+                  `/Comics/${mangaId}/${slug}/chapter/${nextChapter.id}`
+                );
+                return;
+              }
+            } else if (currentPageIndex < chapterImages.length - 1) {
+              newIdx = currentPageIndex + 1;
+            }
+          } else if (mx > 0) {
+            if (
+              currentPageIndex === 0 &&
+              allChapters &&
+              currentChapterIndex < allChapters.length - 1
+            ) {
+              // Première page, swipe vers la gauche → chapitre précédent
+              const prevChapter = allChapters[currentChapterIndex + 1];
+              if (prevChapter) {
+                navigate(
+                  `/Comics/${mangaId}/${slug}/chapter/${prevChapter.id}`
+                );
+                return;
+              }
+            } else if (currentPageIndex > 0) {
+              newIdx = currentPageIndex - 1;
+            }
+          }
+        }
+        // Animation douce vers la page cible (sauf si on change de chapitre)
+        if (newIdx !== currentPageIndex) {
+          const targetX = -pageWidth * (newIdx - bufferIndexes[0]);
+          const anim = {
+            x: targetX,
+            transition: { duration: 0.22, ease: "easeOut" },
+          };
+          setCarouselX(targetX);
+          controls.start(anim);
+          setTimeout(() => setCurrentPageIndex(newIdx), 120);
+        } else {
+          // Snap retour si pas de changement de page
+          const targetX = -pageWidth * (currentPageIndex - bufferIndexes[0]);
+          const anim = {
+            x: targetX,
+            transition: { duration: 0.22, ease: "easeOut" },
+          };
+          setCarouselX(targetX);
+          controls.start(anim);
+        }
+      }
+    },
+    { pointer: { touch: true }, enabled: isMobile && readingMode !== "webtoon" }
+  );
+
+  // Met à jour la position du carrousel quand la page change
+  useEffect(() => {
+    setCarouselX(-getPageWidth() * (currentPageIndex - bufferIndexes[0]));
+  }, [currentPageIndex, chapterImages.length]);
 
   if (loading) {
     return (
@@ -567,7 +883,7 @@ export default function ChapterReader() {
               : "opacity-0 pointer-events-none"
           }`}
         >
-          <div className="w-full px-3 md:px-16 py-2 md:py-3 relative">
+          <div className="w-full px-3 md:px-16 py-2 md:py-3 relative flex flex-col gap-2">
             {/* Top bar responsive */}
             {/* Mobile : tout sur une ligne */}
             <div className="flex items-center w-full justify-between gap-x-2 md:hidden">
@@ -726,38 +1042,22 @@ export default function ChapterReader() {
             <div className="text-center text-gray-400 py-12">
               Aucune image trouvée pour ce chapitre.
             </div>
-          ) : (
-            <div
-              className="px-0 lg:px-32 xl:px-56 2xl:px-80"
-              style={{
-                paddingBottom: pullHeight > 0 ? 64 + pullHeight : 64,
-                willChange: "padding-bottom",
-                transition: pullHeight > 0 ? "none" : "padding-bottom 0.3s",
-              }}
-            >
+          ) : readingMode === "webtoon" ? (
+            <div className="px-0 lg:px-32 xl:px-56 2xl:px-80">
               {chapterImages.map((imageUrl, index) => {
                 const proxiedUrl = `${API_BASE_URL}/proxy/image?url=${encodeURIComponent(
                   imageUrl
                 )}`;
-                const marginValue = (readerMargin / 100) * 70; // mapping 0-100% slider vers 0-70% réel
+                const marginValue = (readerMargin / 100) * 70;
                 return (
                   <div
                     key={index}
-                    className="relative w-full flex items-start justify-center"
+                    className="relative w-full flex items-start justify-center mb-4"
                   >
                     <img
                       src={proxiedUrl}
-                      onLoad={() => {
-                        console.log("Image chargée", index, imageUrl);
-                        handleImageLoad(index);
-                        setLoadedPages((prev) => new Set([...prev, index]));
-                      }}
+                      onLoad={() => handleImageLoad(index)}
                       onError={(e) => {
-                        console.error(
-                          "Erreur chargement image",
-                          index,
-                          imageUrl
-                        );
                         handleImageError(index);
                         e.target.src = "/default-placeholder.png";
                       }}
@@ -778,217 +1078,353 @@ export default function ChapterReader() {
                   </div>
                 );
               })}
-              {/* BOUTON CHAPITRE SUIVANT */}
-              <NextChapterButton />
-              {/* Section commentaires sous le chapitre */}
-              <ChapterComments chapterId={chapterId} mangaId={mangaId} />
-              {isMobile && (
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center w-full min-h-[60vh]">
+              {/* Indicateur de page */}
+              <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 bg-dark-bg/80 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
+                Page {currentPageIndex + 1} / {chapterImages.length}
+              </div>
+              {/* Conteneur de l'image avec navigation */}
+              <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center">
+                {/* Image principale plein écran */}
                 <div
-                  style={{
-                    height: 64,
-                    width: "100%",
-                    overflow: "visible",
-                    display: "flex",
-                    alignItems: "flex-end",
-                    justifyContent: "center",
-                    marginTop: 48,
-                    pointerEvents: "auto",
-                  }}
+                  className="relative flex items-center justify-center w-full overflow-hidden"
+                  style={{ height: "calc(100vh - 96px)" }}
+                  ref={carouselRef}
+                  {...(isMobile ? bindTachiSwipe() : {})}
                 >
-                  <div
+                  <motion.div
+                    className="flex h-full"
+                    animate={{ x: carouselX }}
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      width: "100%",
+                      width: `${bufferIndexes.length * 100}%`,
+                      height: "100%",
+                    }}
+                    transition={{
+                      duration: dragging ? 0 : 0.22,
+                      ease: "easeOut",
                     }}
                   >
-                    <svg
-                      width="64"
-                      height="64"
-                      viewBox="0 0 64 64"
-                      className="drop-shadow-lg"
-                    >
-                      <circle
-                        cx="32"
-                        cy="32"
-                        r="28"
-                        fill="#18181b"
-                        stroke={
-                          pullHeight >= triggerPull ? "#38d46a" : "#edf060"
-                        }
-                        strokeWidth="4"
-                        opacity="0.7"
-                      />
-                      <circle
-                        cx="32"
-                        cy="32"
-                        r="28"
-                        fill="none"
-                        stroke={
-                          pullHeight >= triggerPull ? "#38d46a" : "#edf060"
-                        }
-                        strokeWidth="6"
-                        strokeDasharray={2 * Math.PI * 28}
-                        strokeDashoffset={
-                          2 *
-                          Math.PI *
-                          28 *
-                          Math.max(0, 1 - Math.min(1, pullHeight / triggerPull))
-                        }
-                        style={{
-                          stroke:
-                            pullHeight >= triggerPull ? "#38d46a" : "#edf060",
-                        }}
-                      />
-                    </svg>
-                    <span
-                      className={`mt-1 text-xs font-semibold drop-shadow ${
-                        pullHeight >= triggerPull
-                          ? "text-green-400"
-                          : "text-accent"
-                      }`}
-                    >
-                      {pullHeight >= triggerPull
-                        ? "Relâcher pour passer au chapitre suivant !"
-                        : "Tirer pour chapitre suivant…"}
-                    </span>
-                  </div>
+                    {bufferIndexes.map((idx) => (
+                      <div
+                        key={idx}
+                        className="flex-shrink-0 flex-grow-0 w-full h-full flex items-center justify-center"
+                      >
+                        {chapterImages[idx] && (
+                          <img
+                            src={`${API_BASE_URL}/proxy/image?url=${encodeURIComponent(
+                              chapterImages[idx]
+                            )}`}
+                            onLoad={() => {
+                              handleImageLoad(idx);
+                              setLoadedPages((prev) => new Set([...prev, idx]));
+                            }}
+                            onError={(e) => {
+                              handleImageError(idx);
+                              e.target.src = "/default-placeholder.png";
+                            }}
+                            alt={`Page ${idx + 1}`}
+                            draggable="false"
+                            style={{
+                              height: "100%",
+                              maxHeight: "100%",
+                              width: "auto",
+                              objectFit: "contain",
+                              cursor: "pointer",
+                            }}
+                            className="mx-auto"
+                            onClick={(e) => {
+                              if (dragging) return;
+                              if (idx !== currentPageIndex) return;
+                              const rect =
+                                e.currentTarget.getBoundingClientRect();
+                              const clickX = e.clientX - rect.left;
+                              const width = rect.width;
+                              if (clickX < width / 3) {
+                                // Clic gauche
+                                if (readingMode === "manga") {
+                                  goToNextPage();
+                                } else {
+                                  goToPreviousPage();
+                                }
+                              } else if (clickX > (2 * width) / 3) {
+                                // Clic droit
+                                if (readingMode === "manga") {
+                                  goToPreviousPage();
+                                } else {
+                                  goToNextPage();
+                                }
+                              } else {
+                                // Clic centre
+                                setShowHeader((h) => !h);
+                              }
+                            }}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </motion.div>
                 </div>
-              )}
+              </div>
+            </div>
+          )}
+          {/* BOUTON CHAPITRE SUIVANT */}
+          <NextChapterButton />
+          {/* Section commentaires sous le chapitre */}
+          <ChapterComments chapterId={chapterId} mangaId={mangaId} />
+          {/* Interface mobile pour pull-to-refresh (uniquement en mode webtoon) */}
+          {isMobile && readingMode === "webtoon" && (
+            <div
+              style={{
+                height: 64,
+                width: "100%",
+                overflow: "visible",
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "center",
+                marginTop: 48,
+                pointerEvents: "auto",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  width: "100%",
+                }}
+              >
+                <svg
+                  width="64"
+                  height="64"
+                  viewBox="0 0 64 64"
+                  className="drop-shadow-lg"
+                >
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r="28"
+                    fill="#18181b"
+                    stroke={pullHeight >= triggerPull ? "#38d46a" : "#edf060"}
+                    strokeWidth="4"
+                    opacity="0.7"
+                  />
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r="28"
+                    fill="none"
+                    stroke={pullHeight >= triggerPull ? "#38d46a" : "#edf060"}
+                    strokeWidth="6"
+                    strokeDasharray={2 * Math.PI * 28}
+                    strokeDashoffset={
+                      2 *
+                      Math.PI *
+                      28 *
+                      Math.max(0, 1 - Math.min(1, pullHeight / triggerPull))
+                    }
+                    style={{
+                      stroke: pullHeight >= triggerPull ? "#38d46a" : "#edf060",
+                    }}
+                  />
+                </svg>
+                <span
+                  className={`mt-1 text-xs font-semibold drop-shadow ${
+                    pullHeight >= triggerPull ? "text-green-400" : "text-accent"
+                  }`}
+                >
+                  {pullHeight >= triggerPull
+                    ? "Relâcher pour passer au chapitre suivant !"
+                    : "Tirer pour chapitre suivant…"}
+                </span>
+              </div>
             </div>
           )}
         </div>
-        {/* Section commentaires sous le chapitre */}
       </div>
-      {/* Modal settings mobile animé (plus de bouton retour au manga) */}
-      <AnimatePresence>
-        {isMobile && settingsOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-            onClick={() => setSettingsOpen(false)}
+      {/* Modale de paramètres (settings) */}
+      {settingsOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setSettingsOpen(false)}
+        >
+          <div
+            className="bg-dark-bg rounded-xl shadow-2xl p-6 w-full max-w-sm relative mx-2 flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              initial={{
-                opacity: 0,
-                scale: 0.85,
-                x: modalOrigin.x,
-                y: modalOrigin.y,
-              }}
-              animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-              exit={{
-                opacity: 0,
-                scale: 0.85,
-                x: modalOrigin.x,
-                y: modalOrigin.y,
-              }}
-              transition={{ type: "spring", stiffness: 320, damping: 28 }}
-              className="bg-dark-bg rounded-xl shadow-2xl p-6 w-full max-w-xs relative mx-2 flex flex-col items-center"
-              onClick={(e) => e.stopPropagation()}
+            <button
+              className="absolute top-2 right-2 text-accent text-xl font-bold hover:text-white transition cursor-pointer"
+              onClick={() => setSettingsOpen(false)}
+              aria-label="Fermer"
             >
-              <button
-                className="absolute top-2 right-2 text-accent text-xl font-bold hover:text-white transition cursor-pointer"
-                onClick={() => setSettingsOpen(false)}
-                aria-label="Fermer"
-              >
-                ×
-              </button>
-
-              {/* Titre du modal */}
-              <h3 className="text-white text-lg font-semibold mb-6 mt-2">
-                Paramètres du lecteur
-              </h3>
-
-              {/* Slider pour les marges */}
-              <div className="w-full space-y-4">
-                <SliderSetting
-                  label="Marge latérale"
-                  value={readerMargin}
-                  onChange={setReaderMargin}
-                  min={0}
-                  max={100}
-                  step={1}
-                  unit=""
-                  description="Ajuste l'espace sur les côtés des images (0 = aucune marge, 20 = image réduite à 30% de sa largeur)"
-                  formatValue={(val) => `${Math.round((val / 100) * 20)}/20`}
+              ×
+            </button>
+            <h3 className="text-white text-lg font-semibold mb-6 mt-2">
+              Paramètres du lecteur
+            </h3>
+            <div className="w-full space-y-6">
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="readingMode"
+                  className="text-white font-medium text-sm mb-1"
+                >
+                  Mode de lecture
+                </label>
+                <CustomSelect
+                  options={[
+                    { value: "webtoon", label: "Webtoon (vertical)" },
+                    { value: "manga", label: "Manga (droite → gauche)" },
+                    { value: "comics", label: "Comics (gauche → droite)" },
+                  ]}
+                  value={readingMode}
+                  onChange={setReadingMode}
+                  className="min-w-[220px] max-w-[520px] w-full"
                 />
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Modal settings desktop */}
-      <AnimatePresence>
-        {!isMobile && settingsOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-            onClick={() => setSettingsOpen(false)}
-          >
-            <motion.div
-              initial={{
-                opacity: 0,
-                scale: 0.85,
-                x: modalOrigin.x,
-                y: modalOrigin.y,
-              }}
-              animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-              exit={{
-                opacity: 0,
-                scale: 0.85,
-                x: modalOrigin.x,
-                y: modalOrigin.y,
-              }}
-              transition={{ type: "spring", stiffness: 320, damping: 28 }}
-              className="bg-dark-bg rounded-xl shadow-2xl p-8 w-full max-w-md relative mx-4 flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="absolute top-3 right-3 text-accent text-xl font-bold hover:text-white transition cursor-pointer"
-                onClick={() => setSettingsOpen(false)}
-                aria-label="Fermer"
-              >
-                ×
-              </button>
-
-              {/* Titre du modal */}
-              <h3 className="text-white text-xl font-semibold mb-8 mt-2">
-                Paramètres du lecteur
-              </h3>
-
-              {/* Slider pour les marges */}
-              <div className="w-full space-y-6">
-                <SliderSetting
-                  label="Marge latérale"
-                  value={readerMargin}
-                  onChange={setReaderMargin}
-                  min={0}
-                  max={100}
-                  step={1}
-                  unit=""
-                  description="Ajuste l'espace sur les côtés des images"
-                  formatValue={(val) =>
-                    val === 0
-                      ? "Aucune"
-                      : val === 100
-                      ? "Maximum"
-                      : `${Math.round(val / 5)}/20`
-                  }
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <SliderSetting
+                label="Marge latérale"
+                value={readerMargin}
+                onChange={setReaderMargin}
+                min={0}
+                max={100}
+                step={1}
+                unit=""
+                description="Ajuste l'espace sur les côtés des images (0 = aucune marge, 20 = image réduite à 30% de sa largeur)"
+                formatValue={(val) => `${Math.round((val / 100) * 20)}/20`}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </ChapterReaderContext.Provider>
+  );
+}
+
+// Composant ReadingModeSelector pour choisir le mode de lecture
+function ReadingModeSelector({ value, onChange }) {
+  // Options de mode de lecture
+  const modes = [
+    { value: "webtoon", label: "Webtoon (vertical)" },
+    { value: "manga", label: "Manga (droite → gauche)" },
+    { value: "comics", label: "Comics (gauche → droite)" },
+  ];
+
+  // Style et logique identiques à CustomChapterSelect, mais pour options simples
+  const [open, setOpen] = React.useState(false);
+  const buttonRef = React.useRef(null);
+  const listRef = React.useRef(null);
+  const [dropdownStyle, setDropdownStyle] = React.useState({});
+
+  React.useEffect(() => {
+    function handleClickOutside(e) {
+      if (
+        listRef.current &&
+        !listRef.current.contains(e.target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(e.target)
+      ) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [open]);
+
+  React.useEffect(() => {
+    if (open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownStyle({
+        position: "absolute",
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+        zIndex: 9999,
+      });
+    }
+  }, [open]);
+
+  const current = modes.find((m) => m.value === value);
+  const currentLabel = current ? current.label : "Sélectionner...";
+
+  return (
+    <div
+      className="relative min-w-[220px] max-w-[520px] w-full"
+      onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <button
+        ref={buttonRef}
+        className="bg-gray-800 text-white border border-white rounded px-4 py-2 text-base font-semibold w-full truncate shadow focus:border-white focus:outline-none cursor-pointer flex items-center justify-between gap-2"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((o) => !o);
+        }}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        type="button"
+      >
+        <span className="truncate text-left">{currentLabel}</span>
+        <svg
+          className={`w-4 h-4 ml-2 transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
+      {open &&
+        typeof window !== "undefined" &&
+        ReactDOM.createPortal(
+          <ul
+            ref={listRef}
+            tabIndex={-1}
+            className="max-h-72 overflow-auto rounded bg-gray-900 border border-white shadow-lg animate-fade-in"
+            style={dropdownStyle}
+            role="listbox"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {modes.map((mode) => (
+              <li
+                key={mode.value}
+                role="option"
+                aria-selected={mode.value === value}
+                className={`px-4 py-2 cursor-pointer select-none truncate transition-colors duration-150 
+                  ${
+                    mode.value === value
+                      ? "bg-accent/30 text-accent font-bold"
+                      : "text-white"
+                  }
+                  hover:bg-accent/40 hover:text-accent`}
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  onChange(mode.value);
+                  setOpen(false);
+                }}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    onChange(mode.value);
+                    setOpen(false);
+                  }
+                }}
+              >
+                {mode.label}
+              </li>
+            ))}
+          </ul>,
+          document.body
+        )}
+    </div>
   );
 }
 

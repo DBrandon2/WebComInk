@@ -405,13 +405,6 @@ export default function Profile() {
         </button>
 
         <button
-          className="w-full max-w-xs border border-red-500 text-red-500 py-2 rounded font-medium hover:bg-red-500 hover:text-white transition cursor-pointer mb-3"
-          onClick={() => setShowDeleteModal(true)}
-        >
-          Supprimer mon compte
-        </button>
-
-        <button
           className="hidden md:flex bg-red-500 text-white py-2 px-6 rounded hover:bg-red-700 font-semibold mt-3 md:mt-auto cursor-pointer"
           onClick={logout}
         >

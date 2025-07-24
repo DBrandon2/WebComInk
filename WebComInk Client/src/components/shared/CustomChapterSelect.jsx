@@ -84,9 +84,26 @@ export default function CustomChapterSelect({
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >
+      <style>{`
+        [data-chapter-select="true"] ul::-webkit-scrollbar {
+          width: 8px;
+        }
+        [data-chapter-select="true"] ul::-webkit-scrollbar-thumb {
+          background: #18181b;
+          border-radius: 12px;
+        }
+        [data-chapter-select="true"] ul::-webkit-scrollbar-track {
+          background: transparent;
+          border-radius: 12px;
+        }
+        [data-chapter-select="true"] ul {
+          scrollbar-width: thin;
+          scrollbar-color: #18181b transparent;
+        }
+      `}</style>
       <button
         ref={buttonRef}
-        className="bg-gray-800 text-white border border-white rounded px-4 py-1 text-base font-semibold w-full truncate shadow focus:border-white focus:outline-none cursor-pointer flex items-center justify-between gap-2"
+        className="bg-white text-dark-bg rounded px-4 py-2 text-base font-medium w-full truncate shadow cursor-pointer flex items-center justify-between gap-2"
         onClick={(e) => {
           e.stopPropagation();
           setOpen((o) => !o);
@@ -119,26 +136,47 @@ export default function CustomChapterSelect({
           <ul
             ref={listRef}
             tabIndex={-1}
-            className="max-h-72 overflow-auto rounded bg-gray-900 border border-white shadow-lg animate-fade-in"
+            className="max-h-72 overflow-auto rounded bg-white shadow-lg z-20 animate-fade-in mt-2 pr-2"
             style={dropdownStyle}
             role="listbox"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
           >
-            {chapters.map((ch) => {
+            {/* On n'affiche plus l'option sélectionnée dans la dropdown */}
+            {/* Les autres options, même style que CustomSelect */}
+            {[...chapters].reverse().map((ch) => {
               const label = `Chapitre - ${ch.attributes.chapter || "?"}${
                 ch.attributes.title
                   ? " : " + ch.attributes.title.slice(0, 60)
                   : ""
               }`;
+              const isSelected = ch.id === currentChapterId;
               return (
                 <li
                   key={ch.id}
                   role="option"
-                  aria-selected={ch.id === currentChapterId}
-                  className={`px-4 py-2 cursor-pointer hover:bg-accent/20 text-white truncate ${
-                    ch.id === currentChapterId ? "bg-accent/30 font-bold" : ""
-                  }`}
+                  aria-selected={isSelected}
+                  className={`px-4 py-2 cursor-pointer flex items-center justify-between transition-colors transition-transform select-none 
+                    ${
+                      isSelected
+                        ? "bg-accent text-dark-bg font-semibold"
+                        : "text-dark-bg"
+                    }`}
+                  style={
+                    !isSelected
+                      ? {
+                          transition: "transform 0.15s",
+                          willChange: "transform",
+                        }
+                      : undefined
+                  }
+                  onMouseEnter={(e) => {
+                    if (!isSelected)
+                      e.currentTarget.style.transform = "scale(1.02)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) e.currentTarget.style.transform = "";
+                  }}
                   onClick={() => {
                     onSelect(ch.id);
                     setOpen(false);
