@@ -26,6 +26,7 @@ app.use(
       }
     },
     credentials: true, // si tu utilises cookies / auth
+    exposedHeaders: ["Authorization"], // <-- Permet au front de lire le header Authorization
   })
 );
 
