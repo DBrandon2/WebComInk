@@ -105,6 +105,7 @@ const signin = async (req, res) => {
         cookieOptions.maxAge = 7 * 24 * 60 * 60 * 1000;
       }
       res.cookie("token", token, cookieOptions);
+      res.setHeader("Authorization", "Bearer " + token);
       res.status(200).json(userWithoutPassword);
     } else {
       res.status(400).json({ message: "Email et/ou mot de passe incorrect" });
