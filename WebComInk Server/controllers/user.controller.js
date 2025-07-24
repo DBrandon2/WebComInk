@@ -278,6 +278,8 @@ const removeFavorite = async (req, res) => {
 
 const getFavorites = async (req, res) => {
   try {
+    console.log("[DEBUG /user/favorites] Appel route favorites");
+    console.log("[DEBUG /user/favorites] Cookies reçus :", req.cookies);
     const { token } = req.cookies;
     if (!token) {
       return res.status(401).json({ message: "Non autorisé" });
@@ -293,7 +295,7 @@ const getFavorites = async (req, res) => {
 
     res.status(200).json({ favorites: user.favorites });
   } catch (error) {
-    console.log(error);
+    console.error("[DEBUG /user/favorites] Erreur attrapée :", error);
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
