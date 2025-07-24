@@ -98,8 +98,8 @@ const signin = async (req, res) => {
       // Cookie persistant si remember, sinon cookie de session
       const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: true, // toujours true pour la prod cross-origin
+        sameSite: "none", // toujours none pour cross-origin
       };
       if (remember) {
         cookieOptions.maxAge = 7 * 24 * 60 * 60 * 1000;
