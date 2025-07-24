@@ -280,7 +280,8 @@ const getFavorites = async (req, res) => {
   try {
     console.log("[DEBUG /user/favorites] Appel route favorites");
     console.log("[DEBUG /user/favorites] Cookies reçus :", req.cookies);
-    const { token } = req.cookies;
+    const token = getTokenFromRequest(req);
+    console.log("[DEBUG /user/favorites] Token utilisé :", token);
     if (!token) {
       return res.status(401).json({ message: "Non autorisé" });
     }
@@ -804,6 +805,17 @@ const resetPassword = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Erreur serveur" });
   }
+};
+
+const getTokenFromRequest = (req) => {
+  // Priorité au cookie
+  if (req.cookies && req.cookies.token) return req.cookies.token;
+  // Sinon, header Authorization: Bearer ...
+  const auth = req.headers.authorization;
+  if (auth && auth.startsWith("Bearer ")) {
+    return auth.slice(7);
+  }
+  return null;
 };
 
 module.exports = {

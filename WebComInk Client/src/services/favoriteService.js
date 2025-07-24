@@ -5,12 +5,19 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 // Récupérer tous les favoris de l'utilisateur connecté
 export async function getFavorites() {
   try {
+    const token = localStorage.getItem("jwt_token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
     const res = await axios.get(`${API_BASE_URL}/user/favorites`, {
-      withCredentials: true,
+      withCredentials: !token, // utilise le cookie si pas de token localStorage
+      headers,
     });
     return res.data.favorites;
   } catch (error) {
-    console.error("Erreur lors de la récupération des favoris:", error);
+    console.error(
+      "Erreur lors de la récupération des favoris:",
+      error,
+      error?.response
+    );
     throw new Error(
       error.response?.data?.message ||
         "Erreur lors de la récupération des favoris"

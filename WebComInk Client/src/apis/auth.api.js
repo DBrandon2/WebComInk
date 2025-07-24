@@ -12,8 +12,13 @@ export async function signin(values) {
       },
       credentials: "include",
     });
+    // On récupère le token dans l'en-tête Authorization si présent
+    const token = response.headers.get("Authorization")?.replace("Bearer ", "");
     const userConnected = await response.json();
-    return userConnected;
+    if (token) {
+      localStorage.setItem("jwt_token", token);
+    }
+    return { ...userConnected, token };
   } catch (error) {
     console.log(error);
   }
