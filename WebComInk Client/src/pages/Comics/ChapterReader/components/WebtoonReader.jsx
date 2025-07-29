@@ -29,7 +29,7 @@ export default function WebtoonReader({ readerMargin }) {
         return (
           <div
             key={index}
-            className="relative w-full flex items-start justify-center mb-4"
+            className="relative w-full flex items-start justify-center"
           >
             <img
               src={proxiedUrl}

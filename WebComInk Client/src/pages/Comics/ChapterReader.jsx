@@ -1,15 +1,11 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import logo from "../../assets/logo/chat-mignon-baillant-somnolent-cartoon-vector-icon-illustration-concept-icone-nature-animale-isole-vecteur-premium-style-dessin-anime-plat.png";
-
-import { Grip } from "lucide-react";
 import CustomChapterSelect from "../../components/shared/CustomChapterSelect";
 import { useDrag } from "@use-gesture/react";
-import { motion } from "framer-motion";
 import { markChapterAsRead } from "../../apis/auth.api";
 import { getMangaById } from "../../utils/mangaUtils";
 import ChapterComments from "../../components/shared/ChapterComments";
-import CustomSelect from "../../components/shared/CustomSelect";
 import { useMotionValue, useAnimation } from "framer-motion";
 import ReaderHeader from "./ChapterReader/components/ReaderHeader";
 import SettingsModal from "./ChapterReader/components/SettingsModal";
