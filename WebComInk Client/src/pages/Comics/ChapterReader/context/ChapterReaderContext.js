@@ -1,0 +1,58 @@
+import { createContext } from 'react';
+
+export const ChapterReaderContext = createContext();
+
+export const createChapterReaderContextValue = ({
+  allChapters,
+  currentChapterIndex,
+  nextChapterData,
+  chapterId,
+  mangaId,
+  slug,
+  chapter,
+  chapterImages,
+  currentPageIndex,
+  readingMode,
+  readerMargin,
+  showHeader,
+  loading,
+  error,
+  imageLoadingStates,
+  loadedPages,
+  // Actions
+  goToNextChapter,
+  goToPreviousChapter,
+  goToChapter,
+  goToNextPage,
+  goToPreviousPage,
+  setShowHeader,
+  handleImageLoad,
+  handleImageError,
+}) => ({
+  // Data
+  allChapters,
+  currentChapterIndex,
+  nextChapterData,
+  chapterId,
+  mangaId,
+  slug,
+  chapter,
+  chapterImages,
+  currentPageIndex,
+  readingMode,
+  readerMargin,
+  showHeader,
+  loading,
+  error,
+  imageLoadingStates,
+  loadedPages,
+  // Actions
+  goToNextChapter,
+  goToPreviousChapter,
+  goToChapter,
+  goToNextPage,
+  goToPreviousPage,
+  setShowHeader,
+  handleImageLoad,
+  handleImageError,
+});
