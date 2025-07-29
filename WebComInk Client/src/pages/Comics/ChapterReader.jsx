@@ -80,6 +80,9 @@ export default function ChapterReader() {
   const [isDragging, setIsDragging] = useState(false);
   const SWIPE_THRESHOLD = 80;
 
+  // --- MODIF: déclaration de carouselRef en haut du composant ---
+  const carouselRef = useRef();
+
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
   // Récupérer le mode de settings (global ou individuel)
@@ -692,32 +695,21 @@ export default function ChapterReader() {
   ]);
 
   // --- Carrousel façon Tachiyomi ---
-  const BUFFER_SIZE = 2; // nombre d'images avant/après à bufferiser
-  // Calcule le buffer d'index autour de la page courante
-  const getBufferIndexes = () => {
-    const indexes = [];
-    for (let i = -BUFFER_SIZE; i <= BUFFER_SIZE; i++) {
-      const idx = currentPageIndex + i;
-      if (idx >= 0 && idx < chapterImages.length) indexes.push(idx);
-    }
-    return indexes;
-  };
-  const bufferIndexes = getBufferIndexes();
+  // --- AJOUT: calcul de displayIndexes selon le mode ---
+  const displayIndexes =
+    readingMode === "manga"
+      ? [...Array(chapterImages.length).keys()].reverse()
+      : [...Array(chapterImages.length).keys()];
 
   // Préchargement des images du buffer
   useEffect(() => {
-    bufferIndexes.forEach((idx) => {
+    displayIndexes.forEach((idx) => {
       const url = chapterImages[idx];
       if (!url) return;
       const img = new window.Image();
       img.src = `${API_BASE_URL}/proxy/image?url=${encodeURIComponent(url)}`;
     });
-  }, [currentPageIndex, chapterImages]);
-
-  // Carrousel horizontal
-  const [carouselX, setCarouselX] = useState(0);
-  const [dragging, setDragging] = useState(false);
-  const carouselRef = useRef();
+  }, [currentPageIndex, chapterImages, displayIndexes]);
 
   // Largeur d'une page (en px)
   const getPageWidth = () => {
@@ -727,88 +719,151 @@ export default function ChapterReader() {
 
   // Snap à la page la plus proche
   const snapToPage = (targetIdx) => {
-    setCarouselX(-getPageWidth() * (targetIdx - bufferIndexes[0]));
+    // setCarouselX(-getPageWidth() * (targetIdx - displayIndexes[0])); // Supprimé
   };
 
-  // Drag/swipe natif
-  const bindTachiSwipe = useDrag(
-    ({ down, movement: [mx], velocity, direction: [dx], last }) => {
-      if (!isMobile || readingMode === "webtoon") return;
-      setDragging(down);
-      const pageWidth = getPageWidth();
-      // Position du carrousel pendant le drag
-      if (down) {
-        setCarouselX(-pageWidth * (currentPageIndex - bufferIndexes[0]) + mx);
-      } else {
-        // Fin du drag : snap à la page la plus proche
-        let newIdx = currentPageIndex;
-        if (Math.abs(mx) > pageWidth * 0.18 || velocity > 0.5) {
-          // Si on est à la dernière page et swipe vers la droite (ou gauche en manga), on change de chapitre SANS animation de slide
-          if (mx < 0) {
-            if (
-              currentPageIndex === chapterImages.length - 1 &&
-              allChapters &&
-              currentChapterIndex > 0
-            ) {
-              // Dernière page, swipe vers la droite → chapitre suivant
-              const nextChapter = allChapters[currentChapterIndex - 1];
-              if (nextChapter) {
-                navigate(
-                  `/Comics/${mangaId}/${slug}/chapter/${nextChapter.id}`
-                );
-                return;
-              }
-            } else if (currentPageIndex < chapterImages.length - 1) {
-              newIdx = currentPageIndex + 1;
-            }
-          } else if (mx > 0) {
-            if (
-              currentPageIndex === 0 &&
-              allChapters &&
-              currentChapterIndex < allChapters.length - 1
-            ) {
-              // Première page, swipe vers la gauche → chapitre précédent
-              const prevChapter = allChapters[currentChapterIndex + 1];
-              if (prevChapter) {
-                navigate(
-                  `/Comics/${mangaId}/${slug}/chapter/${prevChapter.id}`
-                );
-                return;
-              }
-            } else if (currentPageIndex > 0) {
-              newIdx = currentPageIndex - 1;
-            }
+  // --- SUPPRESSION: useDrag, bindTachiSwipe, dragging ---
+  // --- AJOUT: gestion du drag natif Framer Motion ---
+  const [dragX, setDragX] = useState(0);
+  const pageWidth = getPageWidth();
+
+  const handleDrag = (event, info) => {
+    setDragX(info.offset.x);
+  };
+
+  // --- MODIF: onDragEnd, retire l'inversion du signe offset ---
+  const handleDragEnd = (event, info) => {
+    const offset = info.offset.x;
+    let newIdx = currentPageIndex;
+    if (Math.abs(offset) > pageWidth * 0.18) {
+      if (readingMode === "manga") {
+        if (offset > 0) {
+          // swipe gauche -> droite
+          if (currentPageIndex === 0) {
+            goToNextChapter();
+            return;
+          } else {
+            newIdx = currentPageIndex - 1;
+          }
+        } else if (offset < 0) {
+          // swipe droite -> gauche
+          if (currentPageIndex === chapterImages.length - 1) {
+            goToPreviousChapter();
+            return;
+          } else {
+            newIdx = currentPageIndex + 1;
           }
         }
-        // Animation douce vers la page cible (sauf si on change de chapitre)
-        if (newIdx !== currentPageIndex) {
-          const targetX = -pageWidth * (newIdx - bufferIndexes[0]);
-          const anim = {
-            x: targetX,
-            transition: { duration: 0.22, ease: "easeOut" },
-          };
-          setCarouselX(targetX);
-          controls.start(anim);
-          setTimeout(() => setCurrentPageIndex(newIdx), 120);
-        } else {
-          // Snap retour si pas de changement de page
-          const targetX = -pageWidth * (currentPageIndex - bufferIndexes[0]);
-          const anim = {
-            x: targetX,
-            transition: { duration: 0.22, ease: "easeOut" },
-          };
-          setCarouselX(targetX);
-          controls.start(anim);
+      } else {
+        if (offset > 0) {
+          if (currentPageIndex > 0) {
+            newIdx = currentPageIndex - 1;
+          } else {
+            goToPreviousChapter();
+            return;
+          }
+        } else if (offset < 0) {
+          if (currentPageIndex < displayIndexes.length - 1) {
+            newIdx = currentPageIndex + 1;
+          } else {
+            goToNextChapter();
+            return;
+          }
         }
       }
-    },
-    { pointer: { touch: true }, enabled: isMobile && readingMode !== "webtoon" }
-  );
+    }
+    setCurrentPageIndex(newIdx);
+  };
 
-  // Met à jour la position du carrousel quand la page change
+  // --- MODIF: carrousel Framer Motion natif drag ---
+  // --- LOG DIAGNOSTIC dans le mapping du carrousel ---
+  {
+    displayIndexes.map((_, idx) => {
+      const realIdx =
+        readingMode === "manga" ? chapterImages.length - 1 - idx : idx;
+      console.log(
+        "[CARROUSEL] idx:",
+        idx,
+        "realIdx:",
+        realIdx,
+        "image:",
+        chapterImages[realIdx],
+        "currentPageIndex:",
+        currentPageIndex,
+        "displayIndexes:",
+        displayIndexes
+      );
+      return (
+        <div
+          key={realIdx}
+          className="flex-shrink-0 flex-grow-0 w-full h-full flex items-center justify-center"
+        >
+          {chapterImages[realIdx] && (
+            <img
+              src={`${API_BASE_URL}/proxy/image?url=${encodeURIComponent(
+                chapterImages[realIdx]
+              )}`}
+              onLoad={() => {
+                handleImageLoad(realIdx);
+                setLoadedPages((prev) => new Set([...prev, realIdx]));
+              }}
+              onError={(e) => {
+                handleImageError(realIdx);
+                e.target.src = "/default-placeholder.png";
+              }}
+              alt={`Page ${realIdx + 1}`}
+              draggable="false"
+              style={{
+                height: "100%",
+                maxHeight: "100%",
+                width: "auto",
+                objectFit: "contain",
+                cursor: "pointer",
+              }}
+              className="mx-auto"
+              onClick={(e) => {
+                if (isDragging) return; // Utiliser isDragging
+                if (idx !== currentPageIndex) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                if (clickX < width / 3) {
+                  goToPreviousPage();
+                } else if (clickX > (2 * width) / 3) {
+                  goToNextPage();
+                } else {
+                  setShowHeader((h) => !h);
+                }
+              }}
+            />
+          )}
+        </div>
+      );
+    });
+  }
+
+  // --- LOG DIAGNOSTIC dans le useEffect de translation ---
   useEffect(() => {
-    setCarouselX(-getPageWidth() * (currentPageIndex - bufferIndexes[0]));
-  }, [currentPageIndex, chapterImages.length]);
+    // let x = -getPageWidth() * currentPageIndex; // Supprimé
+    // console.log( // Supprimé
+    //   "[CARROUSEL TRANSLATE] currentPageIndex:", // Supprimé
+    //   currentPageIndex, // Supprimé
+    //   "carouselX:", // Supprimé
+    //   x, // Supprimé
+    //   "displayIndexes:", // Supprimé
+    //   displayIndexes // Supprimé
+    // ); // Supprimé
+    // setCarouselX(x); // Supprimé
+  }, [currentPageIndex, displayIndexes.length]);
+
+  // --- MODIF: initialisation currentPageIndex en mode manga ---
+  useEffect(() => {
+    if (readingMode === "manga") {
+      setCurrentPageIndex(chapterImages.length - 1);
+    } else {
+      setCurrentPageIndex(0);
+    }
+  }, [chapterId, readingMode, chapterImages.length]);
 
   if (loading) {
     return (
@@ -901,25 +956,51 @@ export default function ChapterReader() {
               </div>
               {/* Selecteur chapitre réduit */}
               <div className="flex items-center flex-1 min-w-0 max-w-[160px] mx-2">
-                <button
-                  onClick={goToPreviousChapter}
-                  disabled={currentChapterIndex >= allChapters.length - 1}
-                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer mr-2"
-                  title="Chapitre précédent (←)"
-                >
-                  <FaArrowLeft size={18} />
-                </button>
-                <div className="min-w-0 flex items-center justify-center flex-1">
-                  <ChapterSelectorDropdown direction="down" />
-                </div>
-                <button
-                  onClick={goToNextChapter}
-                  disabled={currentChapterIndex <= 0}
-                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer ml-2"
-                  title="Chapitre suivant (→)"
-                >
-                  <FaArrowRight size={18} />
-                </button>
+                {readingMode === "manga" ? (
+                  <>
+                    <button
+                      onClick={goToNextChapter}
+                      disabled={currentChapterIndex <= 0}
+                      className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer mr-2"
+                      title="Chapitre suivant (←)"
+                    >
+                      <FaArrowLeft size={18} />
+                    </button>
+                    <div className="min-w-0 flex items-center justify-center flex-1">
+                      <ChapterSelectorDropdown direction="down" />
+                    </div>
+                    <button
+                      onClick={goToPreviousChapter}
+                      disabled={currentChapterIndex >= allChapters.length - 1}
+                      className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer ml-2"
+                      title="Chapitre précédent (→)"
+                    >
+                      <FaArrowRight size={18} />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={goToPreviousChapter}
+                      disabled={currentChapterIndex >= allChapters.length - 1}
+                      className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer mr-2"
+                      title="Chapitre précédent (←)"
+                    >
+                      <FaArrowLeft size={18} />
+                    </button>
+                    <div className="min-w-0 flex items-center justify-center flex-1">
+                      <ChapterSelectorDropdown direction="down" />
+                    </div>
+                    <button
+                      onClick={goToNextChapter}
+                      disabled={currentChapterIndex <= 0}
+                      className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer ml-2"
+                      title="Chapitre suivant (→)"
+                    >
+                      <FaArrowRight size={18} />
+                    </button>
+                  </>
+                )}
               </div>
               {/* Bouton settings */}
               <div className="flex items-center min-w-[40px] justify-end ml-2">
@@ -973,25 +1054,51 @@ export default function ChapterReader() {
               </div>
               {/* Selecteur centré absolument, unique, centré verticalement */}
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center min-w-0 w-[min(420px,90vw)] h-full">
-                <button
-                  onClick={goToPreviousChapter}
-                  disabled={currentChapterIndex >= allChapters.length - 1}
-                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow flex items-center justify-center cursor-pointer mr-2"
-                  title="Chapitre précédent (←)"
-                >
-                  <FaArrowLeft size={18} />
-                </button>
-                <div className="min-w-0 flex items-center justify-center flex-1">
-                  <ChapterSelectorDropdown direction="down" />
-                </div>
-                <button
-                  onClick={goToNextChapter}
-                  disabled={currentChapterIndex <= 0}
-                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow flex items-center justify-center cursor-pointer ml-2"
-                  title="Chapitre suivant (→)"
-                >
-                  <FaArrowRight size={18} />
-                </button>
+                {readingMode === "manga" ? (
+                  <>
+                    <button
+                      onClick={goToNextChapter}
+                      disabled={currentChapterIndex <= 0}
+                      className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow flex items-center justify-center cursor-pointer mr-2"
+                      title="Chapitre suivant (←)"
+                    >
+                      <FaArrowLeft size={18} />
+                    </button>
+                    <div className="min-w-0 flex items-center justify-center flex-1">
+                      <ChapterSelectorDropdown direction="down" />
+                    </div>
+                    <button
+                      onClick={goToPreviousChapter}
+                      disabled={currentChapterIndex >= allChapters.length - 1}
+                      className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow flex items-center justify-center cursor-pointer ml-2"
+                      title="Chapitre précédent (→)"
+                    >
+                      <FaArrowRight size={18} />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={goToPreviousChapter}
+                      disabled={currentChapterIndex >= allChapters.length - 1}
+                      className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow flex items-center justify-center cursor-pointer mr-2"
+                      title="Chapitre précédent (←)"
+                    >
+                      <FaArrowLeft size={18} />
+                    </button>
+                    <div className="min-w-0 flex items-center justify-center flex-1">
+                      <ChapterSelectorDropdown direction="down" />
+                    </div>
+                    <button
+                      onClick={goToNextChapter}
+                      disabled={currentChapterIndex <= 0}
+                      className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow flex items-center justify-center cursor-pointer ml-2"
+                      title="Chapitre suivant (→)"
+                    >
+                      <FaArrowRight size={18} />
+                    </button>
+                  </>
+                )}
               </div>
               {/* Bouton settings à droite */}
               <div className="flex items-center min-w-[40px] justify-end ml-auto">
@@ -1083,7 +1190,11 @@ export default function ChapterReader() {
             <div className="flex flex-col items-center justify-center w-full min-h-[60vh]">
               {/* Indicateur de page */}
               <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 bg-dark-bg/80 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
-                Page {currentPageIndex + 1} / {chapterImages.length}
+                {readingMode === "manga"
+                  ? `Page ${chapterImages.length - currentPageIndex} / ${
+                      chapterImages.length
+                    }`
+                  : `Page ${currentPageIndex + 1} / ${chapterImages.length}`}
               </div>
               {/* Conteneur de l'image avec navigation */}
               <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center">
@@ -1092,79 +1203,141 @@ export default function ChapterReader() {
                   className="relative flex items-center justify-center w-full overflow-hidden"
                   style={{ height: "calc(100vh - 96px)" }}
                   ref={carouselRef}
-                  {...(isMobile ? bindTachiSwipe() : {})}
+                  {...(isMobile ? bindSwipe : {})}
                 >
-                  <motion.div
-                    className="flex h-full"
-                    animate={{ x: carouselX }}
-                    style={{
-                      width: `${bufferIndexes.length * 100}%`,
-                      height: "100%",
-                    }}
-                    transition={{
-                      duration: dragging ? 0 : 0.22,
-                      ease: "easeOut",
-                    }}
-                  >
-                    {bufferIndexes.map((idx) => (
-                      <div
-                        key={idx}
-                        className="flex-shrink-0 flex-grow-0 w-full h-full flex items-center justify-center"
-                      >
-                        {chapterImages[idx] && (
-                          <img
-                            src={`${API_BASE_URL}/proxy/image?url=${encodeURIComponent(
-                              chapterImages[idx]
-                            )}`}
-                            onLoad={() => {
-                              handleImageLoad(idx);
-                              setLoadedPages((prev) => new Set([...prev, idx]));
-                            }}
-                            onError={(e) => {
-                              handleImageError(idx);
-                              e.target.src = "/default-placeholder.png";
-                            }}
-                            alt={`Page ${idx + 1}`}
-                            draggable="false"
-                            style={{
-                              height: "100%",
-                              maxHeight: "100%",
-                              width: "auto",
-                              objectFit: "contain",
-                              cursor: "pointer",
-                            }}
-                            className="mx-auto"
-                            onClick={(e) => {
-                              if (dragging) return;
-                              if (idx !== currentPageIndex) return;
-                              const rect =
-                                e.currentTarget.getBoundingClientRect();
-                              const clickX = e.clientX - rect.left;
-                              const width = rect.width;
-                              if (clickX < width / 3) {
-                                // Clic gauche
-                                if (readingMode === "manga") {
+                  {isDragging ? (
+                    <motion.div
+                      className="flex h-full"
+                      style={{
+                        x: -pageWidth * currentPageIndex + dragX,
+                        width: `${displayIndexes.length * 100}%`,
+                        height: "100%",
+                        transition: "none",
+                      }}
+                    >
+                      {displayIndexes.map((idx) => (
+                        <div
+                          key={idx}
+                          className="flex-shrink-0 flex-grow-0 w-full h-full flex items-center justify-center"
+                        >
+                          {chapterImages[idx] && (
+                            <img
+                              src={`${API_BASE_URL}/proxy/image?url=${encodeURIComponent(
+                                chapterImages[idx]
+                              )}`}
+                              onLoad={() => {
+                                handleImageLoad(idx);
+                                setLoadedPages(
+                                  (prev) => new Set([...prev, idx])
+                                );
+                              }}
+                              onError={(e) => {
+                                handleImageError(idx);
+                                e.target.src = "/default-placeholder.png";
+                              }}
+                              alt={`Page ${idx + 1}`}
+                              draggable="false"
+                              style={{
+                                height: "100%",
+                                maxHeight: "100%",
+                                width: "auto",
+                                objectFit: "contain",
+                                cursor: "pointer",
+                              }}
+                              className="mx-auto"
+                              onClick={(e) => {
+                                if (isDragging) return;
+                                if (idx !== currentPageIndex) return;
+                                const rect =
+                                  e.currentTarget.getBoundingClientRect();
+                                const clickX = e.clientX - rect.left;
+                                const width = rect.width;
+                                if (clickX < width / 3) {
+                                  goToPreviousPage();
+                                } else if (clickX > (2 * width) / 3) {
                                   goToNextPage();
                                 } else {
-                                  goToPreviousPage();
+                                  setShowHeader((h) => !h);
                                 }
-                              } else if (clickX > (2 * width) / 3) {
-                                // Clic droit
-                                if (readingMode === "manga") {
+                              }}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      className={`flex h-full`}
+                      drag="x"
+                      dragConstraints={{
+                        left: -pageWidth * (displayIndexes.length - 1),
+                        right: 0,
+                      }}
+                      animate={{ x: -pageWidth * currentPageIndex }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
+                      onDragEnd={handleDragEnd}
+                      style={{
+                        width: `${displayIndexes.length * 100}%`,
+                        height: "100%",
+                        touchAction: "pan-y",
+                        cursor: "grab",
+                      }}
+                    >
+                      {displayIndexes.map((idx) => (
+                        <div
+                          key={idx}
+                          className="flex-shrink-0 flex-grow-0 w-full h-full flex items-center justify-center"
+                        >
+                          {chapterImages[idx] && (
+                            <img
+                              src={`${API_BASE_URL}/proxy/image?url=${encodeURIComponent(
+                                chapterImages[idx]
+                              )}`}
+                              onLoad={() => {
+                                handleImageLoad(idx);
+                                setLoadedPages(
+                                  (prev) => new Set([...prev, idx])
+                                );
+                              }}
+                              onError={(e) => {
+                                handleImageError(idx);
+                                e.target.src = "/default-placeholder.png";
+                              }}
+                              alt={`Page ${idx + 1}`}
+                              draggable="false"
+                              style={{
+                                height: "100%",
+                                maxHeight: "100%",
+                                width: "auto",
+                                objectFit: "contain",
+                                cursor: "pointer",
+                              }}
+                              className="mx-auto"
+                              onClick={(e) => {
+                                if (isDragging) return;
+                                if (idx !== currentPageIndex) return;
+                                const rect =
+                                  e.currentTarget.getBoundingClientRect();
+                                const clickX = e.clientX - rect.left;
+                                const width = rect.width;
+                                if (clickX < width / 3) {
                                   goToPreviousPage();
-                                } else {
+                                } else if (clickX > (2 * width) / 3) {
                                   goToNextPage();
+                                } else {
+                                  setShowHeader((h) => !h);
                                 }
-                              } else {
-                                // Clic centre
-                                setShowHeader((h) => !h);
-                              }
-                            }}
-                          />
-                        )}
-                      </div>
-                    ))}
-                  </motion.div>
+                              }}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
                 </div>
               </div>
             </div>
