@@ -967,7 +967,8 @@ export default function ChapterReader() {
   // --- MODIF: initialisation currentPageIndex en mode manga ---
   useEffect(() => {
     if (readingMode === "manga") {
-      setCurrentPageIndex(chapterImages.length - 1);
+      // Pour le mode manga, la page spéciale est à l'index 0, donc la première image à lire est à l'index chapterImages.length
+      setCurrentPageIndex(chapterImages.length);
     } else {
       setCurrentPageIndex(0);
     }
