@@ -17,6 +17,8 @@ export default function ReaderHeader({
   goToPreviousChapter,
   goToChapter,
   onSettingsClick,
+  currentPageIndex,
+  totalPages,
 }) {
   const settingsBtnRef = useRef(null);
 
@@ -117,6 +119,15 @@ export default function ReaderHeader({
             )}
           </div>
 
+          {/* Compteur de page mobile */}
+          <div className="flex items-center min-w-0 mx-2">
+            <div className="bg-dark-bg/80 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-medium">
+              {readingMode === READING_MODES.MANGA
+                ? `Page ${totalPages - currentPageIndex + 1} / ${totalPages + 1}`
+                : `Page ${currentPageIndex + 1} / ${totalPages + 1}`}
+            </div>
+          </div>
+
           {/* Bouton settings */}
           <div className="flex items-center min-w-[40px] justify-end ml-2">
             <button
@@ -182,6 +193,15 @@ export default function ReaderHeader({
                 </button>
               </>
             )}
+          </div>
+
+          {/* Compteur de page desktop */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 top-12 flex items-center">
+            <div className="bg-dark-bg/80 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
+              {readingMode === READING_MODES.MANGA
+                ? `Page ${totalPages - currentPageIndex + 1} / ${totalPages + 1}`
+                : `Page ${currentPageIndex + 1} / ${totalPages + 1}`}
+            </div>
           </div>
 
           {/* Bouton settings à droite */}

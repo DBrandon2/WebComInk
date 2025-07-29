@@ -1,25 +1,30 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useDrag } from '@use-gesture/react';
-import { useMotionValue, useAnimation } from 'framer-motion';
-import { 
-  SWIPE_THRESHOLD, 
-  SCROLL_TOLERANCE, 
-  MAX_PULL, 
-  TRIGGER_PULL,
-  READING_MODES 
-} from '../utils/constants';
-import { isMobileDevice, isNearBottom } from '../utils/readerUtils';
+import { READING_MODES } from '../utils/constants';
+import { isNearBottom } from '../utils/readerUtils';
 
-export const usePullToRefresh = (
+export const useGestures = ({
   readingMode,
   allChapters,
   currentChapterIndex,
-  goToNextChapter
-) => {
+  goToNextChapter,
+  isMobile,
+  maxPull = 120,
+  triggerPull = 100,
+  SCROLL_TOLERANCE = 24,
+  currentPageIndex,
+  chapterImages,
+  goToNextPage,
+  goToPreviousPage,
+  SWIPE_THRESHOLD = 80,
+  x,
+  controls,
+}) => {
   const [pullHeight, setPullHeight] = useState(0);
-  const isMobile = isMobileDevice();
+  const [isDragging, setIsDragging] = useState(false);
 
-  const bind = useDrag(
+  // Pull-to-refresh pour le mode webtoon
+  const bindPullToRefresh = useDrag(
     ({ down, movement: [, my], last }) => {
       if (!isMobile || readingMode !== READING_MODES.WEBTOON) return;
       
@@ -30,10 +35,10 @@ export const usePullToRefresh = (
 
       if (down && my < 0) {
         const resistance = -my / 2;
-        setPullHeight(Math.max(0, Math.min(MAX_PULL, resistance)));
+        setPullHeight(Math.max(0, Math.min(maxPull, resistance)));
       } else if (last) {
         if (
-          pullHeight >= TRIGGER_PULL &&
+          pullHeight >= triggerPull &&
           allChapters &&
           currentChapterIndex > 0
         ) {
@@ -53,21 +58,7 @@ export const usePullToRefresh = (
     }
   );
 
-  return { bind, pullHeight };
-};
-
-export const useSwipeGestures = (
-  readingMode,
-  currentPageIndex,
-  chapterImages,
-  goToNextPage,
-  goToPreviousPage
-) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const x = useMotionValue(0);
-  const controls = useAnimation();
-  const isMobile = isMobileDevice();
-
+  // Swipe gestures pour les modes manga et comics
   const bindSwipe = useDrag(
     ({ down, movement: [mx], last }) => {
       if (!isMobile || readingMode === READING_MODES.WEBTOON) return;
@@ -110,7 +101,7 @@ export const useSwipeGestures = (
             });
           }
         } else {
-          // Swipe droite → page précédente
+          // Swipe droite → page précédente (manga = gauche, comics = gauche)
           if (
             (readingMode === READING_MODES.MANGA && currentPageIndex < chapterImages.length - 1) ||
             (readingMode !== READING_MODES.MANGA && currentPageIndex > 0)
@@ -153,10 +144,10 @@ export const useSwipeGestures = (
   );
 
   return {
+    bind: bindPullToRefresh,
     bindSwipe,
+    pullHeight,
     isDragging,
-    x,
-    controls,
   };
 };
 

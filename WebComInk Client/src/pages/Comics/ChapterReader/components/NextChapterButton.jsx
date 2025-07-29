@@ -2,20 +2,17 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChapterReaderContext } from "../context/ChapterReaderContext";
 import { API_BASE_URL } from "../utils/constants";
-import { formatChapterTitle } from "../utils/readerUtils";
 import logo from "../../../../assets/logo/chat-mignon-baillant-somnolent-cartoon-vector-icon-illustration-concept-icone-nature-animale-isole-vecteur-premium-style-dessin-anime-plat.png";
 
 export default function NextChapterButton() {
   const navigate = useNavigate();
-  const { allChapters, currentChapterIndex, mangaId, slug } =
-    useContext(ChapterReaderContext);
+  const { allChapters, currentChapterIndex, mangaId, slug } = useContext(ChapterReaderContext);
   const [coverImg, setCoverImg] = useState(null);
 
   // Trouver le prochain chapitre
-  const nextChapter =
-    allChapters && currentChapterIndex > 0
-      ? allChapters[currentChapterIndex - 1]
-      : null;
+  const nextChapter = allChapters && currentChapterIndex > 0
+    ? allChapters[currentChapterIndex - 1]
+    : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -24,9 +21,7 @@ export default function NextChapterButton() {
       if (!nextChapter) return;
 
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/proxy/chapter-image/${nextChapter.id}`
-        );
+        const res = await fetch(`${API_BASE_URL}/proxy/chapter-image/${nextChapter.id}`);
         const data = await res.json();
 
         if (
@@ -85,9 +80,7 @@ export default function NextChapterButton() {
   return (
     <div className="flex justify-center mt-8 m-3">
       <button
-        onClick={() =>
-          navigate(`/Comics/${mangaId}/${slug}/chapter/${nextChapter.id}`)
-        }
+        onClick={() => navigate(`/Comics/${mangaId}/${slug}/chapter/${nextChapter.id}`)}
         className="flex items-center gap-2 bg-gray-800 text-white rounded-md shadow px-3 py-2 md:px-3 md:py-3 hover:bg-gray-700 transition text-left max-w-md md:max-w-xl w-full cursor-pointer"
         style={{
           minHeight: 80,
@@ -128,7 +121,12 @@ export default function NextChapterButton() {
                   maxWidth: "100%",
                 }}
               >
-                {formatChapterTitle(nextChapter.attributes.title)}
+                {(() => {
+                  const words = nextChapter.attributes.title.split(" ");
+                  return words.length > 8
+                    ? words.slice(0, 8).join(" ") + "…"
+                    : nextChapter.attributes.title;
+                })()}
               </span>
             )}
           </div>

@@ -4,6 +4,7 @@ import { ChapterReaderContext } from "../context/ChapterReaderContext";
 import NextChapterButton from "./NextChapterButton";
 import { API_BASE_URL, READING_MODES } from "../utils/constants";
 import { buildProxiedImageUrl, isMobileDevice } from "../utils/readerUtils";
+import { AnimatePresence } from "framer-motion";
 
 export default function PagedReader({
   readingMode,
@@ -11,8 +12,6 @@ export default function PagedReader({
   isDragging,
   dragX,
   bindSwipe,
-  handleDrag,
-  handleDragEnd,
   setShowHeader,
   goToNextPage,
   goToPreviousPage,
@@ -55,74 +54,93 @@ export default function PagedReader({
     if (!imageUrl) return null;
 
     const proxiedUrl = buildProxiedImageUrl(API_BASE_URL, imageUrl);
-
     const marginValue = (readerMargin / 100) * 70;
 
     return (
-      <img
-        src={proxiedUrl}
-        onLoad={() => {
-          handleImageLoad(pageIndex);
-          setLoadedPages((prev) => new Set([...prev, pageIndex]));
-        }}
-        onError={(e) => {
-          handleImageError(pageIndex);
-          e.target.src = "/default-placeholder.png";
-        }}
-        alt={`Page ${pageIndex + 1}`}
-        draggable="false"
-        style={{
-          height: "100%",
-          maxHeight: "100%",
-          width: "auto",
-          objectFit: "contain",
-          cursor: "pointer",
-          ...(readerMargin !== undefined
-            ? {
-                maxWidth: "100vw",
-                width: `${100 - marginValue}%`,
-                marginLeft: `${marginValue / 2}%`,
-                marginRight: `${marginValue / 2}%`,
-              }
-            : {}),
-        }}
-        className="mx-auto"
-        onClick={
-          isMobile
-            ? (e) => {
-                if (isDragging) return;
-                if (idx !== currentPageIndex) return;
-                setShowHeader((h) => !h);
-              }
-            : (e) => {
-                if (isDragging) return;
-                if (idx !== currentPageIndex) return;
-                const rect = e.currentTarget.getBoundingClientRect();
-                const clickX = e.clientX - rect.left;
-                const width = rect.width;
-                if (clickX < width / 3) {
-                  goToPreviousPage();
-                } else if (clickX > (2 * width) / 3) {
-                  goToNextPage();
-                } else {
-                  setShowHeader((h) => !h);
+      <div className="relative w-full h-full flex items-center justify-center">
+        <img
+          src={proxiedUrl}
+          onLoad={() => {
+            handleImageLoad(pageIndex);
+            setLoadedPages((prev) => new Set([...prev, pageIndex]));
+          }}
+          onError={(e) => {
+            handleImageError(pageIndex);
+            e.target.src = "/default-placeholder.png";
+          }}
+          alt={`Page ${pageIndex + 1}`}
+          draggable="false"
+          style={{
+            height: "100%",
+            maxHeight: "100%",
+            width: "50%",
+            objectFit: "contain",
+            cursor: "pointer",
+            maxWidth: "80vw", // Réduit la largeur maximale
+            ...(readerMargin !== undefined
+              ? {
+                  width: `${100 - marginValue}%`,
+                  marginLeft: `${marginValue / 2}%`,
+                  marginRight: `${marginValue / 2}%`,
                 }
-              }
-        }
-      />
+              : {
+                  width: "auto", // Laisse l'image prendre sa taille naturelle
+                  maxWidth: "80vw", // Limite la largeur
+                }),
+          }}
+          className="mx-auto"
+        />
+      </div>
     );
+  };
+
+  // Fonction pour gérer la navigation par clic sur les zones latérales
+  const handleZoneClick = (zone) => {
+    if (isDragging) return;
+    
+    if (readingMode === READING_MODES.MANGA) {
+      // Mode MANGA : carousel inversé, donc logique inversée
+      if (zone === 'left') {
+        // Clic gauche → page précédente dans le carousel (page suivante en lecture)
+        goToPreviousPage();
+      } else if (zone === 'right') {
+        // Clic droite → page suivante dans le carousel (page précédente en lecture)
+        goToNextPage();
+      }
+    } else {
+      // Mode COMICS : carousel normal
+      if (zone === 'left') {
+        // Clic gauche → page précédente
+        goToPreviousPage();
+      } else if (zone === 'right') {
+        // Clic droite → page suivante
+        goToNextPage();
+      }
+    }
   };
 
   return (
     <div className="flex flex-col items-center justify-center w-full min-h-[60vh]">
-      {/* Indicateur de page */}
-      <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 bg-dark-bg/80 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
-        {readingMode === READING_MODES.MANGA
-          ? `Page ${chapterImages.length - currentPageIndex + 1} / ${
-              chapterImages.length + 1
-            }`
-          : `Page ${currentPageIndex + 1} / ${chapterImages.length + 1}`}
-      </div>
+      {/* Zones de navigation - couvrent toute la largeur de l'écran */}
+      <div 
+        className="fixed left-0 top-16 w-[35%] h-[calc(100vh-96px)] z-20 cursor-pointer navigation-zone"
+        onClick={() => handleZoneClick('left')}
+      />
+      
+      <div 
+        className="fixed right-0 top-16 w-[35%] h-[calc(100vh-96px)] z-20 cursor-pointer navigation-zone"
+        onClick={() => handleZoneClick('right')}
+      />
+
+      {/* Zone de clic au centre pour toggle topbar - espace entre les zones de navigation */}
+      <div 
+        className="fixed left-[35%] top-16 w-[30%] h-[calc(100vh-96px)] z-10 cursor-pointer"
+        onClick={(e) => {
+          if (isDragging) return;
+          e.stopPropagation();
+          setShowHeader((h) => !h);
+        }}
+      />
 
       {/* Conteneur de l'image avec navigation */}
       <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center">
@@ -172,14 +190,37 @@ export default function PagedReader({
                 left: -pageWidth * (carouselPages.length - 1),
                 right: 0,
               }}
+              dragElastic={0.1}
+              dragTransition={{
+                bounceStiffness: 600,
+                bounceDamping: 20,
+              }}
+              onDragEnd={(event, info) => {
+                const offset = info.offset.x;
+                const velocity = info.velocity.x;
+                const pageWidth = window.innerWidth;
+                
+                // Seuil pour déclencher le changement de page
+                const threshold = pageWidth * 0.3;
+                
+                if (Math.abs(offset) > threshold || Math.abs(velocity) > 500) {
+                  // Utilise la logique existante du carousel
+                  // Le carousel gère déjà la direction selon le mode de lecture
+                  if (offset > 0) {
+                    // Swipe vers la droite - laisse le carousel décider
+                    goToPreviousPage();
+                  } else {
+                    // Swipe vers la gauche - laisse le carousel décider
+                    goToNextPage();
+                  }
+                }
+              }}
               animate={{ x: -pageWidth * currentPageIndex }}
               transition={{
                 type: "spring",
                 stiffness: 300,
                 damping: 30,
               }}
-              onDrag={handleDrag}
-              onDragEnd={handleDragEnd}
               style={{
                 width: `${carouselPages.length * 100}%`,
                 height: "100%",
