@@ -1,9 +1,9 @@
-import React, { useRef, useContext } from 'react';
-import { motion } from 'framer-motion';
-import { ChapterReaderContext } from '../context/ChapterReaderContext';
-import NextChapterButton from './NextChapterButton';
-import { API_BASE_URL, READING_MODES } from '../utils/constants';
-import { buildProxiedImageUrl, isMobileDevice } from '../utils/readerUtils';
+import React, { useRef, useContext } from "react";
+import { motion } from "framer-motion";
+import { ChapterReaderContext } from "../context/ChapterReaderContext";
+import NextChapterButton from "./NextChapterButton";
+import { API_BASE_URL, READING_MODES } from "../utils/constants";
+import { buildProxiedImageUrl, isMobileDevice } from "../utils/readerUtils";
 
 export default function PagedReader({
   readingMode,
@@ -16,9 +16,16 @@ export default function PagedReader({
   setShowHeader,
   goToNextPage,
   goToPreviousPage,
+  readerMargin,
 }) {
   const carouselRef = useRef();
-  const { chapterImages, handleImageLoad, handleImageError, loadedPages, setLoadedPages } = useContext(ChapterReaderContext);
+  const {
+    chapterImages,
+    handleImageLoad,
+    handleImageError,
+    loadedPages,
+    setLoadedPages,
+  } = useContext(ChapterReaderContext);
   const isMobile = isMobileDevice();
 
   if (chapterImages.length === 0) {
@@ -30,14 +37,16 @@ export default function PagedReader({
   }
 
   // Calcul des indexes d'affichage selon le mode
-  const displayIndexes = readingMode === READING_MODES.MANGA
-    ? [...Array(chapterImages.length).keys()].reverse()
-    : [...Array(chapterImages.length).keys()];
+  const displayIndexes =
+    readingMode === READING_MODES.MANGA
+      ? [...Array(chapterImages.length).keys()].reverse()
+      : [...Array(chapterImages.length).keys()];
 
   // Pages du carrousel avec page spéciale
-  const carouselPages = readingMode === READING_MODES.MANGA
-    ? ["next-chapter-page", ...displayIndexes]
-    : [...displayIndexes, "next-chapter-page"];
+  const carouselPages =
+    readingMode === READING_MODES.MANGA
+      ? ["next-chapter-page", ...displayIndexes]
+      : [...displayIndexes, "next-chapter-page"];
 
   const pageWidth = carouselRef.current?.offsetWidth || window.innerWidth;
 
@@ -47,12 +56,14 @@ export default function PagedReader({
 
     const proxiedUrl = buildProxiedImageUrl(API_BASE_URL, imageUrl);
 
+    const marginValue = (readerMargin / 100) * 70;
+
     return (
       <img
         src={proxiedUrl}
         onLoad={() => {
           handleImageLoad(pageIndex);
-          setLoadedPages(prev => new Set([...prev, pageIndex]));
+          setLoadedPages((prev) => new Set([...prev, pageIndex]));
         }}
         onError={(e) => {
           handleImageError(pageIndex);
@@ -66,6 +77,14 @@ export default function PagedReader({
           width: "auto",
           objectFit: "contain",
           cursor: "pointer",
+          ...(readerMargin !== undefined
+            ? {
+                maxWidth: "100vw",
+                width: `${100 - marginValue}%`,
+                marginLeft: `${marginValue / 2}%`,
+                marginRight: `${marginValue / 2}%`,
+              }
+            : {}),
         }}
         className="mx-auto"
         onClick={
@@ -73,7 +92,7 @@ export default function PagedReader({
             ? (e) => {
                 if (isDragging) return;
                 if (idx !== currentPageIndex) return;
-                setShowHeader(h => !h);
+                setShowHeader((h) => !h);
               }
             : (e) => {
                 if (isDragging) return;
@@ -86,7 +105,7 @@ export default function PagedReader({
                 } else if (clickX > (2 * width) / 3) {
                   goToNextPage();
                 } else {
-                  setShowHeader(h => !h);
+                  setShowHeader((h) => !h);
                 }
               }
         }
@@ -99,7 +118,9 @@ export default function PagedReader({
       {/* Indicateur de page */}
       <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 bg-dark-bg/80 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
         {readingMode === READING_MODES.MANGA
-          ? `Page ${chapterImages.length - currentPageIndex + 1} / ${chapterImages.length + 1}`
+          ? `Page ${chapterImages.length - currentPageIndex + 1} / ${
+              chapterImages.length + 1
+            }`
           : `Page ${currentPageIndex + 1} / ${chapterImages.length + 1}`}
       </div>
 
