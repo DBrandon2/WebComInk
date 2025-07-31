@@ -245,7 +245,7 @@ export default function Auth() {
                   {...loginForm.register("remember")}
                   type="checkbox"
                   id="remember"
-                  className="w-4 h-4 text-accent bg-transparent border-2 border-accent rounded focus:ring-accent focus:ring-2 cursor-pointer"
+                  className="w-4 h-4 text-white bg-transparent border-0 rounded focus:ring-0 cursor-pointer checked:bg-accent"
                 />
                 <label
                   htmlFor="remember"
@@ -349,7 +349,7 @@ export default function Auth() {
                 <input
                   {...registerForm.register("rgpd")}
                   type="checkbox"
-                  className="mt-1 w-4 h-4 text-accent bg-transparent border-2 border-accent rounded focus:ring-accent focus:ring-2 cursor-pointer"
+                  className="mt-1 w-4 h-4 text-white bg-transparent border-0 rounded focus:ring-0 cursor-pointer checked:bg-accent"
                   id="rgpd"
                 />
                 <label
