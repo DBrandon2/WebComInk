@@ -9,6 +9,7 @@ import { deleteAccount } from "../../apis/auth.api";
 import toast from "react-hot-toast";
 import CustomSelect from "../../components/shared/CustomSelect";
 import { motion, AnimatePresence } from "framer-motion";
+import CookieManager from "../../components/CookieManager";
 
 // Fonction utilitaire pour supprimer toutes les clés de settings de lecture
 function resetReaderSettings(mode) {
@@ -228,6 +229,12 @@ export default function Settings() {
             }}
           />
         </div>
+      </div>
+      <div className="flex justify-center items-center">
+        <span className=" h-[1px] bg-white/70 w-[90%] md:w-[95%]"></span>
+      </div>
+      <div className="flex flex-col gap-2 m-8">
+        <CookieManager />
       </div>
       <div className="flex justify-center items-center">
         <span className=" h-[1px] bg-white/70 w-[90%] md:w-[95%]"></span>

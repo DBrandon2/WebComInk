@@ -7,6 +7,7 @@ import Footer from "./components/shared/Footer";
 import ScrollToTop from "./components/shared/ScrollToTop";
 import React, { Suspense } from "react";
 import PageLoader from "./components/shared/PageLoader";
+import CookieConsent from "./components/CookieConsent";
 
 function App() {
   const location = useLocation();
@@ -31,6 +32,7 @@ function App() {
           {!isChapterReader && <Footer />}
         </AuthProvider>
       </ThemeProvider>
+      <CookieConsent />
       <Toaster />
     </div>
   );
