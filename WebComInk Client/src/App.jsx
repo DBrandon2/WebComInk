@@ -17,7 +17,7 @@ function App() {
   return (
     <div
       className={`w-full lg:pb-0 ${
-        isChapterReader ? "lg:my-[48px]" : "lg:my-[80px]"
+        isChapterReader ? "lg:my-0" : "lg:my-[80px]"
       }`}
     >
       <ThemeProvider>

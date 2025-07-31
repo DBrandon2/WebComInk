@@ -119,21 +119,21 @@ export default function PagedReader({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full min-h-[60vh]">
-      {/* Zones de navigation - couvrent toute la largeur de l'écran */}
+    <div className="flex flex-col items-center justify-center w-full h-screen">
+      {/* Zones de navigation - couvrent toute la hauteur de l'écran */}
       <div
-        className="fixed left-0 top-16 w-[35%] h-[calc(100vh-96px)] z-20 cursor-pointer navigation-zone"
+        className="fixed left-0 top-0 w-[35%] h-screen z-20 cursor-pointer navigation-zone"
         onClick={() => handleZoneClick("left")}
       />
 
       <div
-        className="fixed right-0 top-16 w-[35%] h-[calc(100vh-96px)] z-20 cursor-pointer navigation-zone"
+        className="fixed right-0 top-0 w-[35%] h-screen z-20 cursor-pointer navigation-zone"
         onClick={() => handleZoneClick("right")}
       />
 
       {/* Zone de clic au centre pour toggle topbar - espace entre les zones de navigation */}
       <div
-        className="fixed left-[35%] top-16 w-[30%] h-[calc(100vh-96px)] z-10 cursor-pointer"
+        className="fixed left-[35%] top-0 w-[30%] h-screen z-10 cursor-pointer"
         onClick={(e) => {
           if (isDragging) return;
           e.stopPropagation();
@@ -142,10 +142,10 @@ export default function PagedReader({
       />
 
       {/* Conteneur de l'image avec navigation */}
-      <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center">
+      <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center h-screen">
         <div
           className="relative flex items-center justify-center w-full overflow-hidden"
-          style={{ height: "calc(100vh - 96px)" }}
+          style={{ height: "100vh" }}
           ref={carouselRef}
           {...(isMobile ? bindSwipe : {})}
         >

@@ -173,11 +173,7 @@ export default function ChapterReader() {
           setLoadedPages,
         }}
       >
-        <div
-          className="min-h-screen bg-dark-bg mt-[-12px] overflow-x-hidden"
-          style={{ paddingBottom: 128 }}
-          {...bind()}
-        >
+        <div className="min-h-screen bg-dark-bg overflow-x-hidden" {...bind()}>
           <ReaderHeader
             showHeader={showHeader}
             mangaId={mangaId}
@@ -194,65 +190,76 @@ export default function ChapterReader() {
             totalPages={chapterImages.length}
           />
 
-          {/* Contenu principal, toggle header on click/tap */}
-          <div
-            className={`w-full py-1 sm:py-3 transition-all duration-300 ${
-              showHeader ? "pt-8" : "pt-0"
-            }`}
-            onClick={(e) => {
-              if (
-                e.target.tagName === "BUTTON" ||
-                e.target.tagName === "A" ||
-                e.target.closest("button") ||
-                e.target.closest("a") ||
-                e.target.closest('[data-chapter-select="true"]') ||
-                isDragging || // Évite le toggle pendant le swipe
-                e.target.closest(".navigation-zone") // Évite le toggle sur les zones de navigation
-              ) {
-                return;
-              }
-              setShowHeader(!showHeader);
-            }}
-          >
+          {/* Contenu principal */}
+          <div className="w-full">
             {chapterImages.length === 0 ? (
               <div className="text-center text-gray-400 py-12">
                 Aucune image trouvée pour ce chapitre.
               </div>
             ) : readingMode === READING_MODES.WEBTOON ? (
-              <WebtoonReader readerMargin={readerMargin} />
-            ) : (
-              <div className="flex flex-col items-center justify-center w-full min-h-[60vh]">
-                {/* Conteneur de l'image avec navigation */}
-                <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center">
-                  <PagedReader
-                    readingMode={readingMode}
-                    currentPageIndex={currentPageIndex}
-                    isDragging={isDragging}
-                    dragX={x}
-                    bindSwipe={isMobile ? bindSwipe : undefined}
-                    setShowHeader={setShowHeader}
-                    goToNextPage={goToNextPage}
-                    goToPreviousPage={goToPreviousPage}
-                    readerMargin={readerMargin}
-                  />
-                </div>
+              <div
+                className={`w-full py-1 sm:py-3 transition-all duration-300 ${
+                  showHeader ? "pt-8" : "pt-0"
+                }`}
+                onClick={(e) => {
+                  if (
+                    e.target.tagName === "BUTTON" ||
+                    e.target.tagName === "A" ||
+                    e.target.closest("button") ||
+                    e.target.closest("a") ||
+                    e.target.closest('[data-chapter-select="true"]') ||
+                    isDragging || // Évite le toggle pendant le swipe
+                    e.target.closest(".navigation-zone") // Évite le toggle sur les zones de navigation
+                  ) {
+                    return;
+                  }
+                  setShowHeader(!showHeader);
+                }}
+              >
+                <WebtoonReader readerMargin={readerMargin} />
               </div>
-            )}
-
-            {/* BOUTON CHAPITRE SUIVANT - uniquement pour webtoon */}
-            {readingMode === READING_MODES.WEBTOON && <NextChapterButton />}
-
-            {/* Section commentaires sous le chapitre */}
-            <ChapterComments chapterId={chapterId} mangaId={mangaId} />
-
-            {/* Interface mobile pour pull-to-refresh (uniquement en mode webtoon) */}
-            {isMobile && readingMode === READING_MODES.WEBTOON && (
-              <PullToRefreshIndicator
-                pullHeight={pullHeight}
-                triggerPull={triggerPull}
+            ) : (
+              <PagedReader
+                readingMode={readingMode}
+                currentPageIndex={currentPageIndex}
+                isDragging={isDragging}
+                dragX={x}
+                bindSwipe={isMobile ? bindSwipe : undefined}
+                setShowHeader={setShowHeader}
+                goToNextPage={goToNextPage}
+                goToPreviousPage={goToPreviousPage}
+                readerMargin={readerMargin}
               />
             )}
           </div>
+
+          {/* BOUTON CHAPITRE SUIVANT - uniquement pour webtoon */}
+          {readingMode === READING_MODES.WEBTOON && (
+            <div
+              className={`transition-all duration-300 ${
+                showHeader ? "pt-8" : "pt-0"
+              }`}
+            >
+              <NextChapterButton />
+            </div>
+          )}
+
+          {/* Section commentaires sous le chapitre */}
+          <div
+            className={`transition-all duration-300 ${
+              showHeader ? "pt-8" : "pt-0"
+            }`}
+          >
+            <ChapterComments chapterId={chapterId} mangaId={mangaId} />
+          </div>
+
+          {/* Interface mobile pour pull-to-refresh (uniquement en mode webtoon) */}
+          {isMobile && readingMode === READING_MODES.WEBTOON && (
+            <PullToRefreshIndicator
+              pullHeight={pullHeight}
+              triggerPull={triggerPull}
+            />
+          )}
         </div>
 
         {/* Modale de paramètres (settings) */}
