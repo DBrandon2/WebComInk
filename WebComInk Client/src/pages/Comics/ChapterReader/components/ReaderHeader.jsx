@@ -48,7 +48,7 @@ export default function ReaderHeader({
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full z-50 bg-dark-bg/25 backdrop-blur-lg shadow-lg transition-opacity duration-300 ${
+      className={`absolute top-0 left-0 w-full z-50 bg-dark-bg/25 backdrop-blur-lg shadow-lg transition-opacity duration-300 ${
         showHeader
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none"
@@ -72,61 +72,8 @@ export default function ReaderHeader({
 
           {/* Selecteur chapitre */}
           <div className="flex items-center flex-1 min-w-0 max-w-[160px] mx-2">
-            {readingMode === READING_MODES.MANGA ? (
-              <>
-                <button
-                  onClick={goToNextChapter}
-                  disabled={currentChapterIndex <= 0}
-                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer mr-2"
-                  title="Chapitre suivant (←)"
-                >
-                  <FaArrowLeft size={18} />
-                </button>
-                <div className="min-w-0 flex items-center justify-center flex-1">
-                  <ChapterSelectorDropdown direction="down" />
-                </div>
-                <button
-                  onClick={goToPreviousChapter}
-                  disabled={currentChapterIndex >= allChapters.length - 1}
-                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer ml-2"
-                  title="Chapitre précédent (→)"
-                >
-                  <FaArrowRight size={18} />
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={goToPreviousChapter}
-                  disabled={currentChapterIndex >= allChapters.length - 1}
-                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer mr-2"
-                  title="Chapitre précédent (←)"
-                >
-                  <FaArrowLeft size={18} />
-                </button>
-                <div className="min-w-0 flex items-center justify-center flex-1">
-                  <ChapterSelectorDropdown direction="down" />
-                </div>
-                <button
-                  onClick={goToNextChapter}
-                  disabled={currentChapterIndex <= 0}
-                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow items-center justify-center cursor-pointer ml-2"
-                  title="Chapitre suivant (→)"
-                >
-                  <FaArrowRight size={18} />
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Compteur de page mobile */}
-          <div className="flex items-center min-w-0 mx-2">
-            <div className="bg-dark-bg/80 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-medium">
-              {readingMode === READING_MODES.MANGA
-                ? `Page ${totalPages - currentPageIndex + 1} / ${
-                    totalPages + 1
-                  }`
-                : `Page ${currentPageIndex + 1} / ${totalPages + 1}`}
+            <div className="min-w-0 flex items-center justify-center flex-1">
+              <ChapterSelectorDropdown direction="down" />
             </div>
           </div>
 

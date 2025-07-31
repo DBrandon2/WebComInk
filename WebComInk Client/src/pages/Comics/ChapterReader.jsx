@@ -190,6 +190,21 @@ export default function ChapterReader() {
             totalPages={chapterImages.length}
           />
 
+          {/* Compteur de page mobile - sous la topbar */}
+          {showHeader && (
+            <div className="md:hidden absolute top-16 left-0 right-0 flex justify-center py-2 z-40">
+              <div className="bg-dark-bg/80 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-medium">
+                {readingMode === READING_MODES.MANGA
+                  ? `Page ${chapterImages.length - currentPageIndex + 1} / ${
+                      chapterImages.length + 1
+                    }`
+                  : `Page ${currentPageIndex + 1} / ${
+                      chapterImages.length + 1
+                    }`}
+              </div>
+            </div>
+          )}
+
           {/* Contenu principal */}
           <div className="w-full">
             {chapterImages.length === 0 ? (
@@ -198,9 +213,7 @@ export default function ChapterReader() {
               </div>
             ) : readingMode === READING_MODES.WEBTOON ? (
               <div
-                className={`w-full py-1 sm:py-3 transition-all duration-300 ${
-                  showHeader ? "pt-8" : "pt-0"
-                }`}
+                className={`w-full py-1 sm:py-3 transition-all duration-300`}
                 onClick={(e) => {
                   if (
                     e.target.tagName === "BUTTON" ||
@@ -235,21 +248,13 @@ export default function ChapterReader() {
 
           {/* BOUTON CHAPITRE SUIVANT - uniquement pour webtoon */}
           {readingMode === READING_MODES.WEBTOON && (
-            <div
-              className={`transition-all duration-300 ${
-                showHeader ? "pt-8" : "pt-0"
-              }`}
-            >
+            <div className="transition-all duration-300">
               <NextChapterButton />
             </div>
           )}
 
           {/* Section commentaires sous le chapitre */}
-          <div
-            className={`transition-all duration-300 ${
-              showHeader ? "pt-8" : "pt-0"
-            }`}
-          >
+          <div className="transition-all duration-300">
             <ChapterComments chapterId={chapterId} mangaId={mangaId} />
           </div>
 
@@ -273,16 +278,6 @@ export default function ChapterReader() {
             setReaderMargin={setReaderMargin}
           />
         )}
-
-        {/* Indicateur de performance (visible en mode développement) */}
-        <PerformanceIndicator
-          cacheSize={cacheSize}
-          cachedChaptersCount={cachedChaptersCount}
-          cachedImagesCount={cachedImagesCount}
-          connectionSpeed={connectionSpeed}
-          imageQuality={imageQuality}
-          isVisible={process.env.NODE_ENV === "development"}
-        />
 
         {/* Barre de progression simple */}
         <SimpleProgressBar

@@ -73,9 +73,9 @@ export default function PagedReader({
           style={{
             height: "100%",
             maxHeight: "100%",
-            width: "50%",
+            width: "100%",
             objectFit: "contain",
-            maxWidth: "80vw", // Réduit la largeur maximale
+            maxWidth: "100vw", // Toute la largeur sur mobile
             ...(readerMargin !== undefined
               ? {
                   width: `${100 - marginValue}%`,
@@ -83,8 +83,8 @@ export default function PagedReader({
                   marginRight: `${marginValue / 2}%`,
                 }
               : {
-                  width: "auto", // Laisse l'image prendre sa taille naturelle
-                  maxWidth: "80vw", // Limite la largeur
+                  width: "100%", // Toute la largeur disponible
+                  maxWidth: "100vw", // Toute la largeur de l'écran
                 }),
           }}
           className="mx-auto"
