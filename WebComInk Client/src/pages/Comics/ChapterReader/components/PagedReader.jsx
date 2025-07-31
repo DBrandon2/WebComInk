@@ -75,7 +75,6 @@ export default function PagedReader({
             maxHeight: "100%",
             width: "50%",
             objectFit: "contain",
-            cursor: "pointer",
             maxWidth: "80vw", // Réduit la largeur maximale
             ...(readerMargin !== undefined
               ? {
@@ -97,22 +96,22 @@ export default function PagedReader({
   // Fonction pour gérer la navigation par clic sur les zones latérales
   const handleZoneClick = (zone) => {
     if (isDragging) return;
-    
+
     if (readingMode === READING_MODES.MANGA) {
-      // Mode MANGA : carousel inversé, donc logique inversée
-      if (zone === 'left') {
-        // Clic gauche → page précédente dans le carousel (page suivante en lecture)
+      // Mode MANGA : lecture de droite à gauche
+      if (zone === "left") {
+        // Clic gauche → page précédente (dans l'ordre de lecture)
         goToPreviousPage();
-      } else if (zone === 'right') {
-        // Clic droite → page suivante dans le carousel (page précédente en lecture)
+      } else if (zone === "right") {
+        // Clic droite → page suivante (dans l'ordre de lecture)
         goToNextPage();
       }
     } else {
-      // Mode COMICS : carousel normal
-      if (zone === 'left') {
+      // Mode COMICS : lecture de gauche à droite
+      if (zone === "left") {
         // Clic gauche → page précédente
         goToPreviousPage();
-      } else if (zone === 'right') {
+      } else if (zone === "right") {
         // Clic droite → page suivante
         goToNextPage();
       }
@@ -122,18 +121,18 @@ export default function PagedReader({
   return (
     <div className="flex flex-col items-center justify-center w-full min-h-[60vh]">
       {/* Zones de navigation - couvrent toute la largeur de l'écran */}
-      <div 
+      <div
         className="fixed left-0 top-16 w-[35%] h-[calc(100vh-96px)] z-20 cursor-pointer navigation-zone"
-        onClick={() => handleZoneClick('left')}
+        onClick={() => handleZoneClick("left")}
       />
-      
-      <div 
+
+      <div
         className="fixed right-0 top-16 w-[35%] h-[calc(100vh-96px)] z-20 cursor-pointer navigation-zone"
-        onClick={() => handleZoneClick('right')}
+        onClick={() => handleZoneClick("right")}
       />
 
       {/* Zone de clic au centre pour toggle topbar - espace entre les zones de navigation */}
-      <div 
+      <div
         className="fixed left-[35%] top-16 w-[30%] h-[calc(100vh-96px)] z-10 cursor-pointer"
         onClick={(e) => {
           if (isDragging) return;
@@ -199,10 +198,10 @@ export default function PagedReader({
                 const offset = info.offset.x;
                 const velocity = info.velocity.x;
                 const pageWidth = window.innerWidth;
-                
+
                 // Seuil pour déclencher le changement de page
                 const threshold = pageWidth * 0.3;
-                
+
                 if (Math.abs(offset) > threshold || Math.abs(velocity) > 500) {
                   // Utilise la logique existante du carousel
                   // Le carousel gère déjà la direction selon le mode de lecture

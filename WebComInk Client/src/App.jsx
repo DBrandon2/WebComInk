@@ -15,7 +15,11 @@ function App() {
     location.pathname
   );
   return (
-    <div className="w-full lg:pb-0 lg:my-[80px]">
+    <div
+      className={`w-full lg:pb-0 ${
+        isChapterReader ? "lg:my-[48px]" : "lg:my-[80px]"
+      }`}
+    >
       <ThemeProvider>
         <AuthProvider>
           <ScrollToTop />

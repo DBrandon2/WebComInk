@@ -100,6 +100,9 @@ export default function CustomChapterSelect({
           scrollbar-width: thin;
           scrollbar-color: #18181b transparent;
         }
+        [data-chapter-select="true"] ul::-webkit-scrollbar-corner {
+          background: transparent;
+        }
       `}</style>
       <button
         ref={buttonRef}
@@ -136,7 +139,7 @@ export default function CustomChapterSelect({
           <ul
             ref={listRef}
             tabIndex={-1}
-            className="max-h-72 overflow-auto rounded bg-white shadow-lg z-20 animate-fade-in mt-2 pr-2"
+            className="max-h-72 overflow-y-auto overflow-x-hidden rounded bg-white shadow-lg z-20 animate-fade-in mt-2"
             style={dropdownStyle}
             role="listbox"
             onMouseDown={(e) => e.stopPropagation()}

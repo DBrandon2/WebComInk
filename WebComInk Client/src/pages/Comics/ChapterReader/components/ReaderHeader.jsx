@@ -123,7 +123,9 @@ export default function ReaderHeader({
           <div className="flex items-center min-w-0 mx-2">
             <div className="bg-dark-bg/80 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-medium">
               {readingMode === READING_MODES.MANGA
-                ? `Page ${totalPages - currentPageIndex + 1} / ${totalPages + 1}`
+                ? `Page ${totalPages - currentPageIndex + 1} / ${
+                    totalPages + 1
+                  }`
                 : `Page ${currentPageIndex + 1} / ${totalPages + 1}`}
             </div>
           </div>
@@ -164,8 +166,19 @@ export default function ReaderHeader({
                 <button
                   onClick={goToNextChapter}
                   disabled={currentChapterIndex <= 0}
+                  className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow flex items-center justify-center cursor-pointer mr-2"
+                  title="Chapitre suivant (←)"
+                >
+                  <FaArrowLeft size={18} />
+                </button>
+                <div className="min-w-0 flex items-center justify-center">
+                  <ChapterSelectorDropdown direction="down" />
+                </div>
+                <button
+                  onClick={goToPreviousChapter}
+                  disabled={currentChapterIndex >= allChapters.length - 1}
                   className="w-8 h-8 bg-accent text-dark-bg rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition shadow flex items-center justify-center cursor-pointer ml-2"
-                  title="Chapitre suivant (→)"
+                  title="Chapitre précédent (→)"
                 >
                   <FaArrowRight size={18} />
                 </button>
@@ -199,7 +212,9 @@ export default function ReaderHeader({
           <div className="absolute left-1/2 transform -translate-x-1/2 top-12 flex items-center">
             <div className="bg-dark-bg/80 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
               {readingMode === READING_MODES.MANGA
-                ? `Page ${totalPages - currentPageIndex + 1} / ${totalPages + 1}`
+                ? `Page ${totalPages - currentPageIndex + 1} / ${
+                    totalPages + 1
+                  }`
                 : `Page ${currentPageIndex + 1} / ${totalPages + 1}`}
             </div>
           </div>

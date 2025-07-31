@@ -8,7 +8,6 @@ import PagedReader from "./ChapterReader/components/PagedReader";
 import WebtoonReader from "./ChapterReader/components/WebtoonReader";
 import NextChapterButton from "./ChapterReader/components/NextChapterButton";
 import PullToRefreshIndicator from "./ChapterReader/components/PullToRefreshIndicator";
-import PageIndicator from "./ChapterReader/components/PageIndicator";
 import PerformanceIndicator from "./ChapterReader/components/PerformanceIndicator";
 import ChapterTransition from "./ChapterReader/components/ChapterTransition";
 import SimpleProgressBar from "./ChapterReader/components/SimpleProgressBar";
@@ -33,7 +32,7 @@ export default function ChapterReader() {
     setLoadedPages,
     isTransitioning,
     transitionDirection,
-    
+
     // Données
     chapter,
     chapterImages,
@@ -41,42 +40,42 @@ export default function ChapterReader() {
     allChapters,
     currentChapterIndex,
     mangaTitle,
-    
+
     // Paramètres
     readerMargin,
     setReaderMargin,
     readingMode,
     setReadingMode,
-    
+
     // Navigation
     goToPreviousChapter,
     goToNextChapter,
     goToChapter,
     goToNextPage,
     goToPreviousPage,
-    
+
     // Gestion des images
     handleImageLoad,
     handleImageError,
-    
+
     // Gestes
     bind,
     bindSwipe,
     x,
     controls,
-    
+
     // Refs
     carouselRef,
     settingsBtnRef,
-    
+
     // Utilitaires
     isMobile,
-    
+
     // Paramètres
     handleSettingsClick,
     closeSettings,
     settingsOpen,
-    
+
     // Nouvelles optimisations
     loadedImages,
     visibleImages,
@@ -93,7 +92,7 @@ export default function ChapterReader() {
     cachedChaptersCount,
     cachedImagesCount,
     clearCache,
-    
+
     // Nouvelles optimisations UX
     isNearEnd,
     isAtEnd,
@@ -156,8 +155,8 @@ export default function ChapterReader() {
 
   // Rendu principal avec transitions
   return (
-    <ChapterTransition 
-      isTransitioning={isTransitioning} 
+    <ChapterTransition
+      isTransitioning={isTransitioning}
       direction={transitionDirection}
     >
       <ChapterReaderContext.Provider
@@ -197,8 +196,8 @@ export default function ChapterReader() {
 
           {/* Contenu principal, toggle header on click/tap */}
           <div
-            className={`w-full py-2 sm:py-6 transition-all duration-300 ${
-              showHeader ? "pt-16" : "pt-0"
+            className={`w-full py-1 sm:py-3 transition-all duration-300 ${
+              showHeader ? "pt-8" : "pt-0"
             }`}
             onClick={(e) => {
               if (
@@ -208,7 +207,7 @@ export default function ChapterReader() {
                 e.target.closest("a") ||
                 e.target.closest('[data-chapter-select="true"]') ||
                 isDragging || // Évite le toggle pendant le swipe
-                e.target.closest('.navigation-zone') // Évite le toggle sur les zones de navigation
+                e.target.closest(".navigation-zone") // Évite le toggle sur les zones de navigation
               ) {
                 return;
               }
@@ -239,20 +238,23 @@ export default function ChapterReader() {
                 </div>
               </div>
             )}
-            
+
             {/* BOUTON CHAPITRE SUIVANT - uniquement pour webtoon */}
             {readingMode === READING_MODES.WEBTOON && <NextChapterButton />}
-            
+
             {/* Section commentaires sous le chapitre */}
             <ChapterComments chapterId={chapterId} mangaId={mangaId} />
-            
+
             {/* Interface mobile pour pull-to-refresh (uniquement en mode webtoon) */}
             {isMobile && readingMode === READING_MODES.WEBTOON && (
-              <PullToRefreshIndicator pullHeight={pullHeight} triggerPull={triggerPull} />
+              <PullToRefreshIndicator
+                pullHeight={pullHeight}
+                triggerPull={triggerPull}
+              />
             )}
           </div>
         </div>
-        
+
         {/* Modale de paramètres (settings) */}
         {settingsOpen && (
           <SettingsModal
@@ -264,7 +266,7 @@ export default function ChapterReader() {
             setReaderMargin={setReaderMargin}
           />
         )}
-        
+
         {/* Indicateur de performance (visible en mode développement) */}
         <PerformanceIndicator
           cacheSize={cacheSize}
@@ -272,7 +274,7 @@ export default function ChapterReader() {
           cachedImagesCount={cachedImagesCount}
           connectionSpeed={connectionSpeed}
           imageQuality={imageQuality}
-          isVisible={process.env.NODE_ENV === 'development'}
+          isVisible={process.env.NODE_ENV === "development"}
         />
 
         {/* Barre de progression simple */}

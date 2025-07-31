@@ -1,19 +1,19 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useMotionValue, useAnimation } from 'framer-motion';
-import { markChapterAsRead } from '../../../../apis/auth.api';
-import { getMangaById } from '../../../../utils/mangaUtils';
-import { useReaderSettings } from './useReaderSettings';
-import { useChapterData } from './useChapterData';
-import { useAllChapters } from './useChapterData';
-import { useReadingProgress } from './useReadingProgress';
-import { useKeyboardNavigation } from './useKeyboardNavigation';
-import { useGestures } from './useGestures';
-import { useImageLazyLoading } from './useImageLazyLoading';
-import { useImageQuality } from './useImageQuality';
-import { useChapterCache } from './useChapterCache';
-import { useChapterEndDetection } from './useChapterEndDetection';
-import { READING_MODES } from '../utils/constants';
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMotionValue, useAnimation } from "framer-motion";
+import { markChapterAsRead } from "../../../../apis/auth.api";
+import { getMangaById } from "../../../../utils/mangaUtils";
+import { useReaderSettings } from "./useReaderSettings";
+import { useChapterData } from "./useChapterData";
+import { useAllChapters } from "./useChapterData";
+import { useReadingProgress } from "./useReadingProgress";
+import { useKeyboardNavigation } from "./useKeyboardNavigation";
+import { useGestures } from "./useGestures";
+import { useImageLazyLoading } from "./useImageLazyLoading";
+import { useImageQuality } from "./useImageQuality";
+import { useChapterCache } from "./useChapterCache";
+import { useChapterEndDetection } from "./useChapterEndDetection";
+import { READING_MODES } from "../utils/constants";
 
 export const useChapterReader = (mangaId, slug, chapterId) => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
   const [modalOrigin, setModalOrigin] = useState({ x: 0, y: 0 });
   const [isTitleLoading, setIsTitleLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [transitionDirection, setTransitionDirection] = useState('next');
+  const [transitionDirection, setTransitionDirection] = useState("next");
 
   // États pour la navigation des pages
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
@@ -60,11 +60,11 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     handleImageError,
   } = useChapterData(chapterId, mangaId);
 
-  const {
-    allChapters,
-    currentChapterIndex,
-    mangaTitle,
-  } = useAllChapters(mangaId, chapterId, chapter);
+  const { allChapters, currentChapterIndex, mangaTitle } = useAllChapters(
+    mangaId,
+    chapterId,
+    chapter
+  );
 
   // Nouveaux hooks d'optimisation
   const {
@@ -109,11 +109,11 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     readingMode,
     () => {
       // Callback quand on atteint la fin du chapitre
-      console.log('Fin du chapitre détectée');
+      console.log("Fin du chapitre détectée");
     },
     () => {
       // Callback quand on est proche de la fin
-      console.log('Proche de la fin du chapitre');
+      console.log("Proche de la fin du chapitre");
     }
   );
 
@@ -128,39 +128,71 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
   const controls = useAnimation();
 
   // Détection mobile
-  const isMobile = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+  const isMobile =
+    typeof window !== "undefined" &&
+    window.matchMedia("(pointer: coarse)").matches;
 
   // Navigation entre chapitres avec transitions
   const goToPreviousChapter = () => {
-    if (currentChapterIndex < allChapters.length - 1) {
-      setTransitionDirection('prev');
-      setIsTransitioning(true);
-      
-      setTimeout(() => {
-        const prevChapter = allChapters[currentChapterIndex + 1];
-        navigate(`/Comics/${mangaId}/${slug}/chapter/${prevChapter.id}`);
-        setIsTransitioning(false);
-      }, 300);
+    if (readingMode === READING_MODES.MANGA) {
+      // Mode MANGA : lecture de droite à gauche, donc "précédent" = chapitre avec index plus bas
+      if (currentChapterIndex > 0) {
+        setTransitionDirection("prev");
+        setIsTransitioning(true);
+
+        setTimeout(() => {
+          const prevChapter = allChapters[currentChapterIndex - 1];
+          navigate(`/Comics/${mangaId}/${slug}/chapter/${prevChapter.id}`);
+          setIsTransitioning(false);
+        }, 300);
+      }
+    } else {
+      // Mode COMICS : lecture de gauche à droite, donc "précédent" = chapitre avec index plus élevé (inverse du MANGA)
+      if (currentChapterIndex < allChapters.length - 1) {
+        setTransitionDirection("prev");
+        setIsTransitioning(true);
+
+        setTimeout(() => {
+          const prevChapter = allChapters[currentChapterIndex + 1];
+          navigate(`/Comics/${mangaId}/${slug}/chapter/${prevChapter.id}`);
+          setIsTransitioning(false);
+        }, 300);
+      }
     }
   };
 
   const goToNextChapter = () => {
-    if (currentChapterIndex > 0) {
-      setTransitionDirection('next');
-      setIsTransitioning(true);
-      
-      setTimeout(() => {
-        const nextChapter = allChapters[currentChapterIndex - 1];
-        navigate(`/Comics/${mangaId}/${slug}/chapter/${nextChapter.id}`);
-        setIsTransitioning(false);
-      }, 300);
+    if (readingMode === READING_MODES.MANGA) {
+      // Mode MANGA : lecture de droite à gauche, donc "suivant" = chapitre avec index plus élevé
+      if (currentChapterIndex < allChapters.length - 1) {
+        setTransitionDirection("next");
+        setIsTransitioning(true);
+
+        setTimeout(() => {
+          const nextChapter = allChapters[currentChapterIndex + 1];
+          navigate(`/Comics/${mangaId}/${slug}/chapter/${nextChapter.id}`);
+          setIsTransitioning(false);
+        }, 300);
+      }
+    } else {
+      // Mode COMICS : lecture de gauche à droite, donc "suivant" = chapitre avec index plus bas (inverse du MANGA)
+      if (currentChapterIndex > 0) {
+        setTransitionDirection("next");
+        setIsTransitioning(true);
+
+        setTimeout(() => {
+          const nextChapter = allChapters[currentChapterIndex - 1];
+          navigate(`/Comics/${mangaId}/${slug}/chapter/${nextChapter.id}`);
+          setIsTransitioning(false);
+        }, 300);
+      }
     }
   };
 
   const goToChapter = (chapterId) => {
-    setTransitionDirection('next');
+    setTransitionDirection("next");
     setIsTransitioning(true);
-    
+
     setTimeout(() => {
       navigate(`/Comics/${mangaId}/${slug}/chapter/${chapterId}`);
       setShowChapterSelector(false);
@@ -170,13 +202,15 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
 
   // Navigation entre pages
   const goToNextPage = () => {
-    const maxPage = readingMode === READING_MODES.WEBTOON
-      ? chapterImages.length - 1
-      : chapterImages.length;
-    
+    const maxPage =
+      readingMode === READING_MODES.WEBTOON
+        ? chapterImages.length - 1
+        : chapterImages.length;
+
     if (currentPageIndex < maxPage) {
       setCurrentPageIndex(currentPageIndex + 1);
     } else {
+      // Fin du chapitre, aller au chapitre suivant
       goToNextChapter();
     }
   };
@@ -185,6 +219,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     if (currentPageIndex > 0) {
       setCurrentPageIndex(currentPageIndex - 1);
     } else {
+      // Début du chapitre, aller au chapitre précédent
       goToPreviousChapter();
     }
   };
@@ -231,15 +266,15 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     let isMounted = true;
     const loadPagesSequentially = async () => {
       let localSet = new Set();
-      
+
       // Charger d'abord les images visibles
-      visibleImages.forEach(index => {
+      visibleImages.forEach((index) => {
         if (!isMounted) return;
         localSet.add(index);
         setLoadedPages(new Set(localSet));
         preloadImage(index);
       });
-      
+
       // Puis charger les autres images progressivement
       for (let i = 0; i < chapterImages.length; i++) {
         if (!isMounted) return;
@@ -266,11 +301,11 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     } else {
       document.body.classList.remove("immersive-reader-ui");
     }
-    
+
     window.dispatchEvent(
       new CustomEvent("toggle-scrolltotop", { detail: { showHeader } })
     );
-    
+
     return () => {
       document.body.classList.remove("immersive-reader-ui");
       window.dispatchEvent(
@@ -283,7 +318,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
   useEffect(() => {
     document.body.classList.add("immersive-reader-desktop");
     document.body.style.overflowX = "hidden";
-    
+
     return () => {
       document.body.classList.remove("immersive-reader-desktop");
       document.body.style.overflowX = "";
@@ -303,12 +338,12 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
   // Enregistrer la lecture dans l'historique utilisateur
   useEffect(() => {
     if (!chapter || !chapterId || !mangaId) return;
-    
+
     let cancelled = false;
     async function fetchAndMark() {
       setIsTitleLoading(true);
       let titleToSend = mangaTitle && mangaTitle.trim() ? mangaTitle : null;
-      
+
       if (!titleToSend) {
         try {
           const mangaData = await getMangaById(mangaId);
@@ -321,16 +356,16 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
           titleToSend = "";
         }
       }
-      
+
       setIsTitleLoading(false);
-      
+
       if (!titleToSend || titleToSend === "Titre inconnu") {
         console.warn(
           "[markChapterAsRead] Titre du manga inconnu, on n'enregistre pas la lecture pour éviter l'historique vide."
         );
         return;
       }
-      
+
       const coverRel = chapter?.relationships?.find(
         (r) => r.type === "cover_art"
       );
@@ -339,7 +374,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
         : undefined;
       const chapterNumber = chapter?.attributes?.chapter || "";
       const chapterTitle = chapter?.attributes?.title || "";
-      
+
       const payload = {
         mangaId,
         mangaTitle: titleToSend,
@@ -350,7 +385,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
         chapterTitle,
         progress: 100,
       };
-      
+
       markChapterAsRead(payload)
         .then((res) => {
           if (!cancelled) {
@@ -363,7 +398,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
           }
         });
     }
-    
+
     fetchAndMark();
     return () => {
       cancelled = true;
@@ -389,7 +424,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     goToNextChapter,
     goToNextPage,
     goToPreviousPage,
-    setShowChapterSelector,
+    setShowChapterSelector
   );
 
   // Filtrage des chapitres pour la recherche
@@ -436,7 +471,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     pullHeight,
     isTransitioning,
     transitionDirection,
-    
+
     // Données
     chapter,
     chapterImages,
@@ -447,42 +482,42 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     currentChapterIndex,
     mangaTitle,
     filteredChapters,
-    
+
     // Paramètres
     readerMargin,
     setReaderMargin,
     readingMode,
     setReadingMode,
     readerSettingsMode,
-    
+
     // Navigation
     goToPreviousChapter,
     goToNextChapter,
     goToChapter,
     goToNextPage,
     goToPreviousPage,
-    
+
     // Gestion des images
     handleImageLoad,
     handleImageError,
-    
+
     // Gestes
     bind,
     bindSwipe,
     x,
     controls,
-    
+
     // Refs
     carouselRef,
     settingsBtnRef,
-    
+
     // Utilitaires
     isMobile,
-    
+
     // Paramètres
     handleSettingsClick,
     closeSettings,
-    
+
     // Nouvelles optimisations
     loadedImages,
     visibleImages,
@@ -499,11 +534,11 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     cachedChaptersCount,
     cachedImagesCount,
     clearCache,
-    
+
     // Nouvelles optimisations UX
     isNearEnd,
     isAtEnd,
     hasTriggeredEnd,
     chapterProgressValue,
   };
-}; 
+};
