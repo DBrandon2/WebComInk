@@ -210,14 +210,12 @@ export default function SearchBar({
         className={`h-12 bg-white/10 backdrop-blur-xl flex items-center justify-between px-3 border border-white/20 overflow-hidden transition-colors duration-200 ${
           !isOpen ? "hover:bg-white/20 cursor-pointer" : ""
         }`}
+        onClick={!isOpen ? onToggle : undefined}
       >
         {!isOpen ? (
-          <button
-            onClick={onToggle}
-            className="text-white text-xl cursor-pointer"
-          >
+          <div className="text-white text-xl cursor-pointer w-full h-full flex items-center justify-center">
             <HiOutlineMagnifyingGlass />
-          </button>
+          </div>
         ) : (
           <>
             <HiOutlineMagnifyingGlass className="text-gray-400 text-xl mr-2" />
