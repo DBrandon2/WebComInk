@@ -24,6 +24,7 @@ import { motion } from "framer-motion";
 import CategorySelectionModal from "../../components/modals/CategorySelectionModal";
 import { toast } from "react-hot-toast";
 import TopBarMobile from "../Comics/TopBarMobile";
+import Breadcrumb from "../../components/shared/Breadcrumb";
 // Suppression de l'import inutile de @hello-pangea/dnd
 import {
   DndContext,
@@ -436,6 +437,9 @@ export default function Library() {
 
   return (
     <div className="container mx-auto p-4 mt-12">
+      <Breadcrumb
+        items={[{ label: "Accueil", link: "/" }, { label: "Bibliothèque" }]}
+      />
       <TopBarMobile />
       {/* Onglets de tri dynamiques */}
       {hasCategories ? (

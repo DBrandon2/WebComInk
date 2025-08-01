@@ -10,6 +10,7 @@ import TopBarMobile from "./TopBarMobile";
 import ChaptersList from "./ChaptersList";
 import FavoriteButton from "../../components/FavoriteButton";
 import { getCustomCategories } from "../../services/favoriteService";
+import Breadcrumb from "../../components/shared/Breadcrumb";
 
 export default function ComicsDetails() {
   const { id, slug } = useParams();
@@ -409,6 +410,13 @@ export default function ComicsDetails() {
 
   return (
     <>
+      <Breadcrumb
+        items={[
+          { label: "Accueil", link: "/" },
+          { label: "Comics", link: "/Comics" },
+          { label: manga?.title || "Détails" },
+        ]}
+      />
       <AuthorArtistModal
         open={modalOpen}
         onClose={handleCloseModal}

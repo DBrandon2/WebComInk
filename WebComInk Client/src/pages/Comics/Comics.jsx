@@ -7,6 +7,7 @@ import FilterGenreBtn from "../../components/FilterGenreBtn";
 import { motion } from "framer-motion";
 import MangaList from "./MangaList";
 import { useLocation } from "react-router-dom";
+import Breadcrumb from "../../components/shared/Breadcrumb";
 
 export default function Comics() {
   const location = useLocation();
@@ -79,6 +80,9 @@ export default function Comics() {
 
   return (
     <div className="flex flex-col gap-8 mt-20 md:mt-24">
+      <Breadcrumb
+        items={[{ label: "Accueil", link: "/" }, { label: "Comics" }]}
+      />
       <TopBarMobile />
       <div className="flex w-full h-full xl:justify-center">
         <div className="flex w-full justify-center lg:justify-between items-center lg:px-7">

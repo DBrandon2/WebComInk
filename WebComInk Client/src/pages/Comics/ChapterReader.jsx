@@ -192,7 +192,7 @@ export default function ChapterReader() {
 
           {/* Compteur de page mobile - sous la topbar */}
           {showHeader && (
-            <div className="md:hidden absolute top-16 left-0 right-0 flex justify-center py-2 z-40">
+            <div className="md:hidden fixed top-16 left-0 right-0 flex justify-center py-2 z-40">
               <div className="bg-dark-bg/80 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-medium">
                 {readingMode === READING_MODES.MANGA
                   ? `Page ${chapterImages.length - currentPageIndex + 1} / ${

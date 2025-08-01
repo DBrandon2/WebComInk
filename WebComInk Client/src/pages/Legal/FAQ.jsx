@@ -9,6 +9,7 @@ import {
   Bug,
   Shield,
 } from "lucide-react";
+import Breadcrumb from "../../components/shared/Breadcrumb";
 
 export default function FAQ() {
   const faqs = [
@@ -191,6 +192,7 @@ export default function FAQ() {
 
   return (
     <main className="min-h-screen bg-[var(--color-dark-bg)] text-white px-6 py-12 max-w-4xl mx-auto font-poppins">
+      <Breadcrumb items={[{ label: "Accueil", link: "/" }, { label: "FAQ" }]} />
       {/* Header avec animation */}
       <motion.div
         initial={{ opacity: 0, y: -30 }}

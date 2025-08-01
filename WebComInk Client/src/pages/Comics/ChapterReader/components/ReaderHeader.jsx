@@ -4,6 +4,7 @@ import { FaArrowLeft, FaArrowRight, FaCog } from "react-icons/fa";
 import { Grip } from "lucide-react";
 import CustomChapterSelect from "../../../../components/shared/CustomChapterSelect";
 import { READING_MODES } from "../utils/constants";
+import logo from "../../../../assets/logo/chat-mignon-baillant-somnolent-cartoon-vector-icon-illustration-concept-icone-nature-animale-isole-vecteur-premium-style-dessin-anime-plat.png";
 
 export default function ReaderHeader({
   showHeader,
@@ -48,7 +49,7 @@ export default function ReaderHeader({
 
   return (
     <div
-      className={`absolute top-0 left-0 w-full z-50 bg-dark-bg/25 backdrop-blur-lg shadow-lg transition-opacity duration-300 ${
+      className={`fixed top-0 left-0 w-full z-50 bg-dark-bg/25 backdrop-blur-lg shadow-lg transition-opacity duration-300 ${
         showHeader
           ? "opacity-100 pointer-events-auto"
           : "opacity-0 pointer-events-none"
@@ -92,6 +93,17 @@ export default function ReaderHeader({
 
         {/* Desktop Layout */}
         <div className="hidden md:flex items-center w-full relative">
+          {/* Logo à gauche */}
+          <div className="flex items-center mr-4">
+            <Link to="/">
+              <img
+                src={logo}
+                alt="Logo WebComInk"
+                className="h-16 w-16 cursor-pointer hover:scale-110 transition-transform"
+              />
+            </Link>
+          </div>
+
           {/* Bouton retour à gauche */}
           <div className="flex items-center">
             <Link
@@ -155,17 +167,6 @@ export default function ReaderHeader({
             )}
           </div>
 
-          {/* Compteur de page desktop */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 top-12 flex items-center">
-            <div className="bg-dark-bg/80 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
-              {readingMode === READING_MODES.MANGA
-                ? `Page ${totalPages - currentPageIndex + 1} / ${
-                    totalPages + 1
-                  }`
-                : `Page ${currentPageIndex + 1} / ${totalPages + 1}`}
-            </div>
-          </div>
-
           {/* Bouton settings à droite */}
           <div className="flex items-center min-w-[40px] justify-end ml-auto">
             <button
@@ -177,6 +178,15 @@ export default function ReaderHeader({
               <FaCog size={22} />
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Compteur de page desktop - maintenant en position fixe */}
+      <div className="hidden md:block fixed left-1/2 transform -translate-x-1/2 top-24 z-50">
+        <div className="bg-dark-bg/80 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm font-medium">
+          {readingMode === READING_MODES.MANGA
+            ? `Page ${totalPages - currentPageIndex + 1} / ${totalPages + 1}`
+            : `Page ${currentPageIndex + 1} / ${totalPages + 1}`}
         </div>
       </div>
     </div>

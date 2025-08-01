@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import CustomSelect from "../../components/shared/CustomSelect";
 import { motion, AnimatePresence } from "framer-motion";
 import CookieManager from "../../components/CookieManager";
+import Breadcrumb from "../../components/shared/Breadcrumb";
 
 // Fonction utilitaire pour supprimer toutes les clés de settings de lecture
 function resetReaderSettings(mode) {
@@ -108,6 +109,9 @@ export default function Settings() {
 
   return (
     <div>
+      <Breadcrumb
+        items={[{ label: "Accueil", link: "/" }, { label: "Paramètres" }]}
+      />
       <div className="flex items-center gap-4 m-4">
         <span className="cursor-pointer text-lg" onClick={handleBackClick}>
           <IoIosArrowBack />

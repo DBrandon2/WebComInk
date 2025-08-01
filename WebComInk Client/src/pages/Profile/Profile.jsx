@@ -8,6 +8,7 @@ import { FaTrash } from "react-icons/fa";
 import { enrichMangas } from "../../utils/mangaUtils";
 import { supabase } from "../../utils/supabaseClient";
 import { updateAvatar } from "../../apis/auth.api";
+import Breadcrumb from "../../components/shared/Breadcrumb";
 
 export default function Profile() {
   const { user, logout, setUser } = useContext(AuthContext);
@@ -347,17 +348,9 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-dark-bg text-white font-sans">
       {/* Header breadcrumb */}
-      <div className="border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <nav className="flex items-center space-x-2 text-sm text-gray-400">
-            <Link to="/" className="hover:text-accent">
-              Accueil
-            </Link>
-            <span>/</span>
-            <span className="text-white">Profil</span>
-          </nav>
-        </div>
-      </div>
+      <Breadcrumb
+        items={[{ label: "Accueil", link: "/" }, { label: "Profil" }]}
+      />
 
       {/* Contenu principal */}
       <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">

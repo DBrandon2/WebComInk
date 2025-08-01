@@ -3,6 +3,7 @@ import { forgotPassword } from "../../../apis/auth.api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import logo from "../../../assets/logo/chat-mignon-baillant-somnolent-cartoon-vector-icon-illustration-concept-icone-nature-animale-isole-vecteur-premium-style-dessin-anime-plat.png";
+import Breadcrumb from "../../../components/shared/Breadcrumb";
 
 export default function ForgotPass() {
   const [email, setEmail] = useState("");
@@ -26,6 +27,13 @@ export default function ForgotPass() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-dark-bg px-4">
+      <Breadcrumb
+        items={[
+          { label: "Accueil", link: "/" },
+          { label: "Connexion", link: "/auth" },
+          { label: "Mot de passe oublié" },
+        ]}
+      />
       <div className="flex flex-col items-center bg-gray-800/80 rounded-2xl shadow-lg p-8 max-w-md w-full">
         <img
           src={logo}

@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import { signin, signup } from "../../apis/auth.api";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 import SwitchBtn from "../../components/shared/SwitchBtn";
+import Breadcrumb from "../../components/shared/Breadcrumb";
 
 export default function Auth() {
   const { login } = useContext(AuthContext);
@@ -148,6 +149,12 @@ export default function Auth() {
   };
   return (
     <div className="w-full min-h-screen bg-dark-bg flex flex-col">
+      <Breadcrumb
+        items={[
+          { label: "Accueil", link: "/" },
+          { label: activeFilter === "Connexion" ? "Connexion" : "Inscription" },
+        ]}
+      />
       {/* Header mobile */}
       <div className="flex justify-between items-center px-6 py-4 lg:hidden">
         <button
