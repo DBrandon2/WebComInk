@@ -311,17 +311,17 @@ export default function Profile() {
     setSelectedHistoryItems([]);
   };
 
-  const toggleHistoryItemSelection = (mangaId) => {
+  const toggleHistoryItemSelection = (chapterId) => {
     setSelectedHistoryItems((prev) =>
-      prev.includes(mangaId)
-        ? prev.filter((id) => id !== mangaId)
-        : [...prev, mangaId]
+      prev.includes(chapterId)
+        ? prev.filter((id) => id !== chapterId)
+        : [...prev, chapterId]
     );
   };
 
   const selectAllHistoryItems = () => {
-    const allMangaIds = readingHistory.map((entry) => entry.mangaId);
-    setSelectedHistoryItems(allMangaIds);
+    const allChapterIds = readingHistory.map((entry) => entry.chapterId);
+    setSelectedHistoryItems(allChapterIds);
   };
 
   const deselectAllHistoryItems = () => {
@@ -335,7 +335,7 @@ export default function Profile() {
 
       // Pour la démo, on filtre localement
       setReadingHistory((prev) =>
-        prev.filter((entry) => !selectedHistoryItems.includes(entry.mangaId))
+        prev.filter((entry) => !selectedHistoryItems.includes(entry.chapterId))
       );
       setSelectedHistoryItems([]);
       setIsHistorySelectionMode(false);
@@ -669,7 +669,7 @@ export default function Profile() {
                         }
                         let coverUrl =
                           entry.coverImage || coversMap[entry.mangaId];
-                        const showPlaceholder = index === 0 || !coverUrl;
+                        const showPlaceholder = !coverUrl;
 
                         return (
                           <div
@@ -683,10 +683,10 @@ export default function Profile() {
                                 <input
                                   type="checkbox"
                                   checked={selectedHistoryItems.includes(
-                                    entry.mangaId
+                                    entry.chapterId
                                   )}
                                   onChange={() =>
-                                    toggleHistoryItemSelection(entry.mangaId)
+                                    toggleHistoryItemSelection(entry.chapterId)
                                   }
                                   className="w-5 h-5 accent-accent cursor-pointer"
                                 />

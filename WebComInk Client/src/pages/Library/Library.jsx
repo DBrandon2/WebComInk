@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   getFavorites,
   removeFavorite,
@@ -8,7 +8,7 @@ import {
   removeCustomCategory,
   renameCustomCategory,
 } from "../../services/favoriteService";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Trash2,
   Search,
@@ -25,6 +25,7 @@ import CategorySelectionModal from "../../components/modals/CategorySelectionMod
 import { toast } from "react-hot-toast";
 import TopBarMobile from "../Comics/TopBarMobile";
 import Breadcrumb from "../../components/shared/Breadcrumb";
+import { AuthContext } from "../../context/AuthContext";
 // Suppression de l'import inutile de @hello-pangea/dnd
 import {
   DndContext,
@@ -45,6 +46,54 @@ import SortableMangaCard from "../../components/shared/SortableMangaCard";
 import { setLastDropTime } from "../../utils/dragDropState";
 
 export default function Library() {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // Vérification d'authentification
+  useEffect(() => {
+    if (!user) {
+      // Ne pas rediriger, juste afficher le message d'invitation
+      return;
+    }
+  }, [user, navigate]);
+
+  // Si pas d'utilisateur, afficher le message d'invitation
+  if (!user) {
+    return (
+      <div className="container mx-auto p-4 mt-12">
+        <Breadcrumb
+          items={[{ label: "Accueil", link: "/" }, { label: "Bibliothèque" }]}
+        />
+        <TopBarMobile />
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="text-center max-w-md mx-auto">
+            <h1 className="text-3xl font-bold text-accent mb-4">
+              Ma Bibliothèque
+            </h1>
+            <p className="text-gray-300 mb-6">
+              Connecte-toi ou inscris-toi pour accéder à ta bibliothèque
+              personnelle et gérer tes mangas favoris.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                to="/auth"
+                className="bg-accent text-dark-bg px-6 py-3 rounded-lg font-semibold hover:bg-accent/80 transition-colors"
+              >
+                Se connecter
+              </Link>
+              <Link
+                to="/auth"
+                className="bg-accent-hover text-accent px-6 py-3 rounded-lg font-semibold border border-accent hover:bg-accent hover:text-dark-bg transition-colors"
+              >
+                S'inscrire
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const [favorites, setFavorites] = useState([]);
   const [filteredFavorites, setFilteredFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,6 +154,10 @@ export default function Library() {
     const newName = renameValue.trim();
     if (!newName) {
       setRenameError("Le nom ne peut pas être vide.");
+      return;
+    }
+    if (newName.length > 8) {
+      setRenameError("Le nom ne peut pas dépasser 8 caractères.");
       return;
     }
     if (newName === tab) {
@@ -356,6 +409,14 @@ export default function Library() {
       setAddCatError("Le nom ne peut pas être vide.");
       return;
     }
+    if (newCategoryName.trim().length > 8) {
+      setAddCatError("Le nom ne peut pas dépasser 8 caractères.");
+      return;
+    }
+    if (customCategories.length >= 8) {
+      setAddCatError("Vous ne pouvez pas créer plus de 8 catégories.");
+      return;
+    }
     setAddCatLoading(true);
     setAddCatError("");
     try {
@@ -462,13 +523,15 @@ export default function Library() {
               </motion.button>
             ))}
             {/* Bouton + pour ajouter une catégorie */}
-            <button
-              onClick={handleOpenAddCategory}
-              className="w-8 h-8 text-xl sm:w-10 sm:h-10 sm:text-2xl rounded hover:bg-accent-hover text-accent leading-none flex items-center justify-center transition ml-1 sm:ml-2 p-0 cursor-pointer"
-              title="Ajouter une catégorie"
-            >
-              <span className="relative -top-0.5">+</span>
-            </button>
+            {customCategories.length < 8 && (
+              <button
+                onClick={handleOpenAddCategory}
+                className="w-8 h-8 text-xl sm:w-10 sm:h-10 sm:text-2xl rounded hover:bg-accent-hover text-accent leading-none flex items-center justify-center transition ml-1 sm:ml-2 p-0 cursor-pointer"
+                title="Ajouter une catégorie"
+              >
+                <span className="relative -top-0.5">+</span>
+              </button>
+            )}
           </div>
         </div>
       ) : (
@@ -515,7 +578,7 @@ export default function Library() {
                     value={renameValue}
                     onChange={(e) => setRenameValue(e.target.value)}
                     className="px-2 py-1 rounded border-1 border-accent bg-accent-hover text-accent font-semibold focus:outline-none focus:ring-1 w-20 sm:w-28"
-                    maxLength={32}
+                    maxLength={8}
                     disabled={renameLoading}
                     autoFocus
                   />
@@ -641,7 +704,7 @@ export default function Library() {
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 onFocus={() => setInputFocused(true)}
                 onBlur={() => setInputFocused(false)}
-                maxLength={32}
+                maxLength={8}
                 disabled={addCatLoading}
               />
               {addCatError && (

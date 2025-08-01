@@ -56,6 +56,7 @@ export default function Discover() {
   const [chapterNumber, setChapterNumber] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [mangaRating, setMangaRating] = useState(null);
 
   useEffect(() => {
     async function fetchDailyManga() {
@@ -99,6 +100,28 @@ export default function Discover() {
       }
     }
     fetchChapterNumber();
+  }, [mangaOfTheDay]);
+
+  // Récupérer la note du manga
+  useEffect(() => {
+    async function fetchMangaRating() {
+      if (mangaOfTheDay && mangaOfTheDay.id) {
+        try {
+          const API_BASE_URL =
+            import.meta.env.VITE_API_URL || "http://localhost:3000";
+          const response = await fetch(
+            `${API_BASE_URL}/proxy/statistics/manga/${mangaOfTheDay.id}`
+          );
+          const data = await response.json();
+          const stats = data.statistics?.[mangaOfTheDay.id];
+          setMangaRating(stats?.rating?.average ?? null);
+        } catch (err) {
+          console.error("Erreur lors de la récupération de la note:", err);
+          setMangaRating(null);
+        }
+      }
+    }
+    fetchMangaRating();
   }, [mangaOfTheDay]);
 
   // LOG pour debug : affiche les attributs du manga du jour dans la console
@@ -187,6 +210,21 @@ export default function Discover() {
                   <FaCalendarAlt size={14} className="text-accent" />
                   <span className="font-semibold">Parution :</span>{" "}
                   {mangaOfTheDay.originalData.attributes.year || "N/A"}
+                </span>
+              )}
+              {/* Note du manga */}
+              {mangaRating && (
+                <span className="flex items-center gap-1">
+                  <svg
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="text-accent"
+                  >
+                    <polygon points="8,1 10.09,5.26 15,6.18 11.5,9.97 12.36,15 8,12.77 3.64,15 4.5,9.97 1,6.18 5.91,5.26" />
+                  </svg>
+                  <span className="font-semibold">Note :</span>{" "}
+                  {mangaRating.toFixed(2)}/10
                 </span>
               )}
               {/* Statut */}

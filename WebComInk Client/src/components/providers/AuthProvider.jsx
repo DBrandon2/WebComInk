@@ -53,6 +53,11 @@ export default function AuthProvider({ children }) {
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("rememberMe");
+    // Nettoyer les données de la bibliothèque
+    localStorage.removeItem("favorites");
+    localStorage.removeItem("customCategories");
+    // Forcer le rechargement de la page pour nettoyer tous les états
+    window.location.reload();
   };
   return (
     <AuthContext.Provider value={{ user, login, logout, setUser, isLoading }}>
