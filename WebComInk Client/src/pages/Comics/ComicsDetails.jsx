@@ -11,6 +11,7 @@ import ChaptersList from "./ChaptersList";
 import FavoriteButton from "../../components/FavoriteButton";
 import { getCustomCategories } from "../../services/favoriteService";
 import Breadcrumb from "../../components/shared/Breadcrumb";
+import { useReadingHistory } from "./ChapterReader/hooks/useReadingHistory";
 
 export default function ComicsDetails() {
   const { id, slug } = useParams();
@@ -22,6 +23,9 @@ export default function ComicsDetails() {
   const [scanGroups, setScanGroups] = useState({ fr: [], en: [] });
   const [modalTranslatorsOpen, setModalTranslatorsOpen] = useState(false);
   const [customCategories, setCustomCategories] = useState([]);
+
+  // Hook pour l'historique de lecture
+  const { lastReadChapter, getLastReadChapterForManga } = useReadingHistory(id);
 
   // Extraction et fallback automatique du synopsis (fr > en)
   const rawDescFr = manga?.originalData?.attributes?.description?.fr || "";

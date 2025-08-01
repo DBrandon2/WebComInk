@@ -98,24 +98,40 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
   } = useChapterCache();
 
   // Nouveau hook de détection de fin de chapitre
-  const {
-    isNearEnd,
-    isAtEnd,
-    hasTriggeredEnd,
-    progress: chapterProgressValue,
-  } = useChapterEndDetection(
-    currentPageIndex,
-    chapterImages.length,
-    readingMode,
-    () => {
-      // Callback quand on atteint la fin du chapitre
-      console.log("Fin du chapitre détectée");
-    },
-    () => {
-      // Callback quand on est proche de la fin
-      console.log("Proche de la fin du chapitre");
+  const { isNearEnd, isAtEnd, hasTriggeredEnd, chapterProgressValue } =
+    useChapterEndDetection({
+      currentPageIndex,
+      totalPages: chapterImages.length,
+      readingMode,
+      onChapterEnd: () => {
+        // Marquer le chapitre comme terminé quand on arrive à la fin
+        if (chapter && chapterId && mangaId) {
+          const payload = {
+            mangaId,
+            mangaTitle: mangaTitle || "",
+            mangaSlug: slug || "",
+            coverImage: "",
+            chapterId,
+            chapterNumber: chapter?.attributes?.chapter || "",
+            chapterTitle: chapter?.attributes?.title || "",
+            progress: 100,
+          };
+          markChapterAsRead(payload).catch(console.error);
+        }
+      },
+    });
+
+  // Fonction pour reprendre la lecture à la page sauvegardée
+  const resumeReading = (savedProgress) => {
+    if (savedProgress && savedProgress > 0 && savedProgress < 100) {
+      const targetPage = Math.floor(
+        (savedProgress / 100) * (chapterImages.length - 1)
+      );
+      setCurrentPageIndex(
+        Math.max(0, Math.min(targetPage, chapterImages.length - 1))
+      );
     }
-  );
+  };
 
   // Constantes pour les gestes
   const maxPull = 120;
@@ -339,6 +355,10 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
   useEffect(() => {
     if (!chapter || !chapterId || !mangaId) return;
 
+    // Ne pas marquer comme lu si on est encore à la première page
+    // et qu'on n'a pas encore commencé à lire
+    if (currentPageIndex === 0 && chapterImages.length > 0) return;
+
     let cancelled = false;
     async function fetchAndMark() {
       setIsTitleLoading(true);
@@ -375,6 +395,15 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
       const chapterNumber = chapter?.attributes?.chapter || "";
       const chapterTitle = chapter?.attributes?.title || "";
 
+      // Calculer le progrès de lecture
+      const progress = Math.round(
+        (currentPageIndex / (chapterImages.length - 1)) * 100
+      );
+
+      // Ne marquer comme lu que si on a lu au moins 10% du chapitre
+      // ou si on a lu au moins 2 pages
+      const shouldMarkAsRead = progress >= 10 || currentPageIndex >= 2;
+
       const payload = {
         mangaId,
         mangaTitle: titleToSend,
@@ -383,7 +412,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
         chapterId,
         chapterNumber,
         chapterTitle,
-        progress: 100,
+        progress: shouldMarkAsRead ? progress : 0,
       };
 
       markChapterAsRead(payload)
@@ -403,7 +432,15 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     return () => {
       cancelled = true;
     };
-  }, [chapterId, chapter, mangaId, slug, mangaTitle]);
+  }, [
+    chapterId,
+    chapter,
+    mangaId,
+    slug,
+    mangaTitle,
+    currentPageIndex,
+    chapterImages.length,
+  ]);
 
   // Utilisation du hook de progression de lecture
   useReadingProgress({
@@ -540,5 +577,6 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
     isAtEnd,
     hasTriggeredEnd,
     chapterProgressValue,
+    resumeReading,
   };
 };

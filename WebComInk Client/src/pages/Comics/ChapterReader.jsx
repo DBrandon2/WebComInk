@@ -13,10 +13,14 @@ import ChapterTransition from "./ChapterReader/components/ChapterTransition";
 import SimpleProgressBar from "./ChapterReader/components/SimpleProgressBar";
 import { ChapterReaderContext } from "./ChapterReader/context/ChapterReaderContext";
 import { useChapterReader } from "./ChapterReader/hooks/useChapterReader";
+import { useReadingHistory } from "./ChapterReader/hooks/useReadingHistory";
 import { READING_MODES } from "./ChapterReader/utils/constants";
 
 export default function ChapterReader() {
   const { mangaId, slug, chapterId } = useParams();
+
+  // Hook pour l'historique de lecture
+  const { getChapterProgress } = useReadingHistory(mangaId);
 
   // Utilisation du hook principal
   const {
@@ -100,7 +104,18 @@ export default function ChapterReader() {
     chapterProgressValue,
     readingProgress,
     chapterProgress,
+    resumeReading,
   } = useChapterReader(mangaId, slug, chapterId);
+
+  // Reprendre la lecture à la page sauvegardée
+  React.useEffect(() => {
+    if (chapterId && !loading) {
+      const savedProgress = getChapterProgress(chapterId);
+      if (savedProgress > 0 && savedProgress < 100) {
+        resumeReading(savedProgress);
+      }
+    }
+  }, [chapterId, loading, getChapterProgress, resumeReading]);
 
   // Constantes pour les gestes
   const triggerPull = 100;

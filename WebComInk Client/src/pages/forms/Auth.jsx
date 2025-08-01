@@ -364,7 +364,7 @@ export default function Auth() {
                   className="text-gray-300 text-sm leading-relaxed cursor-pointer"
                 >
                   En soumettant ce formulaire j'accepte les{" "}
-                  <NavLink to>
+                  <NavLink to="/Conditions-Générales-d'utilisation">
                     <span className="text-accent hover:underline cursor-pointer">
                       termes et conditions
                     </span>

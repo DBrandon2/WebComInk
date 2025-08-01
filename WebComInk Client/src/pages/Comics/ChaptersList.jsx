@@ -5,6 +5,7 @@ import enFlag from "../../assets/flags/en.svg";
 import { FaArrowDown91 } from "react-icons/fa6";
 import { FaArrowDown19 } from "react-icons/fa6";
 import { motion } from "framer-motion";
+import { useReadingHistory } from "./ChapterReader/hooks/useReadingHistory";
 
 export default function ChaptersList({ mangaId }) {
   const { slug } = useParams();
@@ -20,6 +21,13 @@ export default function ChaptersList({ mangaId }) {
   const [detectedLangs, setDetectedLangs] = useState([]);
   const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+  // Hook pour l'historique de lecture
+  const {
+    isChapterRead,
+    getChapterProgress,
+    lastReadChapter: hookLastReadChapter,
+  } = useReadingHistory(mangaId);
+
   // Détection initiale des langues disponibles (fr/en uniquement)
   useEffect(() => {
     async function detectLangs() {
@@ -27,7 +35,7 @@ export default function ChaptersList({ mangaId }) {
       try {
         // Fetch FR
         const resFr = await fetch(
-          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=1&translatedLanguage[]=fr&order[chapter]=desc`
+          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=1&translatedLanguage[]=fr&order[chapter]=asc`
         );
         const dataFr = await resFr.json();
         if ((dataFr.data || []).length > 0) langs.push("fr");
@@ -35,7 +43,7 @@ export default function ChaptersList({ mangaId }) {
       try {
         // Fetch EN
         const resEn = await fetch(
-          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=1&translatedLanguage[]=en&order[chapter]=desc`
+          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=1&translatedLanguage[]=en&order[chapter]=asc`
         );
         const dataEn = await resEn.json();
         if ((dataEn.data || []).length > 0) langs.push("en");
@@ -61,7 +69,7 @@ export default function ChaptersList({ mangaId }) {
       setError(null);
       try {
         const res = await fetch(
-          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=100&translatedLanguage[]=${selectedLang}&order[chapter]=desc&includes[]=scanlation_group`
+          `${API_BASE_URL}/proxy/chapter-list?manga=${mangaId}&limit=100&translatedLanguage[]=${selectedLang}&order[chapter]=asc&includes[]=scanlation_group`
         );
         const data = await res.json();
         setChapters(data.data || []);
@@ -258,6 +266,30 @@ export default function ChaptersList({ mangaId }) {
           </motion.button>
         </div>
       </div>
+      {/* Bouton Continuer la lecture sous le titre */}
+      {hookLastReadChapter && (
+        <div className="flex justify-start mb-4 w-full md:max-w-3xl">
+          <motion.button
+            className="flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-sm cursor-pointer border border-accent hover:bg-accent-hover transition-colors"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.93 }}
+            transition={{ type: "spring", stiffness: 300, damping: 18 }}
+            onClick={() => {
+              if (hookLastReadChapter) {
+                window.location.href = `/Comics/${mangaId}/${slug}/chapter/${hookLastReadChapter.chapterId}`;
+              }
+            }}
+          >
+            <span>▶</span>
+            <span>Continuer la lecture</span>
+            {hookLastReadChapter.progress < 100 && (
+              <span className="text-accent/80 text-xs">
+                ({hookLastReadChapter.progress}%)
+              </span>
+            )}
+          </motion.button>
+        </div>
+      )}
       {/* Liste des chapitres */}
       {loading && (
         <div className="flex flex-col gap-2 md:gap-4 w-full md:max-w-3xl">
@@ -274,102 +306,129 @@ export default function ChaptersList({ mangaId }) {
       )}
       {!loading && !error && chaptersToShow.length > 0 && (
         <div className="flex flex-col gap-2 md:gap-4 w-full md:max-w-3xl">
-          {chaptersToShow.map((ch, idx) => (
-            <Link
-              key={ch.id}
-              to={`/Comics/${mangaId}/${slug}/chapter/${ch.id}`}
-              className="flex items-center gap-3 p-2 md:p-4 rounded bg-dark-bg/70  md:gap-6 md:min-h-[96px] hover:bg-dark-bg/90 hover:border-accent/50 transition-all duration-200 cursor-pointer"
-            >
-              <div className="w-12 h-16 bg-gray-700 rounded flex-shrink-0 flex items-center justify-center overflow-hidden md:w-16 md:h-24">
-                {chapterImages[ch.id] ? (
-                  <img
-                    src={chapterImages[ch.id]}
-                    alt="Page du chapitre"
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  <span className="text-xs text-gray-400">Image</span>
-                )}
-              </div>
-              <div className="flex flex-col flex-1 min-w-0">
-                <div className="flex flex-row items-center gap-3 flex-wrap w-full min-w-0">
-                  <span className="text-xs text-gray-400 whitespace-nowrap flex-1">
-                    N° : {ch.attributes.chapter || "?"}
-                  </span>
-                  <span
-                    className="text-accent text-xs sm:text-sm md:text-base flex items-center gap-2 flex-[3_1_0%] text-center break-words"
-                    style={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      maxHeight: "3.2em",
-                    }}
-                  >
-                    {ch.attributes.title ||
-                      `Chapitre ${ch.attributes.chapter || "?"}`}
-                  </span>
-                  <span className="text-xs text-gray-400 whitespace-nowrap flex-1">
-                    {/* Date courte en mobile, longue en desktop */}
-                    <span className="inline sm:hidden">
-                      {ch.attributes.publishAt
-                        ? (() => {
-                            const d = new Date(ch.attributes.publishAt);
-                            const day = d.getDate().toString().padStart(2, "0");
-                            const month = (d.getMonth() + 1)
-                              .toString()
-                              .padStart(2, "0");
-                            const year = d.getFullYear().toString().slice(-2);
-                            return `${day}/${month}/${year}`;
-                          })()
-                        : "Date inconnue"}
-                    </span>
-                    <span className="hidden sm:inline md:text-base">
-                      {ch.attributes.publishAt
-                        ? new Date(ch.attributes.publishAt).toLocaleDateString()
-                        : "Date inconnue"}
-                    </span>
-                    {/* Groupe de traduction (team) */}
-                    {ch.relationships &&
-                      ch.relationships.find(
-                        (rel) =>
-                          rel.type === "scanlation_group" &&
-                          rel.attributes?.name
-                      ) && (
-                        <span className="block text-[0.72rem] text-accent/80 mt-0.5 font-semibold truncate max-w-[120px]">
-                          {
-                            ch.relationships.find(
-                              (rel) =>
-                                rel.type === "scanlation_group" &&
-                                rel.attributes?.name
-                            ).attributes.name
-                          }
-                        </span>
-                      )}
-                  </span>
-                  {/* Drapeau langue */}
-                  {ch.attributes.translatedLanguage === "fr" ? (
+          {chaptersToShow.map((ch, idx) => {
+            const isRead = isChapterRead(ch.id);
+            const progress = getChapterProgress(ch.id);
+            const isLastRead =
+              hookLastReadChapter && hookLastReadChapter.chapterId === ch.id;
+
+            return (
+              <Link
+                key={ch.id}
+                to={`/Comics/${mangaId}/${slug}/chapter/${ch.id}`}
+                className={`flex items-center gap-3 p-2 md:p-4 rounded transition-all duration-200 cursor-pointer ${
+                  isRead
+                    ? "bg-dark-bg/50 hover:bg-dark-bg/70 hover:scale-[1.02]"
+                    : isLastRead
+                    ? "bg-blue-900/30 hover:bg-blue-900/50 hover:scale-[1.02]"
+                    : "bg-dark-bg/70 hover:bg-dark-bg/90 hover:scale-[1.02]"
+                }`}
+              >
+                <div className="w-12 h-16 bg-gray-700 rounded flex-shrink-0 flex items-center justify-center overflow-hidden md:w-16 md:h-24 relative">
+                  {chapterImages[ch.id] ? (
                     <img
-                      src={frFlag}
-                      alt="FR"
-                      className="ml-2 w-5 h-4 inline-block align-middle rounded-sm"
-                    />
-                  ) : ch.attributes.translatedLanguage === "en" ? (
-                    <img
-                      src={enFlag}
-                      alt="EN"
-                      className="ml-2 w-5 h-4 inline-block align-middle rounded-sm"
+                      src={chapterImages[ch.id]}
+                      alt="Page du chapitre"
+                      className={`object-cover w-full h-full ${
+                        isRead ? "grayscale opacity-60" : ""
+                      }`}
                     />
                   ) : (
-                    <span className="ml-2 px-1 py-0.5 rounded bg-gray-700 text-xs text-white">
-                      {ch.attributes.translatedLanguage.toUpperCase()}
-                    </span>
+                    <span className="text-xs text-gray-400">Image</span>
+                  )}
+                  {/* Indicateur de lecture */}
+                  {isLastRead && !isRead && (
+                    <div className="absolute top-1 right-1 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs">▶</span>
+                    </div>
                   )}
                 </div>
-              </div>
-            </Link>
-          ))}
+                <div className="flex flex-col flex-1 min-w-0">
+                  <div className="flex flex-row items-center gap-3 flex-wrap w-full min-w-0">
+                    <span className="text-xs text-gray-400 whitespace-nowrap flex-1">
+                      N° : {ch.attributes.chapter || "?"}
+                    </span>
+                    <span
+                      className={`text-xs sm:text-sm md:text-base flex items-center gap-2 flex-[3_1_0%] text-center break-words ${
+                        isRead
+                          ? "text-gray-500"
+                          : isLastRead
+                          ? "text-blue-400"
+                          : "text-accent"
+                      }`}
+                      style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        maxHeight: "3.2em",
+                      }}
+                    >
+                      {ch.attributes.title ||
+                        `Chapitre ${ch.attributes.chapter || "?"}`}
+                      {isRead && progress < 100 && (
+                        <span className="text-xs text-gray-400 ml-2">
+                          ({progress}%)
+                        </span>
+                      )}
+                    </span>
+                    <span
+                      className={`text-xs whitespace-nowrap flex-1 ${
+                        isRead ? "text-gray-400" : "text-white"
+                      }`}
+                    >
+                      {/* Date courte en mobile, longue en desktop */}
+                      <span className="inline sm:hidden">
+                        {ch.attributes.publishAt
+                          ? (() => {
+                              const d = new Date(ch.attributes.publishAt);
+                              const day = d
+                                .getDate()
+                                .toString()
+                                .padStart(2, "0");
+                              const month = (d.getMonth() + 1)
+                                .toString()
+                                .padStart(2, "0");
+                              const year = d.getFullYear().toString().slice(-2);
+                              return `${day}/${month}/${year}`;
+                            })()
+                          : "Date inconnue"}
+                      </span>
+                      <span className="hidden sm:inline md:text-base">
+                        {ch.attributes.publishAt
+                          ? new Date(
+                              ch.attributes.publishAt
+                            ).toLocaleDateString()
+                          : "Date inconnue"}
+                      </span>
+                      {/* Groupe de traduction (team) */}
+                      {ch.relationships &&
+                        ch.relationships.find(
+                          (rel) =>
+                            rel.type === "scanlation_group" &&
+                            rel.attributes?.name
+                        ) && (
+                          <span
+                            className={`block text-[0.72rem] mt-0.5 font-semibold truncate max-w-[120px] ${
+                              isRead ? "text-gray-500" : "text-accent/80"
+                            }`}
+                          >
+                            {
+                              ch.relationships.find(
+                                (rel) =>
+                                  rel.type === "scanlation_group" &&
+                                  rel.attributes?.name
+                              ).attributes.name
+                            }
+                          </span>
+                        )}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
       {!loading && !error && chaptersToShow.length > 0 && (

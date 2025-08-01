@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import { enrichMangas } from "../../utils/mangaUtils";
-import { supabase } from "../../utils/supabaseClient";
+
 import { updateAvatar } from "../../apis/auth.api";
 import Breadcrumb from "../../components/shared/Breadcrumb";
 
@@ -29,7 +29,7 @@ export default function Profile() {
   const [showClearModal, setShowClearModal] = useState(false);
   const [coversMap, setCoversMap] = useState({});
   const [avatar, setAvatar] = useState(user?.avatar || "");
-  const inputAvatarRef = React.useRef(null);
+  const inputAvatarRef = useRef(null);
   const [selectedAvatarFile, setSelectedAvatarFile] = useState(null);
   const [previewAvatar, setPreviewAvatar] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -235,7 +235,6 @@ export default function Profile() {
 
   // Handler pour ouvrir l'input file (depuis l'image ou le bouton)
   const openAvatarFileDialog = (e) => {
-    // Suppression de la condition !isEditing
     if (e) e.stopPropagation();
     if (inputAvatarRef.current) {
       inputAvatarRef.current.click();
@@ -285,21 +284,22 @@ export default function Profile() {
     }
   };
 
-  // Handler suppression de compte (à compléter avec ton API)
+  // Handler suppression de compte
   async function handleDeleteAccount() {
     setDeleteLoading(true);
     try {
-      // Appelle ton API de suppression ici
+      // TODO: Implémenter l'API de suppression de compte
       // await deleteAccount({ userId: user._id, confirmationWord: deleteInput });
       // logout();
       // navigate("/");
-      // Pour la démo, on ferme tout
+
+      // Temporaire : fermer les modales
       setShowFinalDeleteModal(false);
       setShowDeleteModal(false);
       setDeleteInput("");
-      // Ajoute ici la logique de déconnexion/redirect
     } catch (e) {
-      // Gère l'erreur
+      console.error("Erreur lors de la suppression du compte:", e);
+      alert("Erreur lors de la suppression du compte");
     } finally {
       setDeleteLoading(false);
     }
@@ -330,10 +330,10 @@ export default function Profile() {
 
   const handleDeleteSelectedHistory = async () => {
     try {
-      // Ici on peut appeler l'API pour supprimer les éléments sélectionnés
+      // TODO: Implémenter l'API pour supprimer les éléments sélectionnés
       // await deleteHistoryItems(selectedHistoryItems);
 
-      // Pour la démo, on filtre localement
+      // Temporaire : filtrer localement
       setReadingHistory((prev) =>
         prev.filter((entry) => !selectedHistoryItems.includes(entry.chapterId))
       );
@@ -341,6 +341,10 @@ export default function Profile() {
       setIsHistorySelectionMode(false);
       setShowDeleteSelectedModal(false);
     } catch (error) {
+      console.error(
+        "Erreur lors de la suppression des éléments sélectionnés:",
+        error
+      );
       alert("Erreur lors de la suppression des éléments sélectionnés");
     }
   };
