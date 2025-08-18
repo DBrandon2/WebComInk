@@ -151,6 +151,7 @@ export default function LatestRelease() {
                   className={`font-medium text-accent text-center line-clamp-2 ${getTitleFontSize(
                     manga.title
                   )}`}
+                  aria-label={`Voir la fiche de ${manga.title}`}
                 >
                   {manga.title}
                 </h3>

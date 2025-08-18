@@ -52,7 +52,10 @@ export default function MangaCard({
             )}
           </motion.div>
           <div className="flex flex-col justify-center items-center text-center w-full ">
-            <h3 className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg cursor-pointer">
+            <h3
+              className="font-medium text-accent line-clamp-2 text-sm md:text-base lg:text-lg cursor-pointer"
+              aria-label={`Voir la fiche de ${title}`}
+            >
               {title}
             </h3>
             {showLatestChapter &&

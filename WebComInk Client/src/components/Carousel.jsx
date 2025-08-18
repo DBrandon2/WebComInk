@@ -108,6 +108,7 @@ export default function Carousel() {
     <div
       ref={containerRef}
       className="relative overflow-hidden w-full carousel-3xl-height bg-dark-bg"
+      style={{ aspectRatio: "16 / 6" }}
     >
       <motion.div
         className="flex"
@@ -145,6 +146,8 @@ export default function Carousel() {
             className={`w-3 h-3 xl:w-5 xl:h-5 rounded-full cursor-pointer  ${
               index === currentIndex ? "bg-accent" : "bg-light-bg"
             }`}
+            aria-label={`Aller au slide ${index + 1}`}
+            aria-pressed={index === currentIndex}
           />
         ))}
       </div>

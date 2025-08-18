@@ -178,7 +178,7 @@ export default function MostPopular() {
               <div className="shadow-2xl overflow-hidden bg-dark-bg/80 ">
                 <img
                   src={getBannerCoverOriginalUrl(bannerManga)}
-                  alt={bannerManga.title}
+                  alt={`Couverture de ${bannerManga.title}`}
                   className="object-cover w-[120px] h-[180px] md:w-[180px] md:h-[260px] xl:w-[220px] xl:h-[320px]"
                   style={{ objectPosition: "center" }}
                   decoding="async"
@@ -234,7 +234,7 @@ export default function MostPopular() {
           >
             <img
               src={getBannerCoverOriginalUrl(bannerManga)}
-              alt={bannerManga.title}
+              alt={`Bannière ${bannerManga.title}`}
               className="w-full h-full object-cover object-center"
               style={{ height: "100%", objectPosition: "center" }}
               decoding="async"
