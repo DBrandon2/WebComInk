@@ -26,12 +26,7 @@ export default function FavoriteButton({
       try {
         const status = await checkIsFavorite(mangaId);
         setIsFavorite(status);
-      } catch (error) {
-        console.error(
-          "Erreur lors de la vérification du statut favori:",
-          error
-        );
-      }
+      } catch (error) {}
     };
 
     if (mangaId) {
@@ -57,7 +52,6 @@ export default function FavoriteButton({
         toast.success("Retiré des favoris");
       } catch (error) {
         toast.error(error.message || "Une erreur est survenue");
-        console.error("Erreur lors de la suppression des favoris:", error);
       } finally {
         setIsLoading(false);
       }
@@ -70,8 +64,6 @@ export default function FavoriteButton({
   const handleCategorySelect = async (category) => {
     setIsLoading(true);
     try {
-      // LOG : coverImage envoyé
-      console.log("[FavoriteButton] coverImage envoyé :", coverImage);
       await addFavorite(
         mangaId,
         title,
@@ -81,7 +73,6 @@ export default function FavoriteButton({
       setIsFavorite(true);
     } catch (error) {
       toast.error(error.message || "Une erreur est survenue");
-      console.error("Erreur lors de l'ajout aux favoris:", error);
     } finally {
       setIsLoading(false);
     }

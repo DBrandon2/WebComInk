@@ -1,6 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
-export const useImageLazyLoading = (chapterImages, currentPageIndex, readingMode) => {
+export const useImageLazyLoading = (
+  chapterImages,
+  currentPageIndex,
+  readingMode
+) => {
   const [loadedImages, setLoadedImages] = useState(new Set());
   const [visibleImages, setVisibleImages] = useState(new Set());
   const observerRef = useRef(null);
@@ -8,32 +12,38 @@ export const useImageLazyLoading = (chapterImages, currentPageIndex, readingMode
   // Calculer quelles images sont visibles selon le mode de lecture
   const getVisibleImageIndexes = () => {
     if (!chapterImages.length) return [];
-    
+
     const indexes = [];
     const buffer = 2; // Charger 2 images avant et après la page actuelle
-    
-    if (readingMode === 'webtoon') {
+
+    if (readingMode === "webtoon") {
       // En mode webtoon, charger les images autour de la position de scroll
       const scrollPosition = window.scrollY;
       const windowHeight = window.innerHeight;
       const estimatedImageHeight = 800; // Estimation de la hauteur d'une image
-      
-      const currentImageIndex = Math.floor(scrollPosition / estimatedImageHeight);
-      
-      for (let i = Math.max(0, currentImageIndex - buffer); 
-           i <= Math.min(chapterImages.length - 1, currentImageIndex + buffer); 
-           i++) {
+
+      const currentImageIndex = Math.floor(
+        scrollPosition / estimatedImageHeight
+      );
+
+      for (
+        let i = Math.max(0, currentImageIndex - buffer);
+        i <= Math.min(chapterImages.length - 1, currentImageIndex + buffer);
+        i++
+      ) {
         indexes.push(i);
       }
     } else {
       // En mode manga/comics, charger la page actuelle + buffer
-      for (let i = Math.max(0, currentPageIndex - buffer); 
-           i <= Math.min(chapterImages.length - 1, currentPageIndex + buffer); 
-           i++) {
+      for (
+        let i = Math.max(0, currentPageIndex - buffer);
+        i <= Math.min(chapterImages.length - 1, currentPageIndex + buffer);
+        i++
+      ) {
         indexes.push(i);
       }
     }
-    
+
     return indexes;
   };
 
@@ -47,19 +57,17 @@ export const useImageLazyLoading = (chapterImages, currentPageIndex, readingMode
   useEffect(() => {
     const preloadImage = (index) => {
       if (loadedImages.has(index) || !chapterImages[index]) return;
-      
+
       const img = new Image();
       img.onload = () => {
-        setLoadedImages(prev => new Set([...prev, index]));
+        setLoadedImages((prev) => new Set([...prev, index]));
       };
-      img.onerror = () => {
-        console.warn(`Erreur de chargement de l'image ${index}`);
-      };
+      img.onerror = () => {};
       img.src = chapterImages[index];
     };
 
     // Précharger les images visibles
-    visibleImages.forEach(index => {
+    visibleImages.forEach((index) => {
       preloadImage(index);
     });
   }, [visibleImages, chapterImages, loadedImages]);
@@ -68,13 +76,13 @@ export const useImageLazyLoading = (chapterImages, currentPageIndex, readingMode
   const cleanupUnusedImages = () => {
     const visibleIndexes = getVisibleImageIndexes();
     const newLoadedImages = new Set();
-    
-    visibleIndexes.forEach(index => {
+
+    visibleIndexes.forEach((index) => {
       if (loadedImages.has(index)) {
         newLoadedImages.add(index);
       }
     });
-    
+
     setLoadedImages(newLoadedImages);
   };
 
@@ -93,10 +101,10 @@ export const useImageLazyLoading = (chapterImages, currentPageIndex, readingMode
       if (!loadedImages.has(index) && chapterImages[index]) {
         const img = new Image();
         img.onload = () => {
-          setLoadedImages(prev => new Set([...prev, index]));
+          setLoadedImages((prev) => new Set([...prev, index]));
         };
         img.src = chapterImages[index];
       }
-    }
+    },
   };
-}; 
+};

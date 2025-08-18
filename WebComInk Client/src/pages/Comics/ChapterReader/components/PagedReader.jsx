@@ -70,6 +70,8 @@ export default function PagedReader({
           }}
           alt={`Page ${pageIndex + 1}`}
           draggable="false"
+          loading="lazy"
+          decoding="async"
           style={{
             height: "100%",
             maxHeight: "100%",

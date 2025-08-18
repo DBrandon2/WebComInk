@@ -123,7 +123,14 @@ export default function Carousel() {
             alt={`Image ${index + 1}`}
             className="w-full h-full object-cover flex-shrink-0"
             draggable={false}
-            loading="lazy"
+            loading={index === currentIndex ? "eager" : "lazy"}
+            decoding={index === currentIndex ? "sync" : "async"}
+            sizes="100vw"
+            {...(index === currentIndex
+              ? { fetchpriority: "high" }
+              : { fetchpriority: "low" })}
+            width={1920}
+            height={640}
           />
         ))}
       </motion.div>

@@ -51,7 +51,6 @@ function getBestCoverUrl(manga) {
 }
 
 export default function Discover() {
-  console.log("Discover component mounted");
   const [mangaOfTheDay, setMangaOfTheDay] = useState(null);
   const [chapterNumber, setChapterNumber] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -116,7 +115,6 @@ export default function Discover() {
           const stats = data.statistics?.[mangaOfTheDay.id];
           setMangaRating(stats?.rating?.average ?? null);
         } catch (err) {
-          console.error("Erreur lors de la récupération de la note:", err);
           setMangaRating(null);
         }
       }
@@ -124,17 +122,7 @@ export default function Discover() {
     fetchMangaRating();
   }, [mangaOfTheDay]);
 
-  // LOG pour debug : affiche les attributs du manga du jour dans la console
-  if (
-    mangaOfTheDay &&
-    mangaOfTheDay.originalData &&
-    mangaOfTheDay.originalData.attributes
-  ) {
-    console.log(
-      "ATTRIBUTES MANGA DU JOUR",
-      mangaOfTheDay.originalData.attributes
-    );
-  }
+  //
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-6 mx-3 lg:gap-y-12">
@@ -171,6 +159,12 @@ export default function Discover() {
               src={getBestCoverUrl(mangaOfTheDay)}
               alt={mangaOfTheDay.title}
               className="w-[380px] h-[570px] md:w-[520px] md:h-[750px] lg:w-full lg:h-full object-cover mx-auto transition-transform group-hover:scale-105"
+              decoding="async"
+              loading="lazy"
+              fetchpriority="low"
+              sizes="(min-width:1024px) 500px, (min-width:768px) 520px, 380px"
+              width={500}
+              height={700}
             />
           </NavLink>
           {/* Infos */}

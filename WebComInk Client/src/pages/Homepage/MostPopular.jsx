@@ -1,11 +1,6 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
-import image1 from "../../assets/MangaCover/kaiju cover.webp";
-import image2 from "../../assets/MangaCover/OP manga cover.jpg";
-import image3 from "../../assets/MangaCover/Vinland-Saga-28.webp";
-import image4 from "../../assets/MangaCover/Sakamoto Cover.webp";
 import ButtonAnimated from "../../components/ButtonAnimated";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import banner from "../../assets/MangaCover/614cfc33-1ba5-44df-9a85-c1cb2d7f1e00.webp";
 import { getMangas } from "../../services/mangaService";
 import { enrichMangas, slugify } from "../../utils/mangaUtils";
 import { getMangaCoverUrl } from "../../utils/mangaUtils";
@@ -172,6 +167,11 @@ export default function MostPopular() {
               alt={bannerManga.title}
               className="w-full h-full object-cover absolute top-0 left-0 blur-sm scale-110 z-0 transition-all duration-500 object-center"
               style={{ height: "100%", objectPosition: "center" }}
+              loading="lazy"
+              decoding="async"
+              sizes="100vw"
+              width={1920}
+              height={360}
             />
             {/* Couverture nette à gauche */}
             <div className="z-20 flex-shrink-0 flex flex-col items-center justify-center">
@@ -181,6 +181,11 @@ export default function MostPopular() {
                   alt={bannerManga.title}
                   className="object-cover w-[120px] h-[180px] md:w-[180px] md:h-[260px] xl:w-[220px] xl:h-[320px]"
                   style={{ objectPosition: "center" }}
+                  decoding="async"
+                  loading="lazy"
+                  sizes="(min-width:1280px) 220px, (min-width:768px) 180px, 120px"
+                  width={220}
+                  height={320}
                 />
               </div>
             </div>
@@ -232,6 +237,10 @@ export default function MostPopular() {
               alt={bannerManga.title}
               className="w-full h-full object-cover object-center"
               style={{ height: "100%", objectPosition: "center" }}
+              decoding="async"
+              sizes="100vw"
+              width={1080}
+              height={180}
             />
             {/* Dégradé bas */}
             <div className="pointer-events-none absolute bottom-0 left-0 w-full h-1/2 z-10">
@@ -275,6 +284,11 @@ export default function MostPopular() {
                       className="w-full h-full object-cover cursor-pointer transition-opacity duration-500"
                       src={item.coverUrl}
                       alt="Manga Cover"
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(min-width:1536px) 220px, (min-width:1280px) 180px, (min-width:768px) 140px, (min-width:640px) 110px, 95px"
+                      width={220}
+                      height={330}
                     />
                   </motion.div>
                   <div className="flex flex-col justify-center items-center text-center w-full">

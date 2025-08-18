@@ -17,9 +17,7 @@ export async function signin(values) {
       localStorage.setItem("jwt_token", token);
     }
     return { ...userConnected, token };
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 }
 
 export async function signup(values) {
@@ -33,9 +31,7 @@ export async function signup(values) {
     });
     const message = await response.json();
     return message;
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 }
 
 export async function update(values) {
@@ -55,9 +51,7 @@ export async function update(values) {
     const updatedUser = await response.json();
 
     return updatedUser;
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 }
 
 export async function updateAvatar(values) {
@@ -72,9 +66,7 @@ export async function updateAvatar(values) {
     const updatedUserAvatar = await response.json();
 
     return updatedUserAvatar;
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 }
 
 export async function getCurrentUser() {
@@ -88,9 +80,7 @@ export async function getCurrentUser() {
     } else {
       return null;
     }
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 }
 
 export async function signOut() {
@@ -112,7 +102,6 @@ export async function requestEmailChange({ _id, newEmail, password }) {
     });
     return await response.json();
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
@@ -129,7 +118,6 @@ export async function deleteAccount({ userId, confirmationWord }) {
     });
     return await response.json();
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
@@ -165,7 +153,6 @@ export async function markChapterAsRead({
     });
     return await response.json();
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
@@ -182,7 +169,6 @@ export async function getReadingHistory() {
       throw new Error("Erreur lors de la récupération de l'historique");
     }
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
@@ -202,7 +188,6 @@ export async function getLastReadChapter(mangaId) {
       throw new Error("Erreur lors de la récupération du dernier chapitre lu");
     }
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
@@ -219,7 +204,6 @@ export async function forgotPassword(email) {
     });
     return await response.json();
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
@@ -236,7 +220,6 @@ export async function resetPassword({ token, password }) {
     });
     return await response.json();
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }

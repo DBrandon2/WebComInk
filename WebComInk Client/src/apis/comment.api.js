@@ -10,15 +10,14 @@ export async function getCommentsByChapter(chapterId, page = 1, limit = 20) {
         credentials: "include",
       }
     );
-    
+
     if (!response.ok) {
       throw new Error(`Erreur HTTP: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Erreur lors de la récupération des commentaires:", error);
     throw error;
   }
 }
@@ -34,16 +33,15 @@ export async function createComment(commentData) {
       body: JSON.stringify(commentData),
       credentials: "include",
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Erreur lors de la création du commentaire:", error);
     throw error;
   }
 }
@@ -59,16 +57,15 @@ export async function updateComment(commentId, content) {
       body: JSON.stringify({ content }),
       credentials: "include",
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Erreur lors de la modification du commentaire:", error);
     throw error;
   }
 }
@@ -80,16 +77,15 @@ export async function deleteComment(commentId) {
       method: "DELETE",
       credentials: "include",
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Erreur lors de la suppression du commentaire:", error);
     throw error;
   }
 }
@@ -101,16 +97,15 @@ export async function toggleLikeComment(commentId) {
       method: "POST",
       credentials: "include",
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Erreur lors du like/unlike:", error);
     throw error;
   }
 }

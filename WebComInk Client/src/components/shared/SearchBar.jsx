@@ -78,7 +78,6 @@ export default function SearchBar({
       setResults(res.data || []);
       setShowResults(true);
     } catch (err) {
-      console.error(err);
       setResults([]);
     } finally {
       setLoading(false);
@@ -174,6 +173,9 @@ export default function SearchBar({
                         src={getCover(m)}
                         alt={getTitle(m)}
                         className="w-12 h-16 object-cover rounded mr-3"
+                        loading="lazy"
+                        decoding="async"
+                        sizes="48px"
                         onError={(e) =>
                           (e.target.src = "/placeholder-manga.jpg")
                         }
@@ -268,6 +270,9 @@ export default function SearchBar({
                     src={getCover(m)}
                     alt={getTitle(m)}
                     className="w-12 h-16 object-cover rounded mr-3"
+                    loading="lazy"
+                    decoding="async"
+                    sizes="48px"
                     onError={(e) => (e.target.src = "/placeholder-manga.jpg")}
                   />
                   <div className="min-w-0">

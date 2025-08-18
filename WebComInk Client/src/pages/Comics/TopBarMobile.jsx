@@ -51,6 +51,10 @@ export default function TopBarMobile() {
           alt="Logo WebComInk"
           className="h-10 w-10 cursor-pointer hover:scale-110 transition-transform"
           onClick={() => navigate("/")}
+          loading="lazy"
+          decoding="async"
+          width="40"
+          height="40"
         />
       </div>
 

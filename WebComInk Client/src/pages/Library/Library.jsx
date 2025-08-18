@@ -226,13 +226,10 @@ export default function Library() {
       try {
         setLoading(true);
         const data = await getFavorites();
-        // LOG : favoris reçus
-        console.log("[Library] Favoris reçus :", data);
         setFavorites(data);
         setError(null);
       } catch (err) {
         setError("Impossible de charger vos favoris. Veuillez vous connecter.");
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -341,7 +338,6 @@ export default function Library() {
       );
     } catch (err) {
       // En cas d'erreur, on pourrait restaurer l'ordre précédent
-      console.error("Erreur lors de la sauvegarde de l'ordre:", err);
       // Optionnel: restaurer l'ordre précédent
       // setFavorites([...others, ...currentTabMangas]);
     }
@@ -354,7 +350,6 @@ export default function Library() {
       // Pas de toast
     } catch (err) {
       // Pas de toast
-      console.error(err);
     }
   };
 
@@ -386,7 +381,6 @@ export default function Library() {
       // Pas de toast
     } catch (err) {
       // Pas de toast
-      console.error(err);
     } finally {
       setSelectedMangaForCategory(null);
     }

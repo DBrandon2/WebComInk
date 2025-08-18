@@ -13,11 +13,6 @@ export async function getFavorites() {
     });
     return res.data.favorites;
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des favoris:",
-      error,
-      error?.response
-    );
     throw new Error(
       error.response?.data?.message ||
         "Erreur lors de la récupération des favoris"
@@ -40,7 +35,6 @@ export async function addFavorite(
     );
     return res.data;
   } catch (error) {
-    console.error("Erreur lors de l'ajout aux favoris:", error);
     throw new Error(
       error.response?.data?.message || "Erreur lors de l'ajout aux favoris"
     );
@@ -58,7 +52,6 @@ export async function removeFavorite(mangaId) {
     );
     return res.data;
   } catch (error) {
-    console.error("Erreur lors de la suppression des favoris:", error);
     throw new Error(
       error.response?.data?.message ||
         "Erreur lors de la suppression des favoris"
@@ -76,7 +69,6 @@ export async function updateFavoriteStatus(mangaId, status) {
     );
     return res.data;
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du statut:", error);
     throw new Error(
       error.response?.data?.message || "Erreur lors de la mise à jour du statut"
     );
@@ -89,7 +81,6 @@ export async function checkIsFavorite(mangaId) {
     const favorites = await getFavorites();
     return favorites.some((fav) => fav.mangaId === mangaId);
   } catch (error) {
-    console.error("Erreur lors de la vérification des favoris:", error);
     return false;
   }
 }
@@ -104,7 +95,6 @@ export async function saveFavoritesOrder(category, mangaIds) {
     );
     return res.data;
   } catch (error) {
-    console.error("Erreur lors de la sauvegarde de l'ordre:", error);
     throw new Error(
       error.response?.data?.message || "Erreur lors de la sauvegarde de l'ordre"
     );
@@ -122,10 +112,6 @@ export async function getCustomCategories() {
     });
     return res.data;
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des catégories personnalisées:",
-      error
-    );
     throw new Error(
       error.response?.data?.message ||
         "Erreur lors de la récupération des catégories personnalisées"
@@ -142,10 +128,6 @@ export async function addCustomCategory(category) {
     );
     return res.data;
   } catch (error) {
-    console.error(
-      "Erreur lors de l'ajout d'une catégorie personnalisée:",
-      error
-    );
     throw new Error(
       error.response?.data?.message ||
         "Erreur lors de l'ajout d'une catégorie personnalisée"
@@ -161,10 +143,6 @@ export async function removeCustomCategory(category) {
     });
     return res.data;
   } catch (error) {
-    console.error(
-      "Erreur lors de la suppression d'une catégorie personnalisée:",
-      error
-    );
     throw new Error(
       error.response?.data?.message ||
         "Erreur lors de la suppression d'une catégorie personnalisée"
@@ -181,10 +159,6 @@ export async function renameCustomCategory(oldCategory, newCategory) {
     );
     return res.data;
   } catch (error) {
-    console.error(
-      "Erreur lors du renommage d'une catégorie personnalisée:",
-      error
-    );
     throw new Error(
       error.response?.data?.message ||
         "Erreur lors du renommage de la catégorie personnalisée"

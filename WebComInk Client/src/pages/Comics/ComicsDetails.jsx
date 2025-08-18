@@ -450,6 +450,9 @@ export default function ComicsDetails() {
             src={getBannerCoverOriginalUrl(manga)}
             alt={manga.title}
             className="w-full h-full object-cover blur-none md:blur-[4px] brightness-50 scale-100 z-0 "
+            loading="lazy"
+            decoding="async"
+            sizes="100vw"
           />
           {/* Dégradé bas pour lisibilité */}
           <div className="pointer-events-none absolute bottom-0 left-0 w-full h-1/2 z-10">
@@ -465,6 +468,8 @@ export default function ComicsDetails() {
                 src={manga.coverUrl}
                 alt={manga.title}
                 className="object-cover w-[160px] h-[240px] md:w-[220px] md:h-[330px]"
+                decoding="async"
+                sizes="(min-width:768px) 220px, 160px"
               />
             </motion.div>
             <div className="mt-4 flex justify-center w-full">

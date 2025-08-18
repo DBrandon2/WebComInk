@@ -28,13 +28,6 @@ export default function LibraryMangaCard({
       tabIndex={-1}
       style={isDragging ? { transform: "scale(1)" } : {}}
     >
-      {/* LOG : coverUrl utilisé */}
-      {console.log(
-        "[LibraryMangaCard] coverUrl utilisé :",
-        coverUrl,
-        "pour",
-        title
-      )}
       <Link
         to={to}
         className="block focus:outline-none h-full select-none"
@@ -51,6 +44,8 @@ export default function LibraryMangaCard({
               alt={`${title} cover`}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 select-none"
               loading="lazy"
+              decoding="async"
+              sizes="(min-width:1024px) 33vw, 50vw"
               onError={(e) => {
                 e.target.src = "/placeholder-manga.jpg";
               }}

@@ -279,7 +279,6 @@ export default function Profile() {
       setSelectedAvatarFile(null);
       setPreviewAvatar("");
     } catch (error) {
-      console.log(error);
       alert("Erreur lors de l'upload de l'avatar.");
     }
   };
@@ -298,7 +297,6 @@ export default function Profile() {
       setShowDeleteModal(false);
       setDeleteInput("");
     } catch (e) {
-      console.error("Erreur lors de la suppression du compte:", e);
       alert("Erreur lors de la suppression du compte");
     } finally {
       setDeleteLoading(false);
@@ -341,10 +339,6 @@ export default function Profile() {
       setIsHistorySelectionMode(false);
       setShowDeleteSelectedModal(false);
     } catch (error) {
-      console.error(
-        "Erreur lors de la suppression des éléments sélectionnés:",
-        error
-      );
       alert("Erreur lors de la suppression des éléments sélectionnés");
     }
   };

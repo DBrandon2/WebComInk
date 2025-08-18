@@ -138,7 +138,7 @@ export const useAllChapters = (mangaId, chapterId, chapter) => {
           }
         }
       } catch (err) {
-        console.error("Erreur lors de la récupération des chapitres:", err);
+        // Ignorer l'erreur silencieusement
       }
     }
 

@@ -223,6 +223,10 @@ export default function ChaptersList({ mangaId }) {
                     src={frFlag}
                     alt="FR"
                     className="w-7 h-6 inline-block align-middle rounded-sm cursor-pointer"
+                    loading="lazy"
+                    decoding="async"
+                    width="28"
+                    height="24"
                   />
                 </button>
               )}
@@ -240,6 +244,10 @@ export default function ChaptersList({ mangaId }) {
                     src={enFlag}
                     alt="EN"
                     className="w-7 h-6 inline-block align-middle rounded-sm cursor-pointer"
+                    loading="lazy"
+                    decoding="async"
+                    width="28"
+                    height="24"
                   />
                 </button>
               )}
@@ -332,6 +340,9 @@ export default function ChaptersList({ mangaId }) {
                       className={`object-cover w-full h-full ${
                         isRead ? "grayscale opacity-60" : ""
                       }`}
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(min-width:768px) 64px, 48px"
                     />
                   ) : (
                     <span className="text-xs text-gray-400">Image</span>

@@ -11,7 +11,6 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
  */
 export function enrichMangas(mangas) {
   if (!Array.isArray(mangas)) {
-    console.warn("enrichMangas: Expected an array, received:", typeof mangas);
     return [];
   }
 
@@ -160,10 +159,6 @@ export async function getChapterDetails(chapterId) {
       title: data.data?.attributes?.title || "",
     };
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des détails du chapitre:",
-      error
-    );
     return { chapter: "N/A", volume: "N/A" };
   }
 }
@@ -280,7 +275,6 @@ export async function getMangaById(mangaId) {
     const data = await response.json();
     return data.data;
   } catch (error) {
-    console.error("Erreur lors de la récupération du manga par ID:", error);
     return null;
   }
 }

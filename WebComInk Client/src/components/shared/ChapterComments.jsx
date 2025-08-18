@@ -115,7 +115,6 @@ const ChapterComments = ({ chapterId, mangaId }) => {
       }
     } catch (err) {
       setError("Erreur lors du chargement des commentaires");
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -145,7 +144,6 @@ const ChapterComments = ({ chapterId, mangaId }) => {
       }
     } catch (err) {
       setError("Erreur lors de la création du commentaire");
-      console.error(err);
     } finally {
       setSubmitting(false);
     }
@@ -166,7 +164,6 @@ const ChapterComments = ({ chapterId, mangaId }) => {
       }
     } catch (err) {
       setError("Erreur lors de la modification du commentaire");
-      console.error(err);
     }
   };
 
@@ -187,7 +184,6 @@ const ChapterComments = ({ chapterId, mangaId }) => {
       }
     } catch (err) {
       setError("Erreur lors de la suppression du commentaire");
-      console.error(err);
     }
   };
 
@@ -212,7 +208,6 @@ const ChapterComments = ({ chapterId, mangaId }) => {
       }
     } catch (err) {
       setError("Erreur lors du like");
-      console.error(err);
     }
   };
 
@@ -276,6 +271,10 @@ const ChapterComments = ({ chapterId, mangaId }) => {
                   src={user.avatar}
                   alt={user.username}
                   className="w-full h-full rounded-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  width="40"
+                  height="40"
                 />
               ) : (
                 <FaUser className="text-dark-bg" />
@@ -328,6 +327,10 @@ const ChapterComments = ({ chapterId, mangaId }) => {
                     src={comment.userAvatar}
                     alt={comment.username}
                     className="w-full h-full rounded-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    width="40"
+                    height="40"
                   />
                 ) : (
                   <FaUser className="text-dark-bg" />

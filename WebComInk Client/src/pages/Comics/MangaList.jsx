@@ -128,7 +128,6 @@ export default function MangaList({
         setAutoLoadFinished(true);
       }
     } catch (err) {
-      console.error(err);
       setError("Erreur lors du chargement des mangas");
     } finally {
       setLoading(false);
@@ -185,6 +184,8 @@ export default function MangaList({
                       alt={`${manga.title} cover`}
                       className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
                       loading="lazy"
+                      decoding="async"
+                      sizes="(min-width:1024px) 180px, (min-width:768px) 180px, 140px"
                       onLoad={(e) => {
                         e.target.classList.remove("opacity-0");
                         if (idx === lastLoadedIndex + 1)

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
 export const useChapterCache = () => {
   const [cachedChapters, setCachedChapters] = useState(new Map());
@@ -21,21 +21,26 @@ export const useChapterCache = () => {
     if (cacheSize > maxCacheSize || cachedChapters.size > maxCachedChapters) {
       // Supprimer les chapitres les plus anciens
       const chaptersArray = Array.from(cachedChapters.entries());
-      const sortedChapters = chaptersArray.sort((a, b) => a[1].lastAccessed - b[1].lastAccessed);
-      
-      const chaptersToRemove = sortedChapters.slice(0, Math.floor(sortedChapters.length / 2));
-      
+      const sortedChapters = chaptersArray.sort(
+        (a, b) => a[1].lastAccessed - b[1].lastAccessed
+      );
+
+      const chaptersToRemove = sortedChapters.slice(
+        0,
+        Math.floor(sortedChapters.length / 2)
+      );
+
       chaptersToRemove.forEach(([chapterId]) => {
         // Supprimer les images associées
         const chapterData = cachedChapters.get(chapterId);
         if (chapterData && chapterData.imageIds) {
-          chapterData.imageIds.forEach(imageId => {
+          chapterData.imageIds.forEach((imageId) => {
             cachedImages.delete(imageId);
           });
         }
         cachedChapters.delete(chapterId);
       });
-      
+
       calculateCacheSize();
     }
   };
@@ -43,25 +48,29 @@ export const useChapterCache = () => {
   // Mettre en cache un chapitre
   const cacheChapter = (chapterId, chapterData) => {
     const now = Date.now();
-    setCachedChapters(prev => new Map(prev).set(chapterId, {
-      ...chapterData,
-      lastAccessed: now,
-      imageIds: []
-    }));
-    
+    setCachedChapters((prev) =>
+      new Map(prev).set(chapterId, {
+        ...chapterData,
+        lastAccessed: now,
+        imageIds: [],
+      })
+    );
+
     cleanupCache();
   };
 
   // Mettre en cache une image
   const cacheImage = (imageId, imageUrl, imageData) => {
     const now = Date.now();
-    setCachedImages(prev => new Map(prev).set(imageId, {
-      url: imageUrl,
-      data: imageData,
-      lastAccessed: now,
-      size: imageData ? new Blob([imageData]).size : 0
-    }));
-    
+    setCachedImages((prev) =>
+      new Map(prev).set(imageId, {
+        url: imageUrl,
+        data: imageData,
+        lastAccessed: now,
+        size: imageData ? new Blob([imageData]).size : 0,
+      })
+    );
+
     calculateCacheSize();
     cleanupCache();
   };
@@ -71,10 +80,12 @@ export const useChapterCache = () => {
     const chapter = cachedChapters.get(chapterId);
     if (chapter) {
       // Mettre à jour le timestamp d'accès
-      setCachedChapters(prev => new Map(prev).set(chapterId, {
-        ...chapter,
-        lastAccessed: Date.now()
-      }));
+      setCachedChapters((prev) =>
+        new Map(prev).set(chapterId, {
+          ...chapter,
+          lastAccessed: Date.now(),
+        })
+      );
       return chapter;
     }
     return null;
@@ -85,17 +96,23 @@ export const useChapterCache = () => {
     const image = cachedImages.get(imageId);
     if (image) {
       // Mettre à jour le timestamp d'accès
-      setCachedImages(prev => new Map(prev).set(imageId, {
-        ...image,
-        lastAccessed: Date.now()
-      }));
+      setCachedImages((prev) =>
+        new Map(prev).set(imageId, {
+          ...image,
+          lastAccessed: Date.now(),
+        })
+      );
       return image;
     }
     return null;
   };
 
   // Précharger le chapitre suivant
-  const preloadNextChapter = async (currentChapterId, allChapters, currentChapterIndex) => {
+  const preloadNextChapter = async (
+    currentChapterId,
+    allChapters,
+    currentChapterIndex
+  ) => {
     if (currentChapterIndex > 0) {
       const nextChapter = allChapters[currentChapterIndex - 1];
       if (nextChapter && !cachedChapters.has(nextChapter.id)) {
@@ -104,17 +121,23 @@ export const useChapterCache = () => {
           const response = await fetch(`/api/proxy/chapter/${nextChapter.id}`);
           const data = await response.json();
           cacheChapter(nextChapter.id, data.data);
-          
+
           // Précharger la première image
-          const imageResponse = await fetch(`/api/proxy/chapter-image/${nextChapter.id}`);
+          const imageResponse = await fetch(
+            `/api/proxy/chapter-image/${nextChapter.id}`
+          );
           const imageData = await imageResponse.json();
-          if (imageData.chapter && imageData.chapter.data && imageData.chapter.data.length > 0) {
+          if (
+            imageData.chapter &&
+            imageData.chapter.data &&
+            imageData.chapter.data.length > 0
+          ) {
             const firstImage = imageData.chapter.data[0];
             const imageUrl = `${imageData.baseUrl}/data/${imageData.chapter.hash}/${firstImage}`;
             cacheImage(`${nextChapter.id}_0`, imageUrl, null);
           }
         } catch (error) {
-          console.warn('Erreur lors du préchargement du chapitre suivant:', error);
+          // Ignorer l'erreur de préchargement
         }
       }
     }
@@ -139,6 +162,6 @@ export const useChapterCache = () => {
       setCachedChapters(new Map());
       setCachedImages(new Map());
       setCacheSize(0);
-    }
+    },
   };
-}; 
+};

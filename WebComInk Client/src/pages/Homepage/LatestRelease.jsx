@@ -54,7 +54,6 @@ export default function LatestRelease() {
 
       offsetRef.current += BATCH_SIZE;
     } catch (error) {
-      console.error(error);
       setError("Erreur lors du chargement des mangas");
     } finally {
       setLoading(false);
@@ -140,6 +139,11 @@ export default function LatestRelease() {
                   className="w-full h-full object-cover"
                   src={manga.coverUrl}
                   alt="Manga Cover"
+                  loading="lazy"
+                  decoding="async"
+                  sizes="(min-width:1024px) 240px, 160px"
+                  width={160}
+                  height={240}
                 />
               </motion.div>
               <div className="flex flex-col justify-center items-center w-[180px]">
@@ -205,6 +209,11 @@ export default function LatestRelease() {
                     src={manga.coverUrl}
                     alt="Manga Cover"
                     draggable={false}
+                    loading="lazy"
+                    decoding="async"
+                    sizes="240px"
+                    width={240}
+                    height={360}
                   />
                 </motion.div>
                 <div className="flex flex-col justify-center items-center w-[240px]">

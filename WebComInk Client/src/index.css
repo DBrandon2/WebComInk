@@ -59,43 +59,24 @@
   ---3xl: "1920px";
 }
 
-/* --- Poppins --- */
-@font-face {
-  font-family: "Poppins";
-  src: url("./assets/fonts/Poppins/Poppins-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-}
-@font-face {
-  font-family: "Poppins";
-  src: url("./assets/fonts/Poppins/Poppins-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-}
-
-/* --- Montserrat --- */
-@font-face {
-  font-family: "Montserrat";
-  src: url("./assets//fonts//Montserrat/Montserrat-VariableFont_wght.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-}
+/* Poppins/Montserrat chargées via Google Fonts WOFF2 (voir index.html) */
 
 /* --- OpenDyslexic --- */
 @font-face {
   font-family: "OpenDyslexic";
   src: url("./assets/fonts/OpenDyslexic/OpenDyslexic-Regular.woff2")
-    format("truetype");
+    format("woff2");
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 @font-face {
   font-family: "OpenDyslexic";
   src: url("./assets/fonts/OpenDyslexic/OpenDyslexic-Bold.woff2")
-    format("truetype");
+    format("woff2");
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @layer base {

@@ -28,6 +28,10 @@ export default function MangaCard({
               alt={`${title} cover`}
               className="w-full h-full object-cover"
               loading="lazy"
+              decoding="async"
+              sizes="(min-width:1024px) 240px, 160px"
+              width={240}
+              height={360}
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = "/default-cover.png";

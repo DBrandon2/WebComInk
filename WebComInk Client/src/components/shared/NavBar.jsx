@@ -88,6 +88,10 @@ export default function NavBar() {
                           src={user.avatar || defaultAvatar}
                           alt="avatar utilisateur"
                           className="w-full h-full rounded-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                          width="48"
+                          height="48"
                         />
                       ) : React.isValidElement(item.icon) ? (
                         React.cloneElement(item.icon, {
@@ -125,6 +129,10 @@ export default function NavBar() {
                 src={logo}
                 alt=""
                 className="w-[70px] h-[70px] transition-transform duration-300 ease-in-out transform hover:scale-120 hover:rotate-[-5deg] z-50"
+                loading="lazy"
+                decoding="async"
+                width="70"
+                height="70"
               />
             </NavLink>
           </li>
@@ -192,6 +200,10 @@ export default function NavBar() {
                   src={user.avatar || defaultAvatar}
                   alt="avatar utilisateur"
                   className="w-12 h-12 rounded-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  width="48"
+                  height="48"
                 />
               ) : (
                 <div className="w-12 h-12 flex items-center justify-center rounded-full bg-[#23272f]">

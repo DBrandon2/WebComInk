@@ -12,11 +12,11 @@ const userSchema = new mongoose.Schema(
         title: { type: String, required: true },
         coverImage: { type: String },
         addedAt: { type: Date, default: Date.now },
-        order: { type: Number, default: 0 }, // Ajout du champ d'ordre
-        status: { type: String, default: "En cours" }, // Catégorie du manga
+        order: { type: Number, default: 0 },
+        status: { type: String, default: "En cours" },
       },
     ],
-    customCategories: { type: [String], default: [] }, // Catégories personnalisées
+    customCategories: { type: [String], default: [] },
     readingHistory: [
       {
         mangaId: { type: String, required: true },
@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
         chapterNumber: { type: String, required: true },
         chapterTitle: { type: String },
         readAt: { type: Date, default: Date.now },
-        progress: { type: Number, default: 100 }, // pourcentage de lecture (0-100)
+        progress: { type: Number, default: 100 },
       },
     ],
     pendingEmail: { type: String, default: null },

@@ -31,7 +31,6 @@ export const useReadingHistory = (mangaId) => {
         setReadingHistory(response.readingHistory || []);
       } catch (err) {
         setError("Erreur lors du chargement de l'historique");
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -49,10 +48,7 @@ export const useReadingHistory = (mangaId) => {
         const response = await getLastReadChapter(mangaId);
         setLastReadChapter(response.lastReadChapter || null);
       } catch (err) {
-        console.error(
-          "Erreur lors de la récupération du dernier chapitre lu:",
-          err
-        );
+        // Ignorer l'erreur silencieusement
       }
     }
 

@@ -116,7 +116,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
             chapterTitle: chapter?.attributes?.title || "",
             progress: 100,
           };
-          markChapterAsRead(payload).catch(console.error);
+          markChapterAsRead(payload).catch(() => {});
         }
       },
     });
@@ -380,9 +380,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
       setIsTitleLoading(false);
 
       if (!titleToSend || titleToSend === "Titre inconnu") {
-        console.warn(
-          "[markChapterAsRead] Titre du manga inconnu, on n'enregistre pas la lecture pour éviter l'historique vide."
-        );
+        // Ignorer si le titre est inconnu pour éviter un historique vide
         return;
       }
 
@@ -415,17 +413,7 @@ export const useChapterReader = (mangaId, slug, chapterId) => {
         progress: shouldMarkAsRead ? progress : 0,
       };
 
-      markChapterAsRead(payload)
-        .then((res) => {
-          if (!cancelled) {
-            console.log("[markChapterAsRead] Réponse :", res);
-          }
-        })
-        .catch((err) => {
-          if (!cancelled) {
-            console.error("[markChapterAsRead] Erreur :", err);
-          }
-        });
+      markChapterAsRead(payload).catch(() => {});
     }
 
     fetchAndMark();

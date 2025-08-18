@@ -40,6 +40,8 @@ export default function WebtoonReader({ readerMargin }) {
               }}
               alt={`Page ${index + 1}`}
               draggable="false"
+              loading="lazy"
+              decoding="async"
               style={{
                 maxWidth: "100vw",
                 width: `${100 - marginValue}%`,
