@@ -66,7 +66,11 @@ export default function Footer() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/API" className="hover:text-accent hover:underline" aria-label="API">
+              <NavLink
+                to="/API"
+                className="hover:text-accent hover:underline"
+                aria-label="API"
+              >
                 API
               </NavLink>
             </li>
@@ -80,7 +84,11 @@ export default function Footer() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/FAQ" className="hover:text-accent hover:underline" aria-label="FAQ">
+              <NavLink
+                to="/FAQ"
+                className="hover:text-accent hover:underline"
+                aria-label="FAQ"
+              >
                 FAQ
               </NavLink>
             </li>
@@ -92,12 +100,20 @@ export default function Footer() {
           </p>
           <ul className="w-full flex flex-col justify-center items-center gap-4 tracking-wider">
             <li>
-              <NavLink to="/Aide" className="hover:text-accent hover:underline" aria-label="Aide">
+              <NavLink
+                to="/Aide"
+                className="hover:text-accent hover:underline"
+                aria-label="Aide"
+              >
                 Aide
               </NavLink>
             </li>
             <li>
-              <NavLink to="/Media" className="hover:text-accent hover:underline" aria-label="Media">
+              <NavLink
+                to="/Media"
+                className="hover:text-accent hover:underline"
+                aria-label="Media"
+              >
                 Media
               </NavLink>
             </li>
