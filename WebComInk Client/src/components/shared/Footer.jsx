@@ -13,30 +13,42 @@ export default function Footer() {
             WebComInk
           </p>
           <ul className="w-full flex flex-col justify-center items-center gap-4 tracking-wider">
-            <NavLink
-              to="/mentions-légales"
-              className="hover:text-accent hover:underline"
-            >
-              <li>Mentions Légales</li>
-            </NavLink>
-            <NavLink
-              to="/Conditions-générales-d'utilisation"
-              className="hover:text-accent hover:underline"
-            >
-              <li>CGU</li>
-            </NavLink>
-            <NavLink
-              to="/Politique-de-protection-des-données"
-              className="hover:text-accent hover:underline"
-            >
-              <li>Politique de protection des données</li>
-            </NavLink>
-            <NavLink
-              to="/Politique-des-Cookies"
-              className="hover:text-accent hover:underline"
-            >
-              <li>Politique des cookies</li>
-            </NavLink>
+            <li>
+              <NavLink
+                to="/mentions-légales"
+                className="hover:text-accent hover:underline"
+                aria-label="Mentions Légales"
+              >
+                Mentions Légales
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/Conditions-générales-d'utilisation"
+                className="hover:text-accent hover:underline"
+                aria-label="Conditions Générales d'Utilisation"
+              >
+                CGU
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/Politique-de-protection-des-données"
+                className="hover:text-accent hover:underline"
+                aria-label="Politique de protection des données"
+              >
+                Politique de protection des données
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/Politique-des-Cookies"
+                className="hover:text-accent hover:underline"
+                aria-label="Politique des cookies"
+              >
+                Politique des cookies
+              </NavLink>
+            </li>
           </ul>
         </div>
         <div className="w-full h-full flex-1 flex flex-col justify-center items-center">
@@ -44,24 +56,34 @@ export default function Footer() {
             Liens Utiles
           </p>
           <ul className="w-full flex flex-col justify-center items-center gap-4 tracking-wider">
-            <NavLink
-              to="Signaler-un-bug"
-              className="hover:text-accent hover:underline"
-            >
-              <li>Signaler un bug</li>
-            </NavLink>
-            <NavLink to="/API" className="hover:text-accent hover:underline">
-              <li>API</li>
-            </NavLink>
-            <NavLink
-              to="/Contact"
-              className="hover:text-accent hover:underline"
-            >
-              <li>Nous contacter</li>
-            </NavLink>
-            <NavLink to="/FAQ" className="hover:text-accent hover:underline">
-              <li>FAQ</li>
-            </NavLink>
+            <li>
+              <NavLink
+                to="Signaler-un-bug"
+                className="hover:text-accent hover:underline"
+                aria-label="Signaler un bug"
+              >
+                Signaler un bug
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/API" className="hover:text-accent hover:underline" aria-label="API">
+                API
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/Contact"
+                className="hover:text-accent hover:underline"
+                aria-label="Nous contacter"
+              >
+                Nous contacter
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/FAQ" className="hover:text-accent hover:underline" aria-label="FAQ">
+                FAQ
+              </NavLink>
+            </li>
           </ul>
         </div>
         <div className="w-full h-full flex-1 flex flex-col justify-center items-center">
@@ -69,12 +91,16 @@ export default function Footer() {
             Pro & Services
           </p>
           <ul className="w-full flex flex-col justify-center items-center gap-4 tracking-wider">
-            <NavLink to="/Aide" className="hover:text-accent hover:underline">
-              <li>Aide</li>
-            </NavLink>
-            <NavLink to="/Media" className="hover:text-accent hover:underline">
-              <li>Media</li>
-            </NavLink>
+            <li>
+              <NavLink to="/Aide" className="hover:text-accent hover:underline" aria-label="Aide">
+                Aide
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/Media" className="hover:text-accent hover:underline" aria-label="Media">
+                Media
+              </NavLink>
+            </li>
           </ul>
         </div>
       </div>
