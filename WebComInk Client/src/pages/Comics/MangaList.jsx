@@ -150,11 +150,20 @@ export default function MangaList({
     setLastLoadedIndex(-1);
   }, [sort, filter, includedTags, excludedTags]);
 
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (error)
+    return (
+      <p className="text-red-500" role="alert">
+        {error}
+      </p>
+    );
 
   const renderSkeletons = (count = 6) =>
     Array.from({ length: count }).map((_, i) => (
-      <div key={i} className="flex flex-col items-center gap-2 animate-pulse">
+      <div
+        key={i}
+        className="flex flex-col items-center gap-2 animate-pulse"
+        aria-hidden="true"
+      >
         <div className="w-[120px] h-[180px] md:w-[180px] md:h-[270px] bg-gray-300 rounded" />
         <div className="h-4 w-24 bg-gray-300 rounded mt-2" />
         <div className="h-3 w-16 bg-gray-200 rounded" />
@@ -162,17 +171,21 @@ export default function MangaList({
     ));
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center px-4">
-      <motion.div
+    <section
+      className="min-h-screen w-full flex flex-col items-center px-4"
+      aria-label="Liste des mangas"
+    >
+      <motion.ul
         variants={containerVariants}
         initial="hidden"
         animate="visible"
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-x-6 gap-y-10 w-full"
+        role="list"
       >
         {mangas.map((manga, idx) => (
-          <motion.div key={manga.id} variants={itemVariants}>
+          <motion.li key={manga.id} variants={itemVariants}>
             <NavLink to={`/Comics/${manga.id}/${slugify(manga.title)}`}>
-              <div className="flex flex-col items-center gap-2">
+              <article className="flex flex-col items-center gap-2">
                 <motion.div
                   className="w-[140px] h-[210px] md:w-[180px] md:h-[270px] lg:w-[180px] lg:h-[270px] bg-gray-200 relative overflow-hidden"
                   whileHover={{ scale: 1.03 }}
@@ -181,7 +194,7 @@ export default function MangaList({
                   {idx <= lastLoadedIndex + 1 ? (
                     <img
                       src={manga.coverUrl || "/default-cover.png"}
-                      alt={`${manga.title} cover`}
+                      alt={`Couverture du manga ${manga.title}`}
                       className="w-full h-full object-cover transition-opacity duration-500 opacity-0"
                       loading="lazy"
                       decoding="async"
@@ -199,7 +212,10 @@ export default function MangaList({
                       }}
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-300 animate-pulse" />
+                    <div
+                      className="w-full h-full bg-gray-300 animate-pulse"
+                      aria-hidden="true"
+                    />
                   )}
                 </motion.div>
                 <div className="flex flex-col justify-center items-center text-center w-full">
@@ -207,13 +223,13 @@ export default function MangaList({
                     {manga.title}
                   </h3>
 
-                  <span className="text-xs text-gray-400 md:text-sm line-clamp-1">
+                  <p className="text-xs text-gray-400 md:text-sm line-clamp-1">
                     Auteur : {manga.authorName}
-                  </span>
+                  </p>
                   {manga.artistName !== manga.authorName && (
-                    <span className="text-xs text-gray-400 md:text-sm line-clamp-1">
+                    <p className="text-xs text-gray-400 md:text-sm line-clamp-1">
                       Artiste : {manga.artistName}
-                    </span>
+                    </p>
                   )}
                   {/* Afficher le dernier chapitre uniquement si le tri est "Chapitres récents" */}
                   {sort === "Chapitres récents" &&
@@ -224,13 +240,13 @@ export default function MangaList({
                       </span>
                     )}
                 </div>
-              </div>
+              </article>
             </NavLink>
-          </motion.div>
+          </motion.li>
         ))}
 
         {loading && renderSkeletons(9)}
-      </motion.div>
+      </motion.ul>
 
       <div ref={loadMoreRef} className="h-1 w-full" />
 
@@ -247,6 +263,6 @@ export default function MangaList({
           />
         </div>
       )}
-    </div>
+    </section>
   );
 }

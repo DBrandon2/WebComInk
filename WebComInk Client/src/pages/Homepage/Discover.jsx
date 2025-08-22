@@ -122,31 +122,43 @@ export default function Discover() {
     fetchMangaRating();
   }, [mangaOfTheDay]);
 
-  //
-
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-6 mx-3 lg:gap-y-12">
-      <div className="flex w-full h-full xl:justify-center ">
+    <section
+      aria-labelledby="discover-heading"
+      className="flex flex-col items-center justify-center gap-4 py-6 mx-3 lg:gap-y-12"
+    >
+      <header className="flex w-full h-full xl:justify-center ">
         <div className="flex w-full justify-center lg:justify-between items-center lg:px-7 ">
           {/* Titre et sous-titre */}
           <div className="flex flex-col">
-            <h1 className="text-3xl text-accent text-center lg:text-start font-medium tracking-wider lg:text-4xl">
+            <h2
+              id="discover-heading"
+              className="text-3xl text-accent text-center lg:text-start font-medium tracking-wider lg:text-4xl"
+            >
               Découverte du jour
-            </h1>
-            <h2 className="text-center lg:text-start font-light">
-              Découvre chaque jour une nouvelle œuvre !
             </h2>
+            <p className="text-center lg:text-start font-light">
+              Découvre chaque jour une nouvelle œuvre !
+            </p>
           </div>
-          <NavLink to="/comics" className="hidden lg:flex">
+          <NavLink
+            to="/comics"
+            className="hidden lg:flex"
+            aria-label="Découvrir plus de comics"
+          >
             <ButtonAnimated text="Decouvrir plus" />
           </NavLink>
         </div>
-      </div>
+      </header>
 
       {loading ? (
-        <div className="text-accent text-lg">Chargement...</div>
+        <div className="text-accent text-lg" aria-live="polite">
+          Chargement...
+        </div>
       ) : error ? (
-        <div className="text-red-400">{error}</div>
+        <div className="text-red-400" role="alert">
+          {error}
+        </div>
       ) : mangaOfTheDay ? (
         <div className="flex flex-col items-center w-full lg:flex-row lg:justify-center lg:gap-8 xl:gap-24">
           {/* Image */}
@@ -157,7 +169,7 @@ export default function Discover() {
           >
             <img
               src={getBestCoverUrl(mangaOfTheDay)}
-              alt={mangaOfTheDay.title}
+              alt={`Couverture du manga ${mangaOfTheDay.title}`}
               className="w-[380px] h-[570px] md:w-[520px] md:h-[750px] lg:w-full lg:h-full object-cover mx-auto transition-transform group-hover:scale-105"
               decoding="async"
               loading="lazy"
@@ -196,7 +208,7 @@ export default function Discover() {
                 {chapterNumber || mangaOfTheDay.chapter}
               </p>
             </div>
-            {/* Ajout des infos complémentaires */}
+            {/* Infos complémentaires */}
             <div className="flex flex-wrap w-full justify-center lg:justify-start gap-4 mt-2 text-sm">
               {/* Date de parution */}
               {"year" in mangaOfTheDay.originalData.attributes && (
@@ -283,6 +295,6 @@ export default function Discover() {
           </div>
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }

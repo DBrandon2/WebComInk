@@ -79,20 +79,31 @@ export default function Comics() {
   };
 
   return (
-    <div className="flex flex-col gap-8 mt-20 md:mt-24">
-      <Breadcrumb
-        items={[{ label: "Accueil", link: "/" }, { label: "Comics" }]}
-      />
+    <main
+      id="main-content"
+      role="main"
+      className="flex flex-col gap-8 mt-20 md:mt-24"
+    >
+      {/* Fil d’Ariane */}
+      <nav aria-label="Fil d’ariane">
+        <Breadcrumb
+          items={[{ label: "Accueil", link: "/" }, { label: "Comics" }]}
+        />
+      </nav>
+
+      {/* Barre haute mobile */}
       <TopBarMobile />
-      <div className="flex w-full h-full xl:justify-center">
+
+      {/* En-tête de page */}
+      <header className="flex w-full h-full xl:justify-center">
         <div className="flex w-full justify-center lg:justify-between items-center lg:px-7">
           <div className="flex flex-col items-center ">
             <h1 className="text-3xl text-accent text-center md:text-start font-medium tracking-wider md:text-4xl w-full">
               Liste des Mangas
             </h1>
-            <h2 className="text-center lg:text-start font-light w-[90%] md:w-full">
+            <p className="text-center lg:text-start font-light w-[90%] md:w-full">
               Le catalogue complet de WebComInk à ta disposition!
-            </h2>
+            </p>
             {(selectedTags.length > 0 || excludedTags.length > 0) && (
               <div className="mt-2 text-sm text-accent">
                 {selectedTags.length > 0 && (
@@ -110,9 +121,16 @@ export default function Comics() {
             )}
           </div>
         </div>
-      </div>
-      {/* Section centrée pour SwitchBtn et bouton Tous */}
-      <div className="w-full flex flex-col items-center justify-center mt-8 mb-2">
+      </header>
+
+      {/* Filtres de statut */}
+      <section
+        aria-labelledby="filters-status-heading"
+        className="w-full flex flex-col items-center justify-center mt-8 mb-2"
+      >
+        <h2 id="filters-status-heading" className="sr-only">
+          Filtres de statut
+        </h2>
         <SwitchBtn
           btnleft="En cours"
           btnright="Terminé"
@@ -128,14 +146,22 @@ export default function Comics() {
               : "bg-accent-hover text-gray-300"
           }`}
           onClick={handleAllClick}
+          aria-pressed={activeFilter === "tous"}
         >
           Tous
         </motion.button>
-      </div>
+      </section>
+
       {/* Layout deux colonnes sur desktop */}
       <div className="flex flex-col lg:flex-row gap-8 w-full">
         {/* Sidebar desktop responsive */}
-        <aside className="hidden lg:flex flex-col gap-8 w-full max-w-xs min-w-[220px] bg-dark-bg/70 rounded-xl h-fit self-start px-4 ml-8 ">
+        <aside
+          className="hidden lg:flex flex-col gap-8 w-full max-w-xs min-w-[220px] bg-dark-bg/70 rounded-xl h-fit self-start px-4 ml-8 "
+          aria-labelledby="sidebar-filters-heading"
+        >
+          <h2 id="sidebar-filters-heading" className="sr-only">
+            Filtres et tri
+          </h2>
           <SortComics
             activeSort={sort}
             onSortChange={handleSortChange}
@@ -155,8 +181,15 @@ export default function Comics() {
             />
           </div>
         </aside>
+
         {/* Contenu principal */}
-        <main className="flex-1 flex flex-col gap-6">
+        <section
+          className="flex-1 flex flex-col gap-6"
+          aria-labelledby="results-heading"
+        >
+          <h2 id="results-heading" className="sr-only">
+            Résultats
+          </h2>
           {/* SortComics et filtres cachés sur mobile, visibles dans la sidebar */}
           <div className="lg:hidden flex flex-col gap-4">
             <SortComics activeSort={sort} onSortChange={handleSortChange} />
@@ -181,8 +214,8 @@ export default function Comics() {
             includedTags={selectedTags}
             excludedTags={excludedTags}
           />
-        </main>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
