@@ -1,10 +1,10 @@
+// ...existing code...
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import { visualizer } from "vite-plugin-visualizer";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), visualizer()],
+  plugins: [react()],
   esbuild: {
     drop: process.env.NODE_ENV === "production" ? ["console", "debugger"] : [],
   },
