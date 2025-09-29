@@ -101,6 +101,10 @@ const signin = async (req, res) => {
         secure: true, // toujours true pour la prod cross-origin
         sameSite: "none", // toujours none pour cross-origin
       };
+      // Optionnel: forcer un domaine commun si fourni
+      if (process.env.COOKIE_DOMAIN) {
+        cookieOptions.domain = process.env.COOKIE_DOMAIN;
+      }
       if (remember) {
         cookieOptions.maxAge = 7 * 24 * 60 * 60 * 1000;
       }
@@ -179,12 +183,16 @@ const currentUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-  res.clearCookie("token", {
+  const clearOptions = {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
     path: "/",
-  });
+  };
+  if (process.env.COOKIE_DOMAIN) {
+    clearOptions.domain = process.env.COOKIE_DOMAIN;
+  }
+  res.clearCookie("token", clearOptions);
   res.status(200).json({ message: "Déconnexion réussie" });
 };
 
