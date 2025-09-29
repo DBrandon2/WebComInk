@@ -25,7 +25,7 @@ app.use(
         callback(new Error("Not allowed by CORS"), false); // refuser
       }
     },
-    credentials: true, // si tu utilises cookies / auth
+    credentials: true,
     exposedHeaders: ["Authorization"], // <-- Permet au front de lire le header Authorization
   })
 );

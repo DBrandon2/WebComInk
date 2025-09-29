@@ -260,5 +260,5 @@ module.exports = {
   fetchTags,
   fetchChapterById,
   fetchMangasByTitle, // nouvelle fonction exportée
-  limit, // <-- ajout de l'export de limit
+  limit, //ajout de l'export de limit
 };
