@@ -29,6 +29,14 @@
   --color-btn-color: #ff9900;
 }
 
+/* SwitchBtn: en thème clair, texte des boutons non actifs en blanc sur fond orange */
+.theme-clair .switchbtn-btn {
+  color: #e5e7eb;
+}
+.theme-clair .switchbtn-btn.is-active {
+  color: var(--color-dark-bg);
+}
+
 /* Polices */
 :root,
 .font-defaut {

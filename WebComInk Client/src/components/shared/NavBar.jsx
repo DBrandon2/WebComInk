@@ -51,7 +51,7 @@ export default function NavBar() {
                   <motion.div
                     whileTap={{ scale: 0.9 }}
                     className={`relative flex items-center justify-center ${
-                      isActive ? "text-white" : "text-gray-500"
+                      isActive ? "text-light-bg" : "text-gray-500"
                     }`}
                   >
                     <motion.div

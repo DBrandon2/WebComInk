@@ -46,8 +46,8 @@ export default function SwitchBtn({
       {/* Bouton gauche */}
       <div className="flex-1 relative z-10 overflow-hidden">
         <button
-          className={`w-full h-full transition-colors duration-300 font-semibold relative z-10 cursor-pointer ${
-            isLeftActive && showBar ? "text-dark-bg" : "text-gray-400"
+          className={`w-full h-full transition-colors duration-300 font-semibold relative z-10 cursor-pointer switchbtn-btn ${
+            isLeftActive && showBar ? "is-active text-dark-bg" : "text-gray-400"
           }`}
           onClick={() => onSwitchClick(btnleft)}
         >
@@ -58,8 +58,10 @@ export default function SwitchBtn({
       {/* Bouton droite */}
       <div className="flex-1 relative z-10 overflow-hidden">
         <button
-          className={`w-full h-full transition-colors duration-300 font-semibold relative z-10 cursor-pointer ${
-            isRightActive && showBar ? "text-dark-bg" : "text-gray-400"
+          className={`w-full h-full transition-colors duration-300 font-semibold relative z-10 cursor-pointer switchbtn-btn ${
+            isRightActive && showBar
+              ? "is-active text-dark-bg"
+              : "text-gray-400"
           }`}
           onClick={() => onSwitchClick(btnright)}
         >

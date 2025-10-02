@@ -5,7 +5,7 @@ const commentSchema = new mongoose.Schema(
     chapterId: {
       type: String,
       required: true,
-      index: true, // Index pour optimiser les requêtes par chapitre
+      index: true,
     },
     mangaId: {
       type: String,
