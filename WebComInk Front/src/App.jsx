@@ -26,15 +26,6 @@ export default function App() {
         </Suspense>
 
         <ScrollRestoration />
-
-        {/* Diagnostic visible en bas pour confirmer le montage */}
-        <div style={{ padding: 24, fontFamily: "sans-serif", color: "#fff" }}>
-          <h1 style={{ fontSize: 24, marginBottom: 8 }}>Diagnostic: App monté</h1>
-          <p style={{ opacity: 0.9 }}>Test: Theme + Auth provider encapsulent l'app.</p>
-          <p style={{ marginTop: 12, fontSize: 13, opacity: 0.8 }}>
-            Recharge la page et dis-moi si tu vois ce message.
-          </p>
-        </div>
       </AuthProvider>
     </ThemeProvider>
   );

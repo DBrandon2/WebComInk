@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import React, { lazy } from "react";
 import { rootLoader } from "./loaders/rootLoader";
-const Auth = lazy(() => import("./pages/forms/Auth"));
+const Auth = lazy(() => import("./pages/Forms/Auth"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage"));
 const Profile = lazy(() => import("./pages/Profile/Profile"));
 const UserConnected = lazy(() =>
@@ -26,8 +26,8 @@ const Contact = lazy(() => import("./pages/Legal/Contact"));
 const FAQ = lazy(() => import("./pages/Legal/FAQ"));
 const Media = lazy(() => import("./pages/Legal/Media"));
 const ValidationSuccess = lazy(() => import("./pages/Legal/ValidationSuccess"));
-const ForgotPass = lazy(() => import("./pages/forms/Security/ForgotPass"));
-const ResetPass = lazy(() => import("./pages/forms/Security/ResetPass"));
+const ForgotPass = lazy(() => import("./pages/Forms/Security/ForgotPass"));
+const ResetPass = lazy(() => import("./pages/Forms/Security/ResetPass"));
 const ComicsDetails = lazy(() => import("./pages/Comics/ComicsDetails"));
 const ChapterReader = lazy(() => import("./pages/Comics/ChapterReader"));
 
