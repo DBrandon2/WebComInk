@@ -124,6 +124,7 @@ export default function Auth() {
         toast.error("Connexion échouée");
       }
     } catch (error) {
+      console.error('submitLogin error:', error);
       toast.error("Une erreur est survenue");
     }
   }
@@ -139,6 +140,7 @@ export default function Auth() {
         toast.error(feedback.message);
       }
     } catch (error) {
+      console.error('submitRegister error:', error);
       toast.error("Une erreur est survenue");
     }
   }
@@ -148,7 +150,7 @@ export default function Auth() {
     setActiveFilter(newFilter);
   };
   return (
-    <div className="w-full min-h-screen bg-dark-bg flex flex-col">
+    <div className="w-full min-h-screen bg-dark-bg flex flex-col ">
       <Breadcrumb
         items={[
           { label: "Accueil", link: "/" },
@@ -169,7 +171,7 @@ export default function Auth() {
       <div className="flex-1 flex flex-col justify-start items-center px-6 pb-8 w-full max-w-xl mx-auto">
         {/* Titre + texte */}
         <div className="flex-col items-center mb-8 text-center hidden lg:flex">
-          <h1 className="text-2xl text-accent font-medium tracking-wider lg:text-4xl mb-2">
+          <h1 className="text-2xl text-accent font-medium tracking-wider lg:text-4xl mb-2 mt-8">
             {activeFilter === "Connexion"
               ? "Tu n'es pas connecté ?"
               : "Rejoins-nous !"}

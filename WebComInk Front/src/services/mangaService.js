@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+import { toApiUrl } from "../utils/api";
 
 export async function getMangas({
   limit = 15,
@@ -56,7 +56,7 @@ export async function getMangas({
   });
 
   try {
-    const res = await axios.get(`${API_BASE_URL}/manga`, { params });
+  const res = await axios.get(toApiUrl(`/manga`), { params });
     return res.data;
   } catch (error) {
     console.error('getMangas error:', error);
@@ -76,7 +76,7 @@ export async function getMangasByTitle({
 }) {
   if (!title || title.length < 2) return { result: "ok", data: [] };
   try {
-    const res = await axios.get(`${API_BASE_URL}/manga/search`, {
+    const res = await axios.get(toApiUrl(`/manga/search`), {
       params: { title, limit, lang, includes },
     });
     return res.data;
@@ -89,7 +89,7 @@ export async function getMangasByTitle({
 // Récupère tous les tags depuis l'API MangaDex via le proxy backend
 export async function getAllTags() {
   try {
-    const res = await axios.get(`${API_BASE_URL}/proxy/manga/tag`);
+  const res = await axios.get(toApiUrl(`/proxy/manga/tag`));
     return res.data.data; // tableau de tags
   } catch (error) {
     console.error('getAllTags error:', error);

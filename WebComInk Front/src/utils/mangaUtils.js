@@ -2,7 +2,7 @@
  * Utilitaires pour le traitement des données manga
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { toApiUrl } from "./api";
 
 /**
  * Enrichit les données manga avec des informations formatées
@@ -30,9 +30,9 @@ export function enrichMangas(mangas) {
     const coverRel = relationships.find((rel) => rel.type === "cover_art");
     const coverFileName = coverRel?.attributes?.fileName;
 
-    // Correction : utilise le proxy et pas de double extension
+    // Correction : utilise le proxy via backend (toApiUrl) et pas de double extension
     const coverUrl = coverFileName
-      ? `${API_BASE_URL}/proxy/covers/${manga.id}/${coverFileName}`
+      ? toApiUrl(`/proxy/covers/${manga.id}/${coverFileName}`)
       : "/default-cover.png";
 
     // Extraction des auteurs
@@ -100,14 +100,14 @@ export function extractMangaTitle(manga) {
  * @param {string} size - Taille de l'image (par défaut: "256")
  * @returns {string} URL de la couverture
  */
-export function getMangaCoverUrl(manga, size = "256") {
+export function getMangaCoverUrl(manga) {
   const relationships = manga.relationships || [];
   const coverRel = relationships.find((rel) => rel.type === "cover_art");
   const coverFileName = coverRel?.attributes?.fileName;
 
   // Correction : utilise le proxy et pas de double extension
   return coverFileName
-    ? `${API_BASE_URL}/proxy/covers/${manga.id}/${coverFileName}`
+    ? toApiUrl(`/proxy/covers/${manga.id}/${coverFileName}`)
     : "/default-cover.png";
 }
 
@@ -148,7 +148,7 @@ export async function getChapterDetails(chapterId) {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/proxy/chapter/${chapterId}`);
+  const response = await fetch(toApiUrl(`/proxy/chapter/${chapterId}`));
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -158,7 +158,7 @@ export async function getChapterDetails(chapterId) {
       volume: data.data?.attributes?.volume || "N/A",
       title: data.data?.attributes?.title || "",
     };
-  } catch (error) {
+  } catch {
     return { chapter: "N/A", volume: "N/A" };
   }
 }
@@ -268,13 +268,13 @@ export function slugify(str) {
 export async function getMangaById(mangaId) {
   if (!mangaId) return null;
   try {
-    const response = await fetch(`${API_BASE_URL}/proxy/manga/${mangaId}`);
+  const response = await fetch(toApiUrl(`/proxy/manga/${mangaId}`));
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
     return data.data;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

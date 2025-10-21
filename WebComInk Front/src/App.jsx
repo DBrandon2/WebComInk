@@ -13,7 +13,8 @@ export default function App() {
       <AuthProvider>
         <NavBar />
 
-        <Suspense
+        <div className="mt-0 lg:mt-20">
+          <Suspense
           fallback={
             <div className="w-full flex items-center justify-center py-12">
               <div className="text-center">
@@ -24,6 +25,7 @@ export default function App() {
         >
           <Outlet key={location.key} />
         </Suspense>
+        </div>
 
         <ScrollRestoration />
       </AuthProvider>

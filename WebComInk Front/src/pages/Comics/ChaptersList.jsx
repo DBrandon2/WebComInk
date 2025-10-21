@@ -4,8 +4,8 @@ import frFlag from "../../assets/flags/fr.svg";
 import enFlag from "../../assets/flags/en.svg";
 import { FaArrowDown91 } from "react-icons/fa6";
 import { FaArrowDown19 } from "react-icons/fa6";
-import { motion } from "framer-motion";
 import { useReadingHistory } from "./ChapterReader/hooks/useReadingHistory";
+import { motion } from "framer-motion";
 
 export default function ChaptersList({ mangaId }) {
   const { slug } = useParams();

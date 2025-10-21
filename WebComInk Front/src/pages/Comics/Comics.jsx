@@ -18,7 +18,10 @@ export default function Comics() {
       if (saved) {
         return saved;
       }
-    } catch {}
+    } catch {
+      console.log("Erreur lors de la récupération des filtres depuis le sessionStorage");
+      
+    }
     return {
       sort: location.state?.sort || "Popularité",
       activeFilter: "enCours",
@@ -84,7 +87,6 @@ export default function Comics() {
       role="main"
       className="flex flex-col gap-8 mt-20 md:mt-24"
     >
-      {/* Fil d’Ariane */}
       <nav aria-label="Fil d’ariane">
         <Breadcrumb
           items={[{ label: "Accueil", link: "/" }, { label: "Comics" }]}

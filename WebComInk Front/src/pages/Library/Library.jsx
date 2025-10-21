@@ -226,7 +226,25 @@ export default function Library() {
       try {
         setLoading(true);
         const data = await getFavorites();
-        setFavorites(data);
+        // Normaliser rapidement les coverImage : ajouter '/api' avant '/proxy' si manquant
+        const normalized = (data || []).map((fav) => {
+          if (!fav || !fav.coverImage) return fav;
+          try {
+            let ci = fav.coverImage;
+            // Si l'URL contient '/proxy/' mais pas '/api/proxy/' -> insérer '/api'
+            if (ci.includes("/proxy/") && !ci.includes("/api/proxy/")) {
+              ci = ci.replace("/proxy/", "/api/proxy/");
+            }
+            // Si chemin relatif '/proxy' -> préfixer '/api'
+            else if (ci.startsWith("/proxy")) {
+              ci = `/api${ci}`;
+            }
+            return { ...fav, coverImage: ci };
+          } catch {
+            return fav;
+          }
+        });
+        setFavorites(normalized);
         setError(null);
       } catch (err) {
         setError("Impossible de charger vos favoris. Veuillez vous connecter.");
@@ -491,11 +509,15 @@ export default function Library() {
     : favorites;
 
   return (
-    <div className="container mx-auto p-4 mt-12">
-      <Breadcrumb
-        items={[{ label: "Accueil", link: "/" }, { label: "Bibliothèque" }]}
-      />
-      <TopBarMobile />
+    <main id="main-content" role="main" className="flex flex-col gap-8 mt-20 md:mt-24">
+      <nav aria-label="Fil d’ariane">
+        <Breadcrumb
+          items={[{ label: "Accueil", link: "/" }, { label: "Bibliothèque" }]}
+        />
+      </nav>
+
+      <div className="container mx-auto p-4">
+        <TopBarMobile />
       {/* Onglets de tri dynamiques */}
       {hasCategories ? (
         <div className="flex items-center justify-center mb-4">
@@ -765,5 +787,6 @@ export default function Library() {
         </div>
       )}
     </div>
+    </main>
   );
 }

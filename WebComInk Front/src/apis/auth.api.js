@@ -150,93 +150,73 @@ export async function markChapterAsRead({
   chapterTitle,
   progress = 100,
 }) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/user/reading-history`, {
-      method: "POST",
-      body: JSON.stringify({
-        mangaId,
-        mangaTitle,
-        mangaSlug,
-        coverImage,
-        chapterId,
-        chapterNumber,
-        chapterTitle,
-        progress,
-      }),
-      headers: {
-        "Content-type": "application/json",
-      },
-      credentials: "include",
-    });
-    return await response.json();
-  } catch (error) {
-    throw error;
-  }
+  const response = await fetch(`${API_BASE_URL}/user/reading-history`, {
+    method: "POST",
+    body: JSON.stringify({
+      mangaId,
+      mangaTitle,
+      mangaSlug,
+      coverImage,
+      chapterId,
+      chapterNumber,
+      chapterTitle,
+      progress,
+    }),
+    headers: {
+      "Content-type": "application/json",
+    },
+    credentials: "include",
+  });
+  return await response.json();
 }
 
 export async function getReadingHistory() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/user/reading-history`, {
-      method: "GET",
-      credentials: "include",
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error("Erreur lors de la récupération de l'historique");
-    }
-  } catch (error) {
-    throw error;
+  const response = await fetch(`${API_BASE_URL}/user/reading-history`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (response.ok) {
+    return await response.json();
+  } else {
+    throw new Error("Erreur lors de la récupération de l'historique");
   }
 }
 
 export async function getLastReadChapter(mangaId) {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/user/last-read-chapter/${mangaId}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
-    );
-    if (response.ok) {
-      return await response.json();
-    } else {
-      throw new Error("Erreur lors de la récupération du dernier chapitre lu");
+  const response = await fetch(
+    `${API_BASE_URL}/user/last-read-chapter/${mangaId}`,
+    {
+      method: "GET",
+      credentials: "include",
     }
-  } catch (error) {
-    throw error;
+  );
+  if (response.ok) {
+    return await response.json();
+  } else {
+    throw new Error("Erreur lors de la récupération du dernier chapitre lu");
   }
 }
 
 // --- Mot de passe oublié ---
 export async function forgotPassword(email) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/user/forgot-password`, {
-      method: "POST",
-      body: JSON.stringify({ email }),
-      headers: {
-        "Content-type": "application/json",
-      },
-    });
-    return await response.json();
-  } catch (error) {
-    throw error;
-  }
+  const response = await fetch(`${API_BASE_URL}/user/forgot-password`, {
+    method: "POST",
+    body: JSON.stringify({ email }),
+    headers: {
+      "Content-type": "application/json",
+    },
+  });
+  return await response.json();
 }
 
 // --- Réinitialisation du mot de passe ---
 export async function resetPassword({ token, password }) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/user/reset-password`, {
-      method: "POST",
-      body: JSON.stringify({ token, password }),
-      headers: {
-        "Content-type": "application/json",
-      },
-    });
-    return await response.json();
-  } catch (error) {
-    throw error;
-  }
+  const response = await fetch(`${API_BASE_URL}/user/reset-password`, {
+    method: "POST",
+    body: JSON.stringify({ token, password }),
+    headers: {
+      "Content-type": "application/json",
+    },
+  });
+  return await response.json();
 }
