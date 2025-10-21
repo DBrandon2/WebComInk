@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import React, { lazy } from "react";
 import { rootLoader } from "./loaders/rootLoader";
-const Auth = lazy(() => import("./pages/forms/Auth"));
+const Auth = lazy(() => import("./pages/Forms/Auth"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage"));
 const Profile = lazy(() => import("./pages/Profile/Profile"));
 const UserConnected = lazy(() =>
