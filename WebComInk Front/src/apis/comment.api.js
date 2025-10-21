@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 // Récupérer les commentaires d'un chapitre
 export async function getCommentsByChapter(chapterId, page = 1, limit = 20) {
@@ -18,6 +18,7 @@ export async function getCommentsByChapter(chapterId, page = 1, limit = 20) {
     const data = await response.json();
     return data;
   } catch (error) {
+    console.error('getCommentsByChapter error:', error);
     throw error;
   }
 }
@@ -42,6 +43,7 @@ export async function createComment(commentData) {
     const data = await response.json();
     return data;
   } catch (error) {
+    console.error('createComment error:', error);
     throw error;
   }
 }
@@ -66,6 +68,7 @@ export async function updateComment(commentId, content) {
     const data = await response.json();
     return data;
   } catch (error) {
+    console.error('updateComment error:', error);
     throw error;
   }
 }
@@ -86,6 +89,7 @@ export async function deleteComment(commentId) {
     const data = await response.json();
     return data;
   } catch (error) {
+    console.error('deleteComment error:', error);
     throw error;
   }
 }
@@ -106,6 +110,7 @@ export async function toggleLikeComment(commentId) {
     const data = await response.json();
     return data;
   } catch (error) {
+    console.error('toggleLikeComment error:', error);
     throw error;
   }
 }

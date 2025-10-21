@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 export async function getMangas({
   limit = 15,
@@ -59,6 +59,7 @@ export async function getMangas({
     const res = await axios.get(`${API_BASE_URL}/manga`, { params });
     return res.data;
   } catch (error) {
+    console.error('getMangas error:', error);
     throw new Error(
       error.response?.data?.message ||
         "Erreur lors de la récupération des mangas"
@@ -80,6 +81,7 @@ export async function getMangasByTitle({
     });
     return res.data;
   } catch (error) {
+    console.error('getMangasByTitle error:', error);
     return { result: "error", data: [] };
   }
 }
@@ -90,6 +92,7 @@ export async function getAllTags() {
     const res = await axios.get(`${API_BASE_URL}/proxy/manga/tag`);
     return res.data.data; // tableau de tags
   } catch (error) {
+    console.error('getAllTags error:', error);
     throw new Error(
       error.response?.data?.message || "Erreur lors de la récupération des tags"
     );

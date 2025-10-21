@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 export async function signin(values) {
   try {
@@ -17,7 +17,10 @@ export async function signin(values) {
       localStorage.setItem("jwt_token", token);
     }
     return { ...userConnected, token };
-  } catch (error) {}
+  } catch (error) {
+    console.error('signin error:', error);
+    throw error;
+  }
 }
 
 export async function signup(values) {
@@ -31,7 +34,10 @@ export async function signup(values) {
     });
     const message = await response.json();
     return message;
-  } catch (error) {}
+  } catch (error) {
+    console.error('signup error:', error);
+    throw error;
+  }
 }
 
 export async function update(values) {
@@ -51,7 +57,10 @@ export async function update(values) {
     const updatedUser = await response.json();
 
     return updatedUser;
-  } catch (error) {}
+  } catch (error) {
+    console.error('update user error:', error);
+    throw error;
+  }
 }
 
 export async function updateAvatar(values) {
@@ -66,7 +75,10 @@ export async function updateAvatar(values) {
     const updatedUserAvatar = await response.json();
 
     return updatedUserAvatar;
-  } catch (error) {}
+  } catch (error) {
+    console.error('updateAvatar error:', error);
+    throw error;
+  }
 }
 
 export async function getCurrentUser() {
@@ -80,7 +92,10 @@ export async function getCurrentUser() {
     } else {
       return null;
     }
-  } catch (error) {}
+  } catch (error) {
+    console.error('getCurrentUser error:', error);
+    return null;
+  }
 }
 
 export async function signOut() {
@@ -102,6 +117,7 @@ export async function requestEmailChange({ _id, newEmail, password }) {
     });
     return await response.json();
   } catch (error) {
+    console.error('requestEmailChange error:', error);
     throw error;
   }
 }
@@ -118,6 +134,7 @@ export async function deleteAccount({ userId, confirmationWord }) {
     });
     return await response.json();
   } catch (error) {
+    console.error('deleteAccount error:', error);
     throw error;
   }
 }
