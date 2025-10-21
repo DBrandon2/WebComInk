@@ -32,7 +32,7 @@ app.use(
 
 const routes = require("./routes");
 
-app.use(routes);
+app.use("/api", routes);
 
 mongoose
   .connect(config.mongoDb.uri)

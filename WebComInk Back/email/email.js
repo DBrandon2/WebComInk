@@ -1,8 +1,18 @@
 const nodemailer = require("nodemailer");
-const { Resend } = require("resend");
 
 const useResend = Boolean(process.env.RESEND_API_KEY);
-const resend = useResend ? new Resend(process.env.RESEND_API_KEY) : null;
+let Resend = null;
+let resend = null;
+
+if (useResend) {
+  try {
+    Resend = require("resend").Resend;
+    resend = new Resend(process.env.RESEND_API_KEY);
+  } catch (error) {
+    console.warn("Resend module non disponible, utilisation de nodemailer uniquement");
+    // Fallback vers nodemailer même si useResend était true
+  }
+}
 
 const transporter = !useResend
   ? nodemailer.createTransport({
